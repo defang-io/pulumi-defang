@@ -129,7 +129,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     }
     if (news.deploy) {
       if (
-        !Number.isInteger(news.deploy.replicas) ||
+        !Number.isInteger(news.deploy.replicas!) ||
         news.deploy.replicas! < 0
       ) {
         return {
