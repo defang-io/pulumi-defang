@@ -4,7 +4,7 @@ import assert = require("assert");
 
 import * as fabric from "./protos/v1/fabric_grpc_pb";
 import * as pb from "./protos/v1/fabric_pb";
-import { deleteUndefined, optionals, setsEqual } from "./utils";
+import { deleteUndefined, isEqual, optionals } from "./utils";
 
 // Connect to our gRPC server
 async function connect(
@@ -24,8 +24,7 @@ async function connect(
   return client;
 }
 
-async function updatex(inputs: DefangServiceInputs): Promise<pb.Service> {
-  const client = await connect(inputs.fabricDNS, inputs.name);
+function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   const service = new pb.Service();
   service.setName(inputs.name);
   service.setImage(inputs.image);
@@ -49,6 +48,12 @@ async function updatex(inputs: DefangServiceInputs): Promise<pb.Service> {
   Object.entries(inputs.environment ?? {}).forEach(([key, value]) => {
     service.getEnvironmentMap().set(key, value);
   });
+  return service;
+}
+
+async function updatex(inputs: DefangServiceInputs): Promise<pb.Service> {
+  const service = convertServiceInputs(inputs);
+  const client = await connect(inputs.fabricDNS, inputs.name);
   const result = await new Promise<pb.Service>((resolve, reject) =>
     client.update(service, (err, res) => (err ? reject(err) : resolve(res!)))
   );
@@ -56,17 +61,13 @@ async function updatex(inputs: DefangServiceInputs): Promise<pb.Service> {
   return result;
 }
 
-function convertPorts(ports?: Port[]): pb.Port[] {
-  return (
-    ports?.map((p) => {
-      const port = new pb.Port();
-      port.setTarget(p.target);
-      port.setProtocol(
-        p.protocol === "udp" ? pb.Protocol.UDP : pb.Protocol.TCP
-      );
-      return port;
-    }) ?? []
-  );
+function convertPorts(ports: Port[] = []): pb.Port[] {
+  return ports.map((p) => {
+    const port = new pb.Port();
+    port.setTarget(p.target);
+    port.setProtocol(p.protocol === "udp" ? pb.Protocol.UDP : pb.Protocol.TCP);
+    return port;
+  });
 }
 
 interface DefangServiceInputs {
@@ -79,19 +80,6 @@ interface DefangServiceInputs {
   ports?: Port[];
   environment?: { [key: string]: string };
   // build?: string;
-}
-
-function envEqual(a: string[][], b: { [key: string]: string } = {}): boolean {
-  return (
-    a.length === Object.keys(b).length && a.every(([k, v]) => b[k!] === v)
-  );
-}
-
-function portsEqual(a: pb.Port.AsObject[], b?: Port[]): boolean {
-  function toSet(p?: pb.Port.AsObject[]): Set<number> {
-    return new Set(p?.map((p) => p.protocol * 1e6 + p.target));
-  }
-  return setsEqual(toSet(convertPorts(b).map((p) => p.toObject())), toSet(a));
 }
 
 interface DefangServiceOutputs {
@@ -107,7 +95,7 @@ function toOutputs(
   return {
     fabricDNS,
     service: deleteUndefined(service.toObject()),
-    fqdn: fabricDNS.replace(/^fabric-/, service.getName()+"."), // FIXME: fabric should return this
+    fqdn: fabricDNS.replace(/^fabric-/, service.getName() + "."), // FIXME: fabric should return this
   };
 }
 
@@ -186,10 +174,10 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
   ): Promise<pulumi.dynamic.DiffResult> {
     assert.equal(id, oldOutputs.service.name);
     return {
-      changes:
-        newInputs.image !== oldOutputs.service.image ||
-        !portsEqual(oldOutputs.service.portsList, newInputs.ports) ||
-        !envEqual(oldOutputs.service.environmentMap, newInputs.environment),
+      changes: !isEqual(
+        oldOutputs.service,
+        convertServiceInputs(newInputs).toObject()
+      ),
       replaces: [
         ...optionals(oldOutputs.service.name !== newInputs.name, "name"),
         ...optionals(oldOutputs.fabricDNS !== newInputs.fabricDNS, "fabricDNS"),

@@ -23,7 +23,6 @@
   ],
   "homepage": "https://github.com/defang-io/pulumi-defang#readme",
   "license": "ISC",
-  "main": "index.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/defang-io/pulumi-defang.git"

@@ -1,14 +1,8 @@
 import assert = require("assert");
 
-export type Primitive = string | number | boolean | null | undefined;
-
 // Like `optionals` from Nixpkgs, returns [] if the condition is false.
 export function optionals<T>(cond: any, ...args: T[]): T[] {
   return cond ? args : [];
-}
-
-export function setsEqual<T extends Primitive>(a: Set<T>, b: Set<T>): boolean {
-  return a.size === b.size && [...a].every((v) => b.has(v));
 }
 
 export function mapObject(
@@ -32,3 +26,25 @@ export function deleteUndefined<T extends {}>(obj: T): T {
 }
 
 assert.deepStrictEqual(deleteUndefined({ a: 1, b: undefined }), { a: 1 });
+
+export function sortObject(obj: any): any {
+  return typeof obj === "object" && !Array.isArray(obj) && obj !== null
+    ? Object.keys(obj)
+        .sort()
+        .reduce((p: any, k: string) => ((p[k] = obj[k]), p), {})
+    : obj;
+}
+
+assert.deepStrictEqual(sortObject({ b: 2, a: 1 }), { a: 1, b: 2 });
+
+export function stringify(obj: any): string {
+  return JSON.stringify(obj, (_, v) => sortObject(v));
+}
+
+assert.strictEqual(stringify({ b: 2, a: 1 }), '{"a":1,"b":2}');
+
+export function isEqual(a: any, b: any): boolean {
+  return stringify(a) === stringify(b);
+}
+
+assert(isEqual({ b: 2, a: 1 }, { a: 1, b: 2, c: undefined }));
