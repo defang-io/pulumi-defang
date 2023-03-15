@@ -251,7 +251,7 @@ export interface DefangServiceArgs {
 }
 
 export class DefangService extends pulumi.dynamic.Resource {
-  public readonly fabricDNS?: pulumi.Output<string>;
+  public readonly fabricDNS!: pulumi.Output<string>;
   public readonly fqdn!: pulumi.Output<string>;
   public readonly name!: pulumi.Output<string>;
 
@@ -266,6 +266,6 @@ export class DefangService extends pulumi.dynamic.Resource {
     if (!args.fabricDNS) {
       args.fabricDNS = "fabric-dev.gnafed.click";
     }
-    super(defangServiceProvider, name, { fqdn: undefined, args }, opts);
+    super(defangServiceProvider, name, { fqdn: undefined, ...args }, opts);
   }
 }
