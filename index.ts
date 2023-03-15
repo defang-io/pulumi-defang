@@ -12,8 +12,8 @@ async function connect(
   authority: string
 ): Promise<fabric.FabricControllerClient> {
   const client = new fabric.FabricControllerClient(
-    fabricDNS,
-    grpc.credentials.createInsecure(), // FIXME: use mTLS
+    fabricDNS + ":80",
+    grpc.credentials.createInsecure(), // FIXME: use TLS
     { "grpc.default_authority": authority }
   );
   await new Promise<void>((resolve, reject) =>
@@ -97,7 +97,7 @@ function portsEqual(a: pb.Port.AsObject[], b?: Port[]): boolean {
 interface DefangServiceOutputs {
   fabricDNS: string;
   service: pb.Service.AsObject; // this might contain undefined, which is not allowed
-  // fqdn: string; TODO: fabric should return this
+  fqdn: string;
 }
 
 function toOutputs(
@@ -107,6 +107,7 @@ function toOutputs(
   return {
     fabricDNS,
     service: deleteUndefined(service.toObject()),
+    fqdn: fabricDNS.replace(/^fabric\.dev\./, service.getName()+".lb."), // FIXME: fabric should return this
   };
 }
 
@@ -262,6 +263,8 @@ export interface DefangServiceArgs {
 }
 
 export class DefangService extends pulumi.dynamic.Resource {
+  public readonly fqdn!: pulumi.Output<string>;
+
   constructor(
     name: string,
     args: DefangServiceArgs,
@@ -271,7 +274,7 @@ export class DefangService extends pulumi.dynamic.Resource {
       args.name = name;
     }
     if (!args.fabricDNS) {
-      args.fabricDNS = "fabric.dev.gnafed.click:80";
+      args.fabricDNS = "fabric.dev.gnafed.click";
     }
     super(defangServiceProvider, name, args, opts);
   }
