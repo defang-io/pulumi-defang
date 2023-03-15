@@ -107,7 +107,7 @@ function toOutputs(
   return {
     fabricDNS,
     service: deleteUndefined(service.toObject()),
-    fqdn: fabricDNS.replace(/^fabric\.dev\./, service.getName()+".lb."), // FIXME: fabric should return this
+    fqdn: fabricDNS.replace(/^fabric-/, service.getName()+"."), // FIXME: fabric should return this
   };
 }
 
@@ -274,7 +274,7 @@ export class DefangService extends pulumi.dynamic.Resource {
       args.name = name;
     }
     if (!args.fabricDNS) {
-      args.fabricDNS = "fabric.dev.gnafed.click";
+      args.fabricDNS = "fabric-dev.gnafed.click";
     }
     super(defangServiceProvider, name, args, opts);
   }
