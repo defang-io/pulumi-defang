@@ -1,5 +1,5 @@
 {
-  "name": "pulumi-defang",
+  "name": "@defang-io/pulumi-defang",
   "version": "0.1.0",
   "author": "Defang Software Labs Inc.",
   "bugs": {
