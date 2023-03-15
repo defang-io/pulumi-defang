@@ -251,6 +251,7 @@ export interface DefangServiceArgs {
 }
 
 export class DefangService extends pulumi.dynamic.Resource {
+  public readonly fabricDNS!: pulumi.Output<string>;
   public readonly fqdn!: pulumi.Output<string>;
 
   constructor(
