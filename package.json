@@ -31,6 +31,8 @@
   "scripts": {
     "build": "tsc && cp -r protos lib/",
     "prepublish": "npm run build",
+    "preversion": "npm run build",
+    "postversion": "git push --follow-tags",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
