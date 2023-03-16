@@ -3,6 +3,26 @@
 
 import * as jspb from "google-protobuf";
 
+export class Token extends jspb.Message {
+  getAccessToken(): string;
+  setAccessToken(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Token.AsObject;
+  static toObject(includeInstance: boolean, msg: Token): Token.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: Token, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Token;
+  static deserializeBinaryFromReader(message: Token, reader: jspb.BinaryReader): Token;
+}
+
+export namespace Token {
+  export type AsObject = {
+    accessToken: string,
+  }
+}
+
 export class Void extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Void.AsObject;
@@ -78,6 +98,26 @@ export class Services extends jspb.Message {
 export namespace Services {
   export type AsObject = {
     servicesList: Array<Service.AsObject>,
+  }
+}
+
+export class ServiceID extends jspb.Message {
+  getName(): string;
+  setName(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ServiceID.AsObject;
+  static toObject(includeInstance: boolean, msg: ServiceID): ServiceID.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ServiceID, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ServiceID;
+  static deserializeBinaryFromReader(message: ServiceID, reader: jspb.BinaryReader): ServiceID;
+}
+
+export namespace ServiceID {
+  export type AsObject = {
+    name: string,
   }
 }
 

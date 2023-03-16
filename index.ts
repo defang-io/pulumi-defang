@@ -6,15 +6,27 @@ import * as fabric from "./protos/v1/fabric_grpc_pb";
 import * as pb from "./protos/v1/fabric_pb";
 import { deleteUndefined, isEqual, optionals } from "./utils";
 
+let accessToken = process.env["DEFANG_ACCESS_TOKEN"];
+
+export function setAccessToken(token: string) {
+  accessToken = token;
+}
+
 // Connect to our gRPC server
 async function connect(
-  fabricDNS: string,
-  authority: string
+  fabricDNS: string
 ): Promise<fabric.FabricControllerClient> {
   const client = new fabric.FabricControllerClient(
-    fabricDNS + ":80",
-    grpc.credentials.createInsecure(), // FIXME: use TLS
-    { "grpc.default_authority": authority }
+    fabricDNS + ":443",
+    grpc.credentials.combineChannelCredentials(
+      grpc.credentials.createSsl(),
+      grpc.credentials.createFromMetadataGenerator((_, callback) => {
+        const metadata = new grpc.Metadata();
+        // TODO: automatically generate a new token once it expires
+        metadata.set("authorization", "Bearer " + accessToken!);
+        callback(null, metadata);
+      })
+    )
   );
   await new Promise<void>((resolve, reject) =>
     client.waitForReady(Date.now() + 5000, (err) =>
@@ -53,7 +65,7 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
 
 async function updatex(inputs: DefangServiceInputs): Promise<pb.Service> {
   const service = convertServiceInputs(inputs);
-  const client = await connect(inputs.fabricDNS, inputs.name);
+  const client = await connect(inputs.fabricDNS);
   const result = await new Promise<pb.Service>((resolve, reject) =>
     client.update(service, (err, res) => (err ? reject(err) : resolve(res!)))
   );
@@ -160,7 +172,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     };
   },
   async delete(id: string, olds: DefangServiceOutputs) {
-    const client = await connect(olds.fabricDNS, id);
+    const client = await connect(olds.fabricDNS);
     const service = new pb.Service();
     service.setName(id);
     await new Promise<pb.Void>((resolve, reject) =>
@@ -204,12 +216,14 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     id: string,
     olds: DefangServiceOutputs
   ): Promise<pulumi.dynamic.ReadResult<DefangServiceOutputs>> {
-    const client = await connect(olds.fabricDNS, id);
-    const result = await new Promise<pb.Service>((resolve, reject) =>
-      client.get(new pb.Void(), (err, res) =>
+    const client = await connect(olds.fabricDNS);
+    const result = await new Promise<pb.Service>((resolve, reject) => {
+      const serviceId = new pb.ServiceID();
+      serviceId.setName(id);
+      return client.get(serviceId, (err, res) =>
         err ? reject(err) : resolve(res!)
-      )
-    );
+      );
+    });
     return {
       id,
       props: toOutputs(olds.fabricDNS, result),
