@@ -1,7 +1,7 @@
 # pulumi-defang
 Typescript Pulumi provider for the Defang Opinionated Platform.
 
-This [Dynamic Resource Provider](https://www.pulumi.com/docs/intro/concepts/resources/dynamic-providers/) allows you to manage your container services on the Defang Opinionated Platform.
+This [Dynamic Resource Provider](https://www.pulumi.com/docs/intro/concepts/resources/dynamic-providers/) allows you to manage your container services on the Defang Opinionated Platform. It was modelled after the [Compose Spec](https://www.compose-spec.io).
 
 ## Install
 
