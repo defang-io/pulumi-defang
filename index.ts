@@ -6,10 +6,20 @@ import * as fabric from "./protos/v1/fabric_grpc_pb";
 import * as pb from "./protos/v1/fabric_pb";
 import { deleteUndefined, isEqual, optionals } from "./utils";
 
+// Pulumi stores the actual code of the dynamic provider in the stack. This
+// means that if there's a bug in the provider, we can't fix it in existing
+// stacks. To work around this, we can force an update of the provider code by
+// setting the environment variable DEFANG_FORCE_UP to "true" or "1".
+const forceUpdate = ["true", "1"].includes(process.env["DEFANG_FORCE_UP"]!);
+
 let accessToken = process.env["DEFANG_ACCESS_TOKEN"];
 
 export function setAccessToken(token: string) {
   accessToken = token;
+}
+
+function hasPort(url: string): boolean {
+  return /:\d+$/.test(url);
 }
 
 // Connect to our gRPC server
@@ -17,7 +27,7 @@ async function connect(
   fabricDNS: string
 ): Promise<fabric.FabricControllerClient> {
   const client = new fabric.FabricControllerClient(
-    /:\d+$/.test(fabricDNS) ? fabricDNS : `${fabricDNS}:443`,
+    hasPort(fabricDNS) ? fabricDNS : `${fabricDNS}:443`,
     grpc.credentials.combineChannelCredentials(
       grpc.credentials.createSsl(),
       grpc.credentials.createFromMetadataGenerator((_, callback) => {
@@ -63,14 +73,18 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   return service;
 }
 
-async function updatex(inputs: DefangServiceInputs): Promise<pb.Service> {
+async function updatex(
+  inputs: DefangServiceInputs,
+  force: boolean = false
+): Promise<pb.Service> {
   const service = convertServiceInputs(inputs);
   const client = await connect(inputs.fabricDNS);
-  const result = await new Promise<pb.Service>((resolve, reject) =>
-    client.update(service, (err, res) => (err ? reject(err) : resolve(res!)))
+  const result = await new Promise<pb.Service | undefined>((resolve, reject) =>
+    client.update(service, (err, res) =>
+      err && !force ? reject(err) : resolve(res)
+    )
   );
-  assert(result);
-  return result;
+  return result ?? service;
 }
 
 function convertPorts(ports: Port[] = []): pb.Port[] {
@@ -192,11 +206,16 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
         oldOutputs.service,
         convertServiceInputs(newInputs).toObject()
       ),
-      replaces: [
-        ...optionals(oldOutputs.service.name !== newInputs.name, "name"),
-        ...optionals(oldOutputs.fabricDNS !== newInputs.fabricDNS, "fabricDNS"),
-      ],
-      // deleteBeforeReplace: true,
+      replaces: forceUpdate
+        ? [] // prevent calling delete
+        : [
+            ...optionals(oldOutputs.service.name !== newInputs.name, "name"),
+            ...optionals(
+              oldOutputs.fabricDNS !== newInputs.fabricDNS,
+              "fabricDNS"
+            ),
+          ],
+      // deleteBeforeReplace: false,
       // stables: [],
     };
   },
@@ -208,7 +227,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     assert.equal(id, olds.service.name);
     assert.equal(olds.service.name, news.name);
     assert.equal(olds.fabricDNS, news.fabricDNS);
-    const result = await updatex(news);
+    const result = await updatex(news, forceUpdate);
     assert.strictEqual(result.getName(), id);
     return {
       outs: toOutputs(news.fabricDNS, result),
@@ -221,13 +240,20 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     const serviceId = new pb.ServiceID();
     serviceId.setName(id);
     const client = await connect(olds.fabricDNS);
-    const result = await new Promise<pb.Service>((resolve, reject) =>
-      client.get(serviceId, (err, res) => (err ? reject(err) : resolve(res!)))
+    const result = await new Promise<pb.Service | undefined>(
+      (resolve, reject) =>
+        client.get(serviceId, (err, res) =>
+          err && err.code !== grpc.status.NOT_FOUND && !forceUpdate
+            ? reject(err)
+            : resolve(res)
+        )
     );
-    return {
-      id,
-      props: toOutputs(olds.fabricDNS, result),
-    };
+    return result
+      ? {
+          id,
+          props: toOutputs(olds.fabricDNS, result),
+        }
+      : {};
   },
 };
 
