@@ -175,8 +175,7 @@ getServices: {
     responseSerialize: serialize_io_defang_v1_Services,
     responseDeserialize: deserialize_io_defang_v1_Services,
   },
-  // only our CD service can call this
-generateToken: {
+  generateToken: {
     path: '/io.defang.v1.FabricController/GenerateToken',
     requestStream: false,
     responseStream: false,
