@@ -173,7 +173,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
   },
   async delete(id: string, olds: DefangServiceOutputs) {
     const client = await connect(olds.fabricDNS);
-    const service = new pb.Service();
+    const service = new pb.ServiceID();
     service.setName(id);
     await new Promise<pb.Void>((resolve, reject) =>
       client.delete(service, (err, res) => (err ? reject(err) : resolve(res!)))
