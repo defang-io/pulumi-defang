@@ -17,7 +17,7 @@ async function connect(
   fabricDNS: string
 ): Promise<fabric.FabricControllerClient> {
   const client = new fabric.FabricControllerClient(
-    fabricDNS + ":443",
+    /:\d+$/.test(fabricDNS) ? fabricDNS : `${fabricDNS}:443`,
     grpc.credentials.combineChannelCredentials(
       grpc.credentials.createSsl(),
       grpc.credentials.createFromMetadataGenerator((_, callback) => {
@@ -171,12 +171,14 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
       outs: toOutputs(inputs.fabricDNS, result),
     };
   },
-  async delete(id: string, olds: DefangServiceOutputs) {
+  async delete(id: string, olds: DefangServiceOutputs): Promise<void> {
+    const serviceId = new pb.ServiceID();
+    serviceId.setName(id);
     const client = await connect(olds.fabricDNS);
-    const service = new pb.ServiceID();
-    service.setName(id);
     await new Promise<pb.Void>((resolve, reject) =>
-      client.delete(service, (err, res) => (err ? reject(err) : resolve(res!)))
+      client.delete(serviceId, (err, res) =>
+        err ? reject(err) : resolve(res!)
+      )
     );
   },
   async diff(
@@ -216,14 +218,12 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     id: string,
     olds: DefangServiceOutputs
   ): Promise<pulumi.dynamic.ReadResult<DefangServiceOutputs>> {
+    const serviceId = new pb.ServiceID();
+    serviceId.setName(id);
     const client = await connect(olds.fabricDNS);
-    const result = await new Promise<pb.Service>((resolve, reject) => {
-      const serviceId = new pb.ServiceID();
-      serviceId.setName(id);
-      return client.get(serviceId, (err, res) =>
-        err ? reject(err) : resolve(res!)
-      );
-    });
+    const result = await new Promise<pb.Service>((resolve, reject) =>
+      client.get(serviceId, (err, res) => (err ? reject(err) : resolve(res!)))
+    );
     return {
       id,
       props: toOutputs(olds.fabricDNS, result),
@@ -278,7 +278,7 @@ export class DefangService extends pulumi.dynamic.Resource {
       args.name = name;
     }
     if (!args.fabricDNS) {
-      args.fabricDNS = "fabric-dev.gnafed.click";
+      args.fabricDNS = "fabric-dev.gnafed.click:443";
     }
     super(defangServiceProvider, name, { fqdn: undefined, ...args }, opts);
   }
