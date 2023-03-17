@@ -3,6 +3,10 @@ Typescript Pulumi provider for the Defang Opinionated Platform.
 
 This [Dynamic Resource Provider](https://www.pulumi.com/docs/intro/concepts/resources/dynamic-providers/) allows you to manage your container services on the Defang Opinionated Platform.
 
+## Install
+
+The provider is available through NPM from the GitHub Package Registry. See [installation instructions](https://github.com/defang-io/pulumi-defang/pkgs/npm/pulumi-defang).
+
 ## Example
 
 ```ts
