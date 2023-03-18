@@ -304,7 +304,7 @@ export class DefangService extends pulumi.dynamic.Resource {
       args.name = name;
     }
     if (!args.fabricDNS) {
-      args.fabricDNS = "fabric-dev.gnafed.click:443";
+      args.fabricDNS = "fabric-staging.gnafed.click:443";
     }
     super(defangServiceProvider, name, { fqdn: undefined, ...args }, opts);
   }
