@@ -25,6 +25,7 @@ goog.exportSymbol('proto.io.defang.v1.Build', null, global);
 goog.exportSymbol('proto.io.defang.v1.Deploy', null, global);
 goog.exportSymbol('proto.io.defang.v1.Event', null, global);
 goog.exportSymbol('proto.io.defang.v1.LogEntry', null, global);
+goog.exportSymbol('proto.io.defang.v1.Mode', null, global);
 goog.exportSymbol('proto.io.defang.v1.Platform', null, global);
 goog.exportSymbol('proto.io.defang.v1.Port', null, global);
 goog.exportSymbol('proto.io.defang.v1.Protocol', null, global);
@@ -1637,7 +1638,8 @@ proto.io.defang.v1.Port.prototype.toObject = function(opt_includeInstance) {
 proto.io.defang.v1.Port.toObject = function(includeInstance, msg) {
   var f, obj = {
     target: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    protocol: jspb.Message.getFieldWithDefault(msg, 2, 0)
+    protocol: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    mode: jspb.Message.getFieldWithDefault(msg, 3, 0)
   };
 
   if (includeInstance) {
@@ -1682,6 +1684,10 @@ proto.io.defang.v1.Port.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {!proto.io.defang.v1.Protocol} */ (reader.readEnum());
       msg.setProtocol(value);
       break;
+    case 3:
+      var value = /** @type {!proto.io.defang.v1.Mode} */ (reader.readEnum());
+      msg.setMode(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1725,6 +1731,13 @@ proto.io.defang.v1.Port.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getMode();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -1761,6 +1774,24 @@ proto.io.defang.v1.Port.prototype.getProtocol = function() {
  */
 proto.io.defang.v1.Port.prototype.setProtocol = function(value) {
   return jspb.Message.setProto3EnumField(this, 2, value);
+};
+
+
+/**
+ * optional Mode mode = 3;
+ * @return {!proto.io.defang.v1.Mode}
+ */
+proto.io.defang.v1.Port.prototype.getMode = function() {
+  return /** @type {!proto.io.defang.v1.Mode} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+};
+
+
+/**
+ * @param {!proto.io.defang.v1.Mode} value
+ * @return {!proto.io.defang.v1.Port} returns this
+ */
+proto.io.defang.v1.Port.prototype.setMode = function(value) {
+  return jspb.Message.setProto3EnumField(this, 3, value);
 };
 
 
@@ -2897,8 +2928,20 @@ proto.io.defang.v1.Platform = {
  * @enum {number}
  */
 proto.io.defang.v1.Protocol = {
-  TCP: 0,
-  UDP: 1
+  ANY: 0,
+  UDP: 1,
+  TCP: 2,
+  HTTP: 3,
+  HTTP2: 4,
+  GRPC: 5
+};
+
+/**
+ * @enum {number}
+ */
+proto.io.defang.v1.Mode = {
+  HOST: 0,
+  INGRESS: 1
 };
 
 goog.object.extend(exports, proto.io.defang.v1);

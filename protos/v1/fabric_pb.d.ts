@@ -200,6 +200,9 @@ export class Port extends jspb.Message {
   getProtocol(): ProtocolMap[keyof ProtocolMap];
   setProtocol(value: ProtocolMap[keyof ProtocolMap]): void;
 
+  getMode(): ModeMap[keyof ModeMap];
+  setMode(value: ModeMap[keyof ModeMap]): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Port.AsObject;
   static toObject(includeInstance: boolean, msg: Port): Port.AsObject;
@@ -214,6 +217,7 @@ export namespace Port {
   export type AsObject = {
     target: number,
     protocol: ProtocolMap[keyof ProtocolMap],
+    mode: ModeMap[keyof ModeMap],
   }
 }
 
@@ -379,9 +383,20 @@ export interface PlatformMap {
 export const Platform: PlatformMap;
 
 export interface ProtocolMap {
-  TCP: 0;
+  ANY: 0;
   UDP: 1;
+  TCP: 2;
+  HTTP: 3;
+  HTTP2: 4;
+  GRPC: 5;
 }
 
 export const Protocol: ProtocolMap;
+
+export interface ModeMap {
+  HOST: 0;
+  INGRESS: 1;
+}
+
+export const Mode: ModeMap;
 

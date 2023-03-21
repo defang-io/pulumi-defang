@@ -87,11 +87,29 @@ async function updatex(
   return result ?? service;
 }
 
+function convertProtocol(protocol?: Protocol) {
+  switch (protocol) {
+    case "tcp":
+      return pb.Protocol.TCP;
+    case "udp":
+      return pb.Protocol.UDP;
+    case "http":
+      return pb.Protocol.HTTP;
+    case "http2":
+      return pb.Protocol.HTTP2;
+    case "grpc":
+      return pb.Protocol.GRPC;
+    default:
+      return pb.Protocol.ANY;
+  }
+}
+
 function convertPorts(ports: Port[] = []): pb.Port[] {
   return ports.map((p) => {
     const port = new pb.Port();
     port.setTarget(p.target);
-    port.setProtocol(p.protocol === "udp" ? pb.Protocol.UDP : pb.Protocol.TCP);
+    port.setProtocol(convertProtocol(p.protocol));
+    port.setMode(p.mode === "ingress" ? pb.Mode.INGRESS : pb.Mode.HOST); // default to HOST
     return port;
   });
 }
@@ -169,6 +187,16 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
             {
               property: "ports",
               reason: "target port must be an integer between 1 and 32767",
+            },
+          ],
+        };
+      }
+      if (port.mode === "ingress" && !["http", "http2", "grpc"].includes(port.protocol!)) {
+        return {
+          failures: [
+            {
+              property: "ports",
+              reason: "ingress ports must have protocol http, http2, or grpc",
             },
           ],
         };
@@ -258,10 +286,12 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
 };
 
 export type Platform = "linux/arm64" | "linux/amd64" | "linux";
+export type Protocol = "tcp" | "udp" | "http" | "http2" | "grpc";
 
 export interface Port {
   target: number;
-  protocol?: "tcp" | "udp";
+  protocol?: Protocol;
+  mode?: "ingress" | "host";
 }
 
 export interface Resource {
