@@ -15,7 +15,7 @@ import { DefangService } from "@defang-io/pulumi-defang/lib";
 const service = new DefangService("defang-nginx", {
   // name: "…",                             // defaults to the Pulumi resource name
   image: "nginx:latest",
-  ports: [{ target: 80, protocol: "tcp" }],
+  ports: [{ target: 80, protocol: "http", mode: "ingress" }],
   // fabricDNS: "…",                        // override the Defang Fabric Controller endpoint
   // platform: "…",                         // "linux/arm64" | "linux/amd64" | "linux" (default)
   // environment: {
