@@ -28,7 +28,7 @@ function readAccessToken(): string | undefined {
       process.env["XDG_STATE_HOME"] ||
       join(process.env["HOME"]!, ".local", "state");
     const tokenPath = join(tokenDir, "defang", "token");
-    return readFileSync(tokenPath, "utf8");
+    return readFileSync(tokenPath, "utf8").trim();
   } catch {
     return undefined;
   }
