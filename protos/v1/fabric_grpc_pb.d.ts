@@ -14,7 +14,7 @@ interface IFabricControllerService extends grpc.ServiceDefinition<grpc.UntypedSe
   delete: grpc.MethodDefinition<v1_fabric_pb.ServiceID, v1_fabric_pb.Void>;
   publish: grpc.MethodDefinition<v1_fabric_pb.Event, v1_fabric_pb.Void>;
   getServices: grpc.MethodDefinition<v1_fabric_pb.Void, v1_fabric_pb.Services>;
-  generateToken: grpc.MethodDefinition<v1_fabric_pb.ServiceID, v1_fabric_pb.Token>;
+  generateToken: grpc.MethodDefinition<v1_fabric_pb.Auth, v1_fabric_pb.Token>;
 }
 
 export const FabricControllerService: IFabricControllerService;
@@ -27,7 +27,7 @@ export interface IFabricControllerServer extends grpc.UntypedServiceImplementati
   delete: grpc.handleUnaryCall<v1_fabric_pb.ServiceID, v1_fabric_pb.Void>;
   publish: grpc.handleUnaryCall<v1_fabric_pb.Event, v1_fabric_pb.Void>;
   getServices: grpc.handleUnaryCall<v1_fabric_pb.Void, v1_fabric_pb.Services>;
-  generateToken: grpc.handleUnaryCall<v1_fabric_pb.ServiceID, v1_fabric_pb.Token>;
+  generateToken: grpc.handleUnaryCall<v1_fabric_pb.Auth, v1_fabric_pb.Token>;
 }
 
 export class FabricControllerClient extends grpc.Client {
@@ -52,7 +52,7 @@ export class FabricControllerClient extends grpc.Client {
   getServices(argument: v1_fabric_pb.Void, callback: grpc.requestCallback<v1_fabric_pb.Services>): grpc.ClientUnaryCall;
   getServices(argument: v1_fabric_pb.Void, metadataOrOptions: grpc.Metadata | grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.Services>): grpc.ClientUnaryCall;
   getServices(argument: v1_fabric_pb.Void, metadata: grpc.Metadata | null, options: grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.Services>): grpc.ClientUnaryCall;
-  generateToken(argument: v1_fabric_pb.ServiceID, callback: grpc.requestCallback<v1_fabric_pb.Token>): grpc.ClientUnaryCall;
-  generateToken(argument: v1_fabric_pb.ServiceID, metadataOrOptions: grpc.Metadata | grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.Token>): grpc.ClientUnaryCall;
-  generateToken(argument: v1_fabric_pb.ServiceID, metadata: grpc.Metadata | null, options: grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.Token>): grpc.ClientUnaryCall;
+  generateToken(argument: v1_fabric_pb.Auth, callback: grpc.requestCallback<v1_fabric_pb.Token>): grpc.ClientUnaryCall;
+  generateToken(argument: v1_fabric_pb.Auth, metadataOrOptions: grpc.Metadata | grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.Token>): grpc.ClientUnaryCall;
+  generateToken(argument: v1_fabric_pb.Auth, metadata: grpc.Metadata | null, options: grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.Token>): grpc.ClientUnaryCall;
 }

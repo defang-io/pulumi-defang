@@ -6,6 +6,17 @@
 var grpc = require('@grpc/grpc-js');
 var v1_fabric_pb = require('../v1/fabric_pb.js');
 
+function serialize_io_defang_v1_Auth(arg) {
+  if (!(arg instanceof v1_fabric_pb.Auth)) {
+    throw new Error('Expected argument of type io.defang.v1.Auth');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_Auth(buffer_arg) {
+  return v1_fabric_pb.Auth.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_io_defang_v1_Event(arg) {
   if (!(arg instanceof v1_fabric_pb.Event)) {
     throw new Error('Expected argument of type io.defang.v1.Event');
@@ -179,14 +190,13 @@ getServices: {
     path: '/io.defang.v1.FabricController/GenerateToken',
     requestStream: false,
     responseStream: false,
-    requestType: v1_fabric_pb.ServiceID,
+    requestType: v1_fabric_pb.Auth,
     responseType: v1_fabric_pb.Token,
-    requestSerialize: serialize_io_defang_v1_ServiceID,
-    requestDeserialize: deserialize_io_defang_v1_ServiceID,
+    requestSerialize: serialize_io_defang_v1_Auth,
+    requestDeserialize: deserialize_io_defang_v1_Auth,
     responseSerialize: serialize_io_defang_v1_Token,
     responseDeserialize: deserialize_io_defang_v1_Token,
   },
-  // only our tenant can call this
 };
 
 exports.FabricControllerClient = grpc.makeGenericClientConstructor(FabricControllerService);
