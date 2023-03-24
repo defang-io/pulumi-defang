@@ -8,8 +8,13 @@ import { deleteUndefined, isEqual, optionals } from "./utils";
 import { join } from "path";
 import { readFileSync } from "fs";
 
-const defaultFabric =
+let defaultFabric =
   process.env["DEFANG_FABRIC"] || "fabric-staging.gnafed.click:443";
+
+export function setDefaultFabric(fabric: string) {
+  assert(fabric, "fabric must be non-empty")
+  defaultFabric = fabric;
+}
 
 // Pulumi stores the actual code of the dynamic provider in the stack. This
 // means that if there's a bug in the provider, we can't fix it in existing
@@ -35,6 +40,7 @@ function readAccessToken(): string | undefined {
 let accessToken = process.env["DEFANG_ACCESS_TOKEN"] || readAccessToken();
 
 export function setAccessToken(token: string) {
+  assert(token, "token must be non-empty")
   accessToken = token;
 }
 
