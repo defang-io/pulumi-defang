@@ -8,6 +8,9 @@ import { deleteUndefined, isEqual, optionals } from "./utils";
 import { join } from "path";
 import { readFileSync } from "fs";
 
+const defaultFabric =
+  process.env["DEFANG_FABRIC"] || "fabric-staging.gnafed.click:443";
+
 // Pulumi stores the actual code of the dynamic provider in the stack. This
 // means that if there's a bug in the provider, we can't fix it in existing
 // stacks. To work around this, we can force an update of the provider code by
@@ -15,20 +18,20 @@ import { readFileSync } from "fs";
 const forceUpdate = ["true", "1"].includes(process.env["DEFANG_FORCE_UP"]!);
 
 function readAccessToken(): string | undefined {
-  const tokenDir =
-    process.env["XDG_STATE_HOME"] ||
-    join(process.env["HOME"]!, ".local", "state");
-  const tokenPath = join(tokenDir, "defang", "token");
   try {
+    const tokenDir =
+      process.env["XDG_STATE_HOME"] ||
+      join(process.env["HOME"]!, ".local", "state");
+    const tokenPath = join(tokenDir, "defang", "token");
     return readFileSync(tokenPath, "utf8");
-  } catch (err) {
+  } catch {
     return undefined;
   }
 }
 
 // The access token is used to authenticate with the gRPC server. It can be
-// passed in as an environment variable, or set using the `setAccessToken`
-// function.
+// passed in as an environment variable, read from the state file, or set using
+// the `setAccessToken` function.
 let accessToken = process.env["DEFANG_ACCESS_TOKEN"] || readAccessToken();
 
 export function setAccessToken(token: string) {
@@ -354,7 +357,7 @@ export class DefangService extends pulumi.dynamic.Resource {
       args.name = name;
     }
     if (!args.fabricDNS) {
-      args.fabricDNS = "fabric-staging.gnafed.click:443";
+      args.fabricDNS = defaultFabric;
     }
     super(defangServiceProvider, name, { fqdn: undefined, ...args }, opts);
   }
