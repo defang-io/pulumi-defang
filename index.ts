@@ -5,6 +5,8 @@ import assert = require("assert");
 import * as fabric from "./protos/v1/fabric_grpc_pb";
 import * as pb from "./protos/v1/fabric_pb";
 import { deleteUndefined, isEqual, optionals } from "./utils";
+import { join } from "path";
+import { readFileSync } from "fs";
 
 // Pulumi stores the actual code of the dynamic provider in the stack. This
 // means that if there's a bug in the provider, we can't fix it in existing
@@ -12,7 +14,22 @@ import { deleteUndefined, isEqual, optionals } from "./utils";
 // setting the environment variable DEFANG_FORCE_UP to "true" or "1".
 const forceUpdate = ["true", "1"].includes(process.env["DEFANG_FORCE_UP"]!);
 
-let accessToken = process.env["DEFANG_ACCESS_TOKEN"];
+function readAccessToken(): string | undefined {
+  const tokenDir =
+    process.env["XDG_STATE_HOME"] ||
+    join(process.env["HOME"]!, ".local", "state");
+  const tokenPath = join(tokenDir, "defang", "token");
+  try {
+    return readFileSync(tokenPath, "utf8");
+  } catch (err) {
+    return undefined;
+  }
+}
+
+// The access token is used to authenticate with the gRPC server. It can be
+// passed in as an environment variable, or set using the `setAccessToken`
+// function.
+let accessToken = process.env["DEFANG_ACCESS_TOKEN"] || readAccessToken();
 
 export function setAccessToken(token: string) {
   accessToken = token;
@@ -191,7 +208,10 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
           ],
         };
       }
-      if (port.mode === "ingress" && !["http", "http2", "grpc"].includes(port.protocol!)) {
+      if (
+        port.mode === "ingress" &&
+        !["http", "http2", "grpc"].includes(port.protocol!)
+      ) {
         return {
           failures: [
             {
