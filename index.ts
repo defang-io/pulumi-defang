@@ -12,7 +12,7 @@ let defaultFabric =
   process.env["DEFANG_FABRIC"] || "fabric-staging.gnafed.click:443";
 
 export function setDefaultFabric(fabric: string) {
-  assert(fabric, "fabric must be non-empty")
+  assert(fabric, "fabric must be non-empty");
   defaultFabric = fabric;
 }
 
@@ -40,7 +40,7 @@ function readAccessToken(): string | undefined {
 let accessToken = process.env["DEFANG_ACCESS_TOKEN"] || readAccessToken();
 
 export function setAccessToken(token: string) {
-  assert(token, "token must be non-empty")
+  assert(token, "token must be non-empty");
   accessToken = token;
 }
 
@@ -86,6 +86,9 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
     resources.setReservations(reservations);
     deploy.setResources(resources);
   }
+  if (inputs.internal) {
+    service.setInternal(true);
+  }
   service.setDeploy(deploy);
   service.setPlatform(
     inputs.platform === "linux/arm64"
@@ -96,6 +99,14 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   Object.entries(inputs.environment ?? {}).forEach(([key, value]) => {
     service.getEnvironmentMap().set(key, value);
   });
+  service.setSecretsList(
+    inputs.secrets?.map((s) => {
+      const secret = new pb.Secret();
+      secret.setSource(s.source);
+      // secret.setTarget(s.target);
+      return secret;
+    }) || []
+  );
   return service;
 }
 
@@ -145,10 +156,11 @@ interface DefangServiceInputs {
   name: string;
   image: string;
   platform?: Platform;
-  // internal?: boolean;
+  internal?: boolean;
   deploy?: Deploy;
   ports?: Port[];
   environment?: { [key: string]: string };
+  secrets?: Secret[];
   // build?: string;
 }
 
@@ -183,6 +195,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     if (!news.image) {
       return { failures: [{ property: "image", reason: "image is required" }] };
     }
+    // TODO: validate name
     if (!news.name) {
       return { failures: [{ property: "name", reason: "name is required" }] };
     }
@@ -200,6 +213,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
           ],
         };
       }
+      // TODO: validate cpu and memory > 0
     }
     for (const port of news.ports || []) {
       // port.protocol = port.protocol || "tcp"; TODO: should we set defaults here?
@@ -226,6 +240,19 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
             {
               property: "ports",
               reason: "ingress ports must have protocol http, http2, or grpc",
+            },
+          ],
+        };
+      }
+    }
+    for (const secret of news.secrets || []) {
+      // TODO: validate source name
+      if (!secret.source) {
+        return {
+          failures: [
+            {
+              property: "secrets",
+              reason: "secret source is required",
             },
           ],
         };
@@ -337,15 +364,20 @@ export interface Deploy {
   };
 }
 
+export interface Secret {
+  source: string;
+}
+
 export interface DefangServiceArgs {
   fabricDNS?: pulumi.Input<string>;
   name?: pulumi.Input<string>;
   image: pulumi.Input<string>;
   platform?: pulumi.Input<Platform>;
-  // internal?: pulumi.Input<boolean>;
+  internal?: pulumi.Input<boolean>;
   deploy?: pulumi.Input<Deploy>;
   ports?: pulumi.Input<pulumi.Input<Port>[]>;
   environment?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
+  secrets?: pulumi.Input<pulumi.Input<Secret>[]>;
   // build?: pulumi.Input<string>;
 }
 

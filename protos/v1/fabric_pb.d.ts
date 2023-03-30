@@ -245,6 +245,26 @@ export namespace Port {
   }
 }
 
+export class Secret extends jspb.Message {
+  getSource(): string;
+  setSource(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Secret.AsObject;
+  static toObject(includeInstance: boolean, msg: Secret): Secret.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: Secret, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Secret;
+  static deserializeBinaryFromReader(message: Secret, reader: jspb.BinaryReader): Secret;
+}
+
+export namespace Secret {
+  export type AsObject = {
+    source: string,
+  }
+}
+
 export class Build extends jspb.Message {
   getContext(): string;
   setContext(value: string): void;
@@ -295,6 +315,11 @@ export class Service extends jspb.Message {
   getBuild(): Build | undefined;
   setBuild(value?: Build): void;
 
+  clearSecretsList(): void;
+  getSecretsList(): Array<Secret>;
+  setSecretsList(value: Array<Secret>): void;
+  addSecrets(value?: Secret, index?: number): Secret;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Service.AsObject;
   static toObject(includeInstance: boolean, msg: Service): Service.AsObject;
@@ -315,6 +340,7 @@ export namespace Service {
     portsList: Array<Port.AsObject>,
     environmentMap: Array<[string, string]>,
     build?: Build.AsObject,
+    secretsList: Array<Secret.AsObject>,
   }
 }
 
