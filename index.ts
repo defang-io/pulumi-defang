@@ -162,6 +162,7 @@ interface DefangServiceInputs {
   environment?: { [key: string]: string };
   secrets?: Secret[];
   // build?: string;
+  forceNewDeployment?: boolean;
 }
 
 interface DefangServiceOutputs {
@@ -286,10 +287,12 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
   ): Promise<pulumi.dynamic.DiffResult> {
     assert.equal(id, oldOutputs.service.name);
     return {
-      changes: !isEqual(
-        oldOutputs.service,
-        convertServiceInputs(newInputs).toObject()
-      ),
+      changes:
+        newInputs.forceNewDeployment ||
+        !isEqual(
+          oldOutputs.service,
+          convertServiceInputs(newInputs).toObject()
+        ),
       replaces: forceUpdate
         ? [] // prevent calling delete
         : [
@@ -327,7 +330,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     const result = await new Promise<pb.Service | undefined>(
       (resolve, reject) =>
         client.get(serviceId, (err, res) =>
-          err && err.code !== grpc.status.NOT_FOUND && !forceUpdate
+          err && err.code !== grpc.status.NOT_FOUND //&& !forceUpdate
             ? reject(err)
             : resolve(res)
         )
@@ -379,6 +382,7 @@ export interface DefangServiceArgs {
   environment?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
   secrets?: pulumi.Input<pulumi.Input<Secret>[]>;
   // build?: pulumi.Input<string>;
+  forceNewDeployment?: pulumi.Input<boolean>;
 }
 
 export class DefangService extends pulumi.dynamic.Resource {
