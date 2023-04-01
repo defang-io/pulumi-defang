@@ -31,7 +31,7 @@ function readAccessToken(fabric: string): string {
   const tokenDir =
     process.env["XDG_STATE_HOME"] ||
     join(process.env["HOME"]!, ".local", "state");
-  const tokenPath = join(tokenDir, "defang", fabric);
+  const tokenPath = join(tokenDir, "defang", fabric.replace(/:\d+$/, ""));
   try {
     return readFileSync(tokenPath, "utf8").trim();
   } catch (e) {
