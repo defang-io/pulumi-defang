@@ -22,22 +22,29 @@ export function setDefaultFabric(fabric: string) {
 // setting the environment variable DEFANG_FORCE_UP to "true" or "1".
 const forceUpdate = ["true", "1"].includes(process.env["DEFANG_FORCE_UP"]!);
 
-function readAccessToken(): string | undefined {
-  try {
-    const tokenDir =
-      process.env["XDG_STATE_HOME"] ||
-      join(process.env["HOME"]!, ".local", "state");
-    const tokenPath = join(tokenDir, "defang", "token");
-    return readFileSync(tokenPath, "utf8").trim();
-  } catch {
-    return undefined;
-  }
-}
-
 // The access token is used to authenticate with the gRPC server. It can be
 // passed in as an environment variable, read from the state file, or set using
 // the `setAccessToken` function.
-let accessToken = process.env["DEFANG_ACCESS_TOKEN"] || readAccessToken();
+let accessToken: string | undefined;
+
+function readAccessToken(fabric: string): string {
+  const tokenDir =
+    process.env["XDG_STATE_HOME"] ||
+    join(process.env["HOME"]!, ".local", "state");
+  const tokenPath = join(tokenDir, "defang", fabric);
+  try {
+    return readFileSync(tokenPath, "utf8").trim();
+  } catch (e) {
+    console.error("Please log in with the Defang CLI.");
+    throw e;
+  }
+}
+
+function getAccessToken(fabric: string): string {
+  return (
+    accessToken || process.env["DEFANG_ACCESS_TOKEN"] || readAccessToken(fabric)
+  );
+}
 
 export function setAccessToken(token: string) {
   assert(token, "token must be non-empty");
@@ -59,7 +66,7 @@ async function connect(
       grpc.credentials.createFromMetadataGenerator((_, callback) => {
         const metadata = new grpc.Metadata();
         // TODO: automatically generate a new token once it expires
-        metadata.set("authorization", "Bearer " + accessToken!);
+        metadata.set("authorization", "Bearer " + getAccessToken(fabricDNS));
         callback(null, metadata);
       })
     )
@@ -116,12 +123,17 @@ async function updatex(
 ): Promise<pb.Service> {
   const service = convertServiceInputs(inputs);
   const client = await connect(inputs.fabricDNS);
-  const result = await new Promise<pb.Service | undefined>((resolve, reject) =>
-    client.update(service, (err, res) =>
-      err && !force ? reject(err) : resolve(res)
-    )
-  );
-  return result ?? service;
+  try {
+    const result = await new Promise<pb.Service | undefined>(
+      (resolve, reject) =>
+        client.update(service, (err, res) =>
+          err && !force ? reject(err) : resolve(res)
+        )
+    );
+    return result ?? service;
+  } finally {
+    client.close();
+  }
 }
 
 function convertProtocol(protocol?: Protocol) {
@@ -274,11 +286,15 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     const serviceId = new pb.ServiceID();
     serviceId.setName(id);
     const client = await connect(olds.fabricDNS);
-    await new Promise<pb.Void>((resolve, reject) =>
-      client.delete(serviceId, (err, res) =>
-        err ? reject(err) : resolve(res!)
-      )
-    );
+    try {
+      await new Promise<pb.Void>((resolve, reject) =>
+        client.delete(serviceId, (err, res) =>
+          err ? reject(err) : resolve(res!)
+        )
+      );
+    } finally {
+      client.close();
+    }
   },
   async diff(
     id: string,
@@ -327,20 +343,24 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     const serviceId = new pb.ServiceID();
     serviceId.setName(id);
     const client = await connect(olds.fabricDNS);
-    const result = await new Promise<pb.Service | undefined>(
-      (resolve, reject) =>
-        client.get(serviceId, (err, res) =>
-          err && err.code !== grpc.status.NOT_FOUND //&& !forceUpdate
-            ? reject(err)
-            : resolve(res)
-        )
-    );
-    return result
-      ? {
-          id,
-          props: toOutputs(olds.fabricDNS, result),
-        }
-      : {};
+    try {
+      const result = await new Promise<pb.Service | undefined>(
+        (resolve, reject) =>
+          client.get(serviceId, (err, res) =>
+            err && err.code !== grpc.status.NOT_FOUND //&& !forceUpdate
+              ? reject(err)
+              : resolve(res)
+          )
+      );
+      return result
+        ? {
+            id,
+            props: toOutputs(olds.fabricDNS, result),
+          }
+        : {};
+    } finally {
+      client.close();
+    }
   },
 };
 
