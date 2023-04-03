@@ -3,6 +3,60 @@
 
 import * as jspb from "google-protobuf";
 
+export class ServiceInfo extends jspb.Message {
+  hasService(): boolean;
+  clearService(): void;
+  getService(): Service | undefined;
+  setService(value?: Service): void;
+
+  getFqdn(): string;
+  setFqdn(value: string): void;
+
+  getTenant(): string;
+  setTenant(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ServiceInfo.AsObject;
+  static toObject(includeInstance: boolean, msg: ServiceInfo): ServiceInfo.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ServiceInfo, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ServiceInfo;
+  static deserializeBinaryFromReader(message: ServiceInfo, reader: jspb.BinaryReader): ServiceInfo;
+}
+
+export namespace ServiceInfo {
+  export type AsObject = {
+    service?: Service.AsObject,
+    fqdn: string,
+    tenant: string,
+  }
+}
+
+export class SecretValue extends jspb.Message {
+  getName(): string;
+  setName(value: string): void;
+
+  getValue(): string;
+  setValue(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SecretValue.AsObject;
+  static toObject(includeInstance: boolean, msg: SecretValue): SecretValue.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SecretValue, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SecretValue;
+  static deserializeBinaryFromReader(message: SecretValue, reader: jspb.BinaryReader): SecretValue;
+}
+
+export namespace SecretValue {
+  export type AsObject = {
+    name: string,
+    value: string,
+  }
+}
+
 export class Auth extends jspb.Message {
   getTenant(): string;
   setTenant(value: string): void;
@@ -105,9 +159,9 @@ export namespace LogEntry {
 
 export class Services extends jspb.Message {
   clearServicesList(): void;
-  getServicesList(): Array<Service>;
-  setServicesList(value: Array<Service>): void;
-  addServices(value?: Service, index?: number): Service;
+  getServicesList(): Array<ServiceInfo>;
+  setServicesList(value: Array<ServiceInfo>): void;
+  addServices(value?: ServiceInfo, index?: number): ServiceInfo;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Services.AsObject;
@@ -121,7 +175,7 @@ export class Services extends jspb.Message {
 
 export namespace Services {
   export type AsObject = {
-    servicesList: Array<Service.AsObject>,
+    servicesList: Array<ServiceInfo.AsObject>,
   }
 }
 

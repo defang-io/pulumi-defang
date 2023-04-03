@@ -39,6 +39,17 @@ function deserialize_io_defang_v1_LogEntry(buffer_arg) {
   return v1_fabric_pb.LogEntry.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_io_defang_v1_SecretValue(arg) {
+  if (!(arg instanceof v1_fabric_pb.SecretValue)) {
+    throw new Error('Expected argument of type io.defang.v1.SecretValue');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_SecretValue(buffer_arg) {
+  return v1_fabric_pb.SecretValue.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_io_defang_v1_Service(arg) {
   if (!(arg instanceof v1_fabric_pb.Service)) {
     throw new Error('Expected argument of type io.defang.v1.Service');
@@ -59,6 +70,17 @@ function serialize_io_defang_v1_ServiceID(arg) {
 
 function deserialize_io_defang_v1_ServiceID(buffer_arg) {
   return v1_fabric_pb.ServiceID.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_ServiceInfo(arg) {
+  if (!(arg instanceof v1_fabric_pb.ServiceInfo)) {
+    throw new Error('Expected argument of type io.defang.v1.ServiceInfo');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_ServiceInfo(buffer_arg) {
+  return v1_fabric_pb.ServiceInfo.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_io_defang_v1_Services(arg) {
@@ -135,22 +157,22 @@ tail: {
     requestStream: false,
     responseStream: false,
     requestType: v1_fabric_pb.Service,
-    responseType: v1_fabric_pb.Service,
+    responseType: v1_fabric_pb.ServiceInfo,
     requestSerialize: serialize_io_defang_v1_Service,
     requestDeserialize: deserialize_io_defang_v1_Service,
-    responseSerialize: serialize_io_defang_v1_Service,
-    responseDeserialize: deserialize_io_defang_v1_Service,
+    responseSerialize: serialize_io_defang_v1_ServiceInfo,
+    responseDeserialize: deserialize_io_defang_v1_ServiceInfo,
   },
   get: {
     path: '/io.defang.v1.FabricController/Get',
     requestStream: false,
     responseStream: false,
     requestType: v1_fabric_pb.ServiceID,
-    responseType: v1_fabric_pb.Service,
+    responseType: v1_fabric_pb.ServiceInfo,
     requestSerialize: serialize_io_defang_v1_ServiceID,
     requestDeserialize: deserialize_io_defang_v1_ServiceID,
-    responseSerialize: serialize_io_defang_v1_Service,
-    responseDeserialize: deserialize_io_defang_v1_Service,
+    responseSerialize: serialize_io_defang_v1_ServiceInfo,
+    responseDeserialize: deserialize_io_defang_v1_ServiceInfo,
   },
   delete: {
     path: '/io.defang.v1.FabricController/Delete',
@@ -197,6 +219,18 @@ getServices: {
     responseSerialize: serialize_io_defang_v1_Token,
     responseDeserialize: deserialize_io_defang_v1_Token,
   },
+  putSecret: {
+    path: '/io.defang.v1.FabricController/PutSecret',
+    requestStream: false,
+    responseStream: false,
+    requestType: v1_fabric_pb.SecretValue,
+    responseType: v1_fabric_pb.Void,
+    requestSerialize: serialize_io_defang_v1_SecretValue,
+    requestDeserialize: deserialize_io_defang_v1_SecretValue,
+    responseSerialize: serialize_io_defang_v1_Void,
+    responseDeserialize: deserialize_io_defang_v1_Void,
+  },
+  // rpc DeleteSecret(SecretValue) returns (Void);
 };
 
 exports.FabricControllerClient = grpc.makeGenericClientConstructor(FabricControllerService);

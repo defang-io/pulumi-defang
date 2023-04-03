@@ -117,20 +117,26 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   return service;
 }
 
+function dummyServiceInfo(service: pb.Service): pb.ServiceInfo {
+  const info = new pb.ServiceInfo();
+  info.setService(service);
+  return info;
+}
+
 async function updatex(
   inputs: DefangServiceInputs,
   force: boolean = false
-): Promise<pb.Service> {
+): Promise<pb.ServiceInfo> {
   const service = convertServiceInputs(inputs);
   const client = await connect(inputs.fabricDNS);
   try {
-    const result = await new Promise<pb.Service | undefined>(
+    const result = await new Promise<pb.ServiceInfo | undefined>(
       (resolve, reject) =>
         client.update(service, (err, res) =>
           err && !force ? reject(err) : resolve(res)
         )
     );
-    return result ?? service;
+    return result ?? dummyServiceInfo(service);
   } finally {
     client.close();
   }
@@ -185,12 +191,13 @@ interface DefangServiceOutputs {
 
 function toOutputs(
   fabricDNS: string,
-  service: pb.Service
+  service: pb.ServiceInfo,
+  oldFqdn?: string
 ): DefangServiceOutputs {
   return {
     fabricDNS,
-    service: deleteUndefined(service.toObject()),
-    fqdn: fabricDNS.replace(/^fabric-/, service.getName() + "."), // FIXME: fabric should return this
+    service: deleteUndefined(service.getService()!.toObject()),
+    fqdn: service.getFqdn() || oldFqdn!,
   };
 }
 
@@ -278,7 +285,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
   ): Promise<pulumi.dynamic.CreateResult<DefangServiceOutputs>> {
     const result = await updatex(inputs);
     return {
-      id: result.getName(), // TODO: do we need to return a unique ID?
+      id: result.getService()!.getName(), // TODO: do we need to return a unique ID?
       outs: toOutputs(inputs.fabricDNS, result),
     };
   },
@@ -331,9 +338,9 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     assert.equal(olds.service.name, news.name);
     assert.equal(olds.fabricDNS, news.fabricDNS);
     const result = await updatex(news, forceUpdate);
-    assert.strictEqual(result.getName(), id);
+    assert.strictEqual(result.getService()?.getName(), id);
     return {
-      outs: toOutputs(news.fabricDNS, result),
+      outs: toOutputs(news.fabricDNS, result, olds.fqdn),
     };
   },
   async read(
@@ -344,7 +351,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     serviceId.setName(id);
     const client = await connect(olds.fabricDNS);
     try {
-      const result = await new Promise<pb.Service | undefined>(
+      const result = await new Promise<pb.ServiceInfo | undefined>(
         (resolve, reject) =>
           client.get(serviceId, (err, res) =>
             err && err.code !== grpc.status.NOT_FOUND //&& !forceUpdate
