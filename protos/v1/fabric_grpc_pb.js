@@ -116,6 +116,28 @@ function deserialize_io_defang_v1_Token(buffer_arg) {
   return v1_fabric_pb.Token.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_io_defang_v1_UploadURLResponse(arg) {
+  if (!(arg instanceof v1_fabric_pb.UploadURLResponse)) {
+    throw new Error('Expected argument of type io.defang.v1.UploadURLResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_UploadURLResponse(buffer_arg) {
+  return v1_fabric_pb.UploadURLResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_Version(arg) {
+  if (!(arg instanceof v1_fabric_pb.Version)) {
+    throw new Error('Expected argument of type io.defang.v1.Version');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_Version(buffer_arg) {
+  return v1_fabric_pb.Version.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_io_defang_v1_Void(arg) {
   if (!(arg instanceof v1_fabric_pb.Void)) {
     throw new Error('Expected argument of type io.defang.v1.Void');
@@ -139,6 +161,18 @@ var FabricControllerService = exports.FabricControllerService = {
     requestDeserialize: deserialize_io_defang_v1_Void,
     responseSerialize: serialize_io_defang_v1_Status,
     responseDeserialize: deserialize_io_defang_v1_Status,
+  },
+  // public
+getVersion: {
+    path: '/io.defang.v1.FabricController/GetVersion',
+    requestStream: false,
+    responseStream: false,
+    requestType: v1_fabric_pb.Void,
+    responseType: v1_fabric_pb.Version,
+    requestSerialize: serialize_io_defang_v1_Void,
+    requestDeserialize: deserialize_io_defang_v1_Void,
+    responseSerialize: serialize_io_defang_v1_Version,
+    responseDeserialize: deserialize_io_defang_v1_Version,
   },
   // public
 tail: {
@@ -229,6 +263,17 @@ getServices: {
     requestDeserialize: deserialize_io_defang_v1_SecretValue,
     responseSerialize: serialize_io_defang_v1_Void,
     responseDeserialize: deserialize_io_defang_v1_Void,
+  },
+  createUploadURL: {
+    path: '/io.defang.v1.FabricController/CreateUploadURL',
+    requestStream: false,
+    responseStream: false,
+    requestType: v1_fabric_pb.Void,
+    responseType: v1_fabric_pb.UploadURLResponse,
+    requestSerialize: serialize_io_defang_v1_Void,
+    requestDeserialize: deserialize_io_defang_v1_Void,
+    responseSerialize: serialize_io_defang_v1_UploadURLResponse,
+    responseDeserialize: deserialize_io_defang_v1_UploadURLResponse,
   },
   // rpc DeleteSecret(SecretValue) returns (Void);
 };

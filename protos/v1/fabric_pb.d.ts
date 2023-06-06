@@ -3,6 +3,26 @@
 
 import * as jspb from "google-protobuf";
 
+export class UploadURLResponse extends jspb.Message {
+  getUrl(): string;
+  setUrl(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UploadURLResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: UploadURLResponse): UploadURLResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: UploadURLResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UploadURLResponse;
+  static deserializeBinaryFromReader(message: UploadURLResponse, reader: jspb.BinaryReader): UploadURLResponse;
+}
+
+export namespace UploadURLResponse {
+  export type AsObject = {
+    url: string,
+  }
+}
+
 export class ServiceInfo extends jspb.Message {
   hasService(): boolean;
   clearService(): void;
@@ -14,6 +34,9 @@ export class ServiceInfo extends jspb.Message {
 
   getTenant(): string;
   setTenant(value: string): void;
+
+  getEtag(): string;
+  setEtag(value: string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ServiceInfo.AsObject;
@@ -30,6 +53,7 @@ export namespace ServiceInfo {
     service?: Service.AsObject,
     fqdn: string,
     tenant: string,
+    etag: string,
   }
 }
 
@@ -137,6 +161,30 @@ export namespace Status {
   }
 }
 
+export class Version extends jspb.Message {
+  getFabric(): string;
+  setFabric(value: string): void;
+
+  getNats(): string;
+  setNats(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Version.AsObject;
+  static toObject(includeInstance: boolean, msg: Version): Version.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: Version, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Version;
+  static deserializeBinaryFromReader(message: Version, reader: jspb.BinaryReader): Version;
+}
+
+export namespace Version {
+  export type AsObject = {
+    fabric: string,
+    nats: string,
+  }
+}
+
 export class LogEntry extends jspb.Message {
   getMessage(): string;
   setMessage(value: string): void;
@@ -199,12 +247,47 @@ export namespace ServiceID {
   }
 }
 
+export class Device extends jspb.Message {
+  clearCapabilitiesList(): void;
+  getCapabilitiesList(): Array<string>;
+  setCapabilitiesList(value: Array<string>): void;
+  addCapabilities(value: string, index?: number): string;
+
+  getDriver(): string;
+  setDriver(value: string): void;
+
+  getCount(): number;
+  setCount(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Device.AsObject;
+  static toObject(includeInstance: boolean, msg: Device): Device.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: Device, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Device;
+  static deserializeBinaryFromReader(message: Device, reader: jspb.BinaryReader): Device;
+}
+
+export namespace Device {
+  export type AsObject = {
+    capabilitiesList: Array<string>,
+    driver: string,
+    count: number,
+  }
+}
+
 export class Resource extends jspb.Message {
   getMemory(): number;
   setMemory(value: number): void;
 
   getCpus(): number;
   setCpus(value: number): void;
+
+  clearDevicesList(): void;
+  getDevicesList(): Array<Device>;
+  setDevicesList(value: Array<Device>): void;
+  addDevices(value?: Device, index?: number): Device;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Resource.AsObject;
@@ -220,6 +303,7 @@ export namespace Resource {
   export type AsObject = {
     memory: number,
     cpus: number,
+    devicesList: Array<Device.AsObject>,
   }
 }
 
@@ -339,6 +423,28 @@ export namespace Build {
   }
 }
 
+export class HealthCheck extends jspb.Message {
+  clearTestList(): void;
+  getTestList(): Array<string>;
+  setTestList(value: Array<string>): void;
+  addTest(value: string, index?: number): string;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): HealthCheck.AsObject;
+  static toObject(includeInstance: boolean, msg: HealthCheck): HealthCheck.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: HealthCheck, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): HealthCheck;
+  static deserializeBinaryFromReader(message: HealthCheck, reader: jspb.BinaryReader): HealthCheck;
+}
+
+export namespace HealthCheck {
+  export type AsObject = {
+    testList: Array<string>,
+  }
+}
+
 export class Service extends jspb.Message {
   getName(): string;
   setName(value: string): void;
@@ -374,6 +480,11 @@ export class Service extends jspb.Message {
   setSecretsList(value: Array<Secret>): void;
   addSecrets(value?: Secret, index?: number): Secret;
 
+  hasHealthcheck(): boolean;
+  clearHealthcheck(): void;
+  getHealthcheck(): HealthCheck | undefined;
+  setHealthcheck(value?: HealthCheck): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Service.AsObject;
   static toObject(includeInstance: boolean, msg: Service): Service.AsObject;
@@ -395,6 +506,7 @@ export namespace Service {
     environmentMap: Array<[string, string]>,
     build?: Build.AsObject,
     secretsList: Array<Secret.AsObject>,
+    healthcheck?: HealthCheck.AsObject,
   }
 }
 
