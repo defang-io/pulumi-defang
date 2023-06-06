@@ -9,7 +9,7 @@ import { join } from "path";
 import { readFileSync } from "fs";
 
 let defaultFabric =
-  process.env["DEFANG_FABRIC"] || "fabric-staging.gnafed.click:443";
+  process.env["DEFANG_FABRIC"] || "fabric-prod1.defang.dev:443";
 
 export function setDefaultFabric(fabric: string) {
   assert(fabric, "fabric must be non-empty");
