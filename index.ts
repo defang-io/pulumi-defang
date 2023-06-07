@@ -112,7 +112,7 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
       secret.setSource(s.source);
       // secret.setTarget(s.target);
       return secret;
-    }) || []
+    }) ?? []
   );
   return service;
 }
@@ -186,6 +186,11 @@ function convertPorts(ports: Port[] = []): pb.Port[] {
   });
 }
 
+interface UnwrappedSecret {
+  source: string;
+  value?: string; // testing
+}
+
 interface DefangServiceInputs {
   fabricDNS: string;
   name: string;
@@ -195,7 +200,7 @@ interface DefangServiceInputs {
   deploy?: Deploy;
   ports?: Port[];
   environment?: { [key: string]: string };
-  secrets?: Secret[];
+  secrets?: UnwrappedSecret[];
   // build?: string;
   forceNewDeployment?: boolean;
 }
@@ -412,8 +417,8 @@ export interface Deploy {
 }
 
 export interface Secret {
-  source: string;
-  value?: string; // testing
+  source: pulumi.Input<string>;
+  value?: pulumi.Input<string>; // testing
 }
 
 export interface DefangServiceArgs {
