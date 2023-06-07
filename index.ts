@@ -130,6 +130,23 @@ async function updatex(
   const service = convertServiceInputs(inputs);
   const client = await connect(inputs.fabricDNS);
   try {
+    // Update any secrets w/ values first in case the service update depends on them
+    await Promise.all(
+      inputs.secrets?.map((secret) => {
+        if (secret.value === undefined) {
+          return;
+        }
+        const sv = new pb.SecretValue();
+        sv.setName(secret.source);
+        sv.setValue(secret.value);
+        return new Promise((resolve, reject) =>
+          client.putSecret(sv, (err, res) =>
+            err && !force ? reject(err) : resolve(res)
+          )
+        );
+      }) ?? []
+    );
+
     const result = await new Promise<pb.ServiceInfo | undefined>(
       (resolve, reject) =>
         client.update(service, (err, res) =>
@@ -396,6 +413,7 @@ export interface Deploy {
 
 export interface Secret {
   source: string;
+  value?: string; // testing
 }
 
 export interface DefangServiceArgs {
