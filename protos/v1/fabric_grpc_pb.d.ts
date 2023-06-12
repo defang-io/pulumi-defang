@@ -17,6 +17,7 @@ interface IFabricControllerService extends grpc.ServiceDefinition<grpc.UntypedSe
   getServices: grpc.MethodDefinition<v1_fabric_pb.Void, v1_fabric_pb.Services>;
   generateToken: grpc.MethodDefinition<v1_fabric_pb.Auth, v1_fabric_pb.Token>;
   putSecret: grpc.MethodDefinition<v1_fabric_pb.SecretValue, v1_fabric_pb.Void>;
+  listSecrets: grpc.MethodDefinition<v1_fabric_pb.Void, v1_fabric_pb.Secrets>;
   createUploadURL: grpc.MethodDefinition<v1_fabric_pb.Void, v1_fabric_pb.UploadURLResponse>;
 }
 
@@ -33,6 +34,7 @@ export interface IFabricControllerServer extends grpc.UntypedServiceImplementati
   getServices: grpc.handleUnaryCall<v1_fabric_pb.Void, v1_fabric_pb.Services>;
   generateToken: grpc.handleUnaryCall<v1_fabric_pb.Auth, v1_fabric_pb.Token>;
   putSecret: grpc.handleUnaryCall<v1_fabric_pb.SecretValue, v1_fabric_pb.Void>;
+  listSecrets: grpc.handleUnaryCall<v1_fabric_pb.Void, v1_fabric_pb.Secrets>;
   createUploadURL: grpc.handleUnaryCall<v1_fabric_pb.Void, v1_fabric_pb.UploadURLResponse>;
 }
 
@@ -67,6 +69,9 @@ export class FabricControllerClient extends grpc.Client {
   putSecret(argument: v1_fabric_pb.SecretValue, callback: grpc.requestCallback<v1_fabric_pb.Void>): grpc.ClientUnaryCall;
   putSecret(argument: v1_fabric_pb.SecretValue, metadataOrOptions: grpc.Metadata | grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.Void>): grpc.ClientUnaryCall;
   putSecret(argument: v1_fabric_pb.SecretValue, metadata: grpc.Metadata | null, options: grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.Void>): grpc.ClientUnaryCall;
+  listSecrets(argument: v1_fabric_pb.Void, callback: grpc.requestCallback<v1_fabric_pb.Secrets>): grpc.ClientUnaryCall;
+  listSecrets(argument: v1_fabric_pb.Void, metadataOrOptions: grpc.Metadata | grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.Secrets>): grpc.ClientUnaryCall;
+  listSecrets(argument: v1_fabric_pb.Void, metadata: grpc.Metadata | null, options: grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.Secrets>): grpc.ClientUnaryCall;
   createUploadURL(argument: v1_fabric_pb.Void, callback: grpc.requestCallback<v1_fabric_pb.UploadURLResponse>): grpc.ClientUnaryCall;
   createUploadURL(argument: v1_fabric_pb.Void, metadataOrOptions: grpc.Metadata | grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.UploadURLResponse>): grpc.ClientUnaryCall;
   createUploadURL(argument: v1_fabric_pb.Void, metadata: grpc.Metadata | null, options: grpc.CallOptions | null, callback: grpc.requestCallback<v1_fabric_pb.UploadURLResponse>): grpc.ClientUnaryCall;

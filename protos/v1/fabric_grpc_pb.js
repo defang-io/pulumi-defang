@@ -50,6 +50,17 @@ function deserialize_io_defang_v1_SecretValue(buffer_arg) {
   return v1_fabric_pb.SecretValue.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_io_defang_v1_Secrets(arg) {
+  if (!(arg instanceof v1_fabric_pb.Secrets)) {
+    throw new Error('Expected argument of type io.defang.v1.Secrets');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_Secrets(buffer_arg) {
+  return v1_fabric_pb.Secrets.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_io_defang_v1_Service(arg) {
   if (!(arg instanceof v1_fabric_pb.Service)) {
     throw new Error('Expected argument of type io.defang.v1.Service');
@@ -264,7 +275,19 @@ getServices: {
     responseSerialize: serialize_io_defang_v1_Void,
     responseDeserialize: deserialize_io_defang_v1_Void,
   },
-  createUploadURL: {
+  listSecrets: {
+    path: '/io.defang.v1.FabricController/ListSecrets',
+    requestStream: false,
+    responseStream: false,
+    requestType: v1_fabric_pb.Void,
+    responseType: v1_fabric_pb.Secrets,
+    requestSerialize: serialize_io_defang_v1_Void,
+    requestDeserialize: deserialize_io_defang_v1_Void,
+    responseSerialize: serialize_io_defang_v1_Secrets,
+    responseDeserialize: deserialize_io_defang_v1_Secrets,
+  },
+  // no values
+createUploadURL: {
     path: '/io.defang.v1.FabricController/CreateUploadURL',
     requestStream: false,
     responseStream: false,

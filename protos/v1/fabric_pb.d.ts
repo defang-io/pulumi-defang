@@ -57,6 +57,28 @@ export namespace ServiceInfo {
   }
 }
 
+export class Secrets extends jspb.Message {
+  clearNamesList(): void;
+  getNamesList(): Array<string>;
+  setNamesList(value: Array<string>): void;
+  addNames(value: string, index?: number): string;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Secrets.AsObject;
+  static toObject(includeInstance: boolean, msg: Secrets): Secrets.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: Secrets, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Secrets;
+  static deserializeBinaryFromReader(message: Secrets, reader: jspb.BinaryReader): Secrets;
+}
+
+export namespace Secrets {
+  export type AsObject = {
+    namesList: Array<string>,
+  }
+}
+
 export class SecretValue extends jspb.Message {
   getName(): string;
   setName(value: string): void;
@@ -407,6 +429,9 @@ export class Build extends jspb.Message {
   getContext(): string;
   setContext(value: string): void;
 
+  getDockerfile(): string;
+  setDockerfile(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Build.AsObject;
   static toObject(includeInstance: boolean, msg: Build): Build.AsObject;
@@ -420,6 +445,7 @@ export class Build extends jspb.Message {
 export namespace Build {
   export type AsObject = {
     context: string,
+    dockerfile: string,
   }
 }
 
@@ -485,6 +511,11 @@ export class Service extends jspb.Message {
   getHealthcheck(): HealthCheck | undefined;
   setHealthcheck(value?: HealthCheck): void;
 
+  clearCommandList(): void;
+  getCommandList(): Array<string>;
+  setCommandList(value: Array<string>): void;
+  addCommand(value: string, index?: number): string;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Service.AsObject;
   static toObject(includeInstance: boolean, msg: Service): Service.AsObject;
@@ -507,6 +538,7 @@ export namespace Service {
     build?: Build.AsObject,
     secretsList: Array<Secret.AsObject>,
     healthcheck?: HealthCheck.AsObject,
+    commandList: Array<string>,
   }
 }
 
