@@ -93,14 +93,14 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
     resources.setReservations(reservations);
     deploy.setResources(resources);
   }
-  if (inputs.build) {
-    const build = new pb.Build();
-    build.setContext(inputs.build.context);
-    if (inputs.build.dockerfile) {
-      build.setDockerfile(inputs.build.dockerfile);
-    }
-    service.setBuild(build);
-  }
+  // if (inputs.build) {
+  //   const build = new pb.Build();
+  //   build.setContext(inputs.build.context); // FIXME: use createUploadURL to create a signed URL for uploading the context
+  //   if (inputs.build.dockerfile) {
+  //     build.setDockerfile(inputs.build.dockerfile);
+  //   }
+  //   service.setBuild(build);
+  // }
   if (inputs.internal) {
     service.setInternal(true);
   }
@@ -212,7 +212,7 @@ interface DefangServiceInputs {
   ports?: Port[];
   environment?: { [key: string]: string };
   secrets?: UnwrappedSecret[];
-  build?: Build;
+  // build?: Build;
   forceNewDeployment?: boolean;
   command?: string[];
 }
@@ -312,28 +312,28 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
         };
       }
     }
-    if (news.build) {
-      if (!news.build.context) {
-        return {
-          failures: [
-            {
-              property: "build",
-              reason: "build context is required",
-            },
-          ],
-        };
-      }
-      if (news.build.dockerfile === "") {
-        return {
-          failures: [
-            {
-              property: "build",
-              reason: "dockerfile cannot be empty string",
-            },
-          ],
-        };
-      }
-    }
+    // if (news.build) {
+    //   if (!news.build.context) {
+    //     return {
+    //       failures: [
+    //         {
+    //           property: "build",
+    //           reason: "build context is required",
+    //         },
+    //       ],
+    //     };
+    //   }
+    //   if (news.build.dockerfile === "") {
+    //     return {
+    //       failures: [
+    //         {
+    //           property: "build",
+    //           reason: "dockerfile cannot be empty string",
+    //         },
+    //       ],
+    //     };
+    //   }
+    // }
     return { inputs: news };
   },
   async create(
@@ -455,10 +455,10 @@ export interface Secret {
   value?: pulumi.Input<string>; // testing
 }
 
-export interface Build {
-  context: string;
-  dockerfile?: string;
-}
+// export interface Build {
+//   context: string;
+//   dockerfile?: string;
+// }
 
 export interface DefangServiceArgs {
   fabricDNS?: pulumi.Input<string>;
@@ -470,7 +470,7 @@ export interface DefangServiceArgs {
   ports?: pulumi.Input<pulumi.Input<Port>[]>;
   environment?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
   secrets?: pulumi.Input<pulumi.Input<Secret>[]>;
-  build?: pulumi.Input<Build>;
+  // build?: pulumi.Input<Build>;
   forceNewDeployment?: pulumi.Input<boolean>;
   command?: pulumi.Input<pulumi.Input<string>[]>;
 }
