@@ -22,7 +22,7 @@ jobs:
         with:
           cache-dependency-path: package-lock.json
           working-directory: .
-          registry-url: https://npm.pkg.github.com/
+          # registry-url: https://npm.pkg.github.com/
       - run: npm publish
         working-directory: .
         env:
