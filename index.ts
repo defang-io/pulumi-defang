@@ -1,12 +1,13 @@
-import * as pulumi from "@pulumi/pulumi";
 import * as grpc from "@grpc/grpc-js";
+import * as pulumi from "@pulumi/pulumi";
 import assert = require("assert");
+import { readFileSync } from "fs";
+import { join } from "path";
 
 import * as fabric from "./protos/v1/fabric_grpc_pb";
 import * as pb from "./protos/v1/fabric_pb";
+import { uploadTarball } from "./upload";
 import { deleteUndefined, isEqual, optionals } from "./utils";
-import { join } from "path";
-import { readFileSync } from "fs";
 
 let defaultFabric =
   process.env["DEFANG_FABRIC"] || "fabric-prod1.defang.dev:443";
@@ -141,6 +142,21 @@ function dummyServiceInfo(service: pb.Service): pb.ServiceInfo {
   return info;
 }
 
+async function uploadBuildContext(
+  client: fabric.FabricControllerClient,
+  context: string
+): Promise<string> {
+  const uploadUrlResponse = await new Promise<pb.UploadURLResponse>(
+    (resolve, reject) =>
+      client.createUploadURL(new pb.Void(), (err, res) =>
+        err ? reject(err) : resolve(res!)
+      )
+  );
+  const putUrl = uploadUrlResponse.getUrl();
+  await uploadTarball(putUrl, context);
+  return putUrl;
+}
+
 async function updatex(
   inputs: DefangServiceInputs,
   force: boolean = false
@@ -148,6 +164,16 @@ async function updatex(
   const service = convertServiceInputs(inputs);
   const client = await connect(inputs.fabricDNS);
   try {
+    // Upload the build context, if provided
+    if (inputs.build?.context) {
+      const build = new pb.Build();
+      build.setContext(await uploadBuildContext(client, inputs.build.context));
+      if (inputs.build.dockerfile) {
+        build.setDockerfile(inputs.build.dockerfile);
+      }
+      service.setBuild(build);
+    }
+
     // Update any secrets w/ values first in case the service update depends on them
     await Promise.all(
       inputs.secrets?.map((secret) => {
@@ -159,19 +185,18 @@ async function updatex(
         sv.setValue(secret.value);
         return new Promise((resolve, reject) =>
           client.putSecret(sv, (err, res) =>
-            err && !force ? reject(err) : resolve(res)
+            err ? reject(err) : resolve(res!)
           )
         );
       }) ?? []
     );
 
-    const result = await new Promise<pb.ServiceInfo | undefined>(
-      (resolve, reject) =>
-        client.update(service, (err, res) =>
-          err && !force ? reject(err) : resolve(res)
-        )
+    return await new Promise<pb.ServiceInfo>((resolve, reject) =>
+      client.update(service, (err, res) => (err ? reject(err) : resolve(res!)))
     );
-    return result ?? dummyServiceInfo(service);
+  } catch (err) {
+    if (!force) throw err;
+    return dummyServiceInfo(service);
   } finally {
     client.close();
   }
@@ -219,7 +244,7 @@ interface DefangServiceInputs {
   ports?: Port[];
   environment?: { [key: string]: string };
   secrets?: UnwrappedSecret[];
-  // build?: Build;
+  build?: Build;
   forceNewDeployment?: boolean;
   command?: string[];
 }
@@ -323,28 +348,28 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
         };
       }
     }
-    // if (news.build) {
-    //   if (!news.build.context) {
-    //     return {
-    //       failures: [
-    //         {
-    //           property: "build",
-    //           reason: "build context is required",
-    //         },
-    //       ],
-    //     };
-    //   }
-    //   if (news.build.dockerfile === "") {
-    //     return {
-    //       failures: [
-    //         {
-    //           property: "build",
-    //           reason: "dockerfile cannot be empty string",
-    //         },
-    //       ],
-    //     };
-    //   }
-    // }
+    if (news.build) {
+      if (!news.build.context) {
+        return {
+          failures: [
+            {
+              property: "build",
+              reason: "build context is required",
+            },
+          ],
+        };
+      }
+      if (news.build.dockerfile === "") {
+        return {
+          failures: [
+            {
+              property: "build",
+              reason: "dockerfile cannot be empty string",
+            },
+          ],
+        };
+      }
+    }
     return { inputs: news };
   },
   async create(
@@ -477,10 +502,10 @@ export interface Secret {
   value?: pulumi.Input<string>;
 }
 
-// export interface Build {
-//   context: string;
-//   dockerfile?: string;
-// }
+export interface Build {
+  context: string;
+  dockerfile?: string;
+}
 
 export interface DefangServiceArgs {
   /** the DNS name of the Defang Fabric service; defaults to the value of the DEFANG_FABRIC or prod, if unset */
@@ -501,11 +526,11 @@ export interface DefangServiceArgs {
   environment?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
   /** the secrets to expose as environment variables */
   secrets?: pulumi.Input<pulumi.Input<Secret>[]>;
-  /** whether to force a new deployment or not; defaults to false */
   forceNewDeployment?: pulumi.Input<boolean>;
   /** the command to run; overrides the container image's CMD */
   command?: pulumi.Input<pulumi.Input<string>[]>;
-  // build?: pulumi.Input<Build>;
+  /** the optional build configuration */
+  build?: pulumi.Input<Build>;
 }
 
 /**
