@@ -11,7 +11,7 @@ import { readFileSync } from "fs";
 let defaultFabric =
   process.env["DEFANG_FABRIC"] || "fabric-prod1.defang.dev:443";
 
-/// Override the default Fabric service to use for all Defang resources.
+/** Override the default Fabric service to use for all Defang resources. */
 export function setDefaultFabric(fabric: string) {
   assert(fabric, "fabric must be non-empty");
   defaultFabric = fabric;
@@ -47,7 +47,7 @@ function getAccessToken(fabric: string): string {
   );
 }
 
-/// Override the access token used to authenticate with the Fabric service.
+/** Override the access token used to authenticate with the Fabric service. */
 export function setAccessToken(token: string) {
   assert(token, "token must be non-empty");
   accessToken = token;
@@ -91,9 +91,9 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
     const reservations = new pb.Resource();
     reservations.setCpus(inputs.deploy.resources.reservations?.cpu ?? 0.0);
     reservations.setMemory(inputs.deploy.resources.reservations?.memory ?? 0);
-    const devices = inputs.deploy.resources.reservations?.devices?.map(d => {
+    const devices = inputs.deploy.resources.reservations?.devices?.map((d) => {
       const device = new pb.Device();
-      device.setCapabilitiesList(d.capabilities ?? [])
+      device.setCapabilitiesList(d.capabilities ?? []);
       device.setCount(d.count ?? 0);
       return device;
     });
@@ -444,7 +444,6 @@ export interface Port {
   mode?: "ingress" | "host";
 }
 
-
 export interface Device {
   capabilities?: DeviceCapability[];
   count?: number;
@@ -452,8 +451,8 @@ export interface Device {
 }
 
 export interface Resource {
-  cpu?: number; /// number of vCPUs to reserve
-  memory?: number; /// number of MiB to reserve
+  cpu?: number /** number of vCPUs to reserve */;
+  memory?: number /** number of MiB to reserve */;
   devices?: Device[];
 }
 
@@ -466,8 +465,8 @@ export interface Deploy {
 }
 
 export interface Secret {
-  source: pulumi.Input<string>; /// the name of the secret to expose as an environment variable
-  value?: pulumi.Input<string>; /// optional value of the secret; alternatively, the secret can be set via the Defang CLI
+  source: pulumi.Input<string> /** the name of the secret to expose as an environment variable */;
+  value?: pulumi.Input<string> /** optional value of the secret; alternatively, the secret can be set via the Defang CLI */;
 }
 
 // export interface Build {
@@ -476,24 +475,30 @@ export interface Secret {
 // }
 
 export interface DefangServiceArgs {
-  fabricDNS?: pulumi.Input<string>; /// the DNS name of the Defang Fabric service; defaults to the value of the DEFANG_FABRIC or prod, if unset
-  name?: pulumi.Input<string>; /// the name of the service; defaults to the name of the resource
-  image: pulumi.Input<string>; /// the container image to deploy
-  platform?: pulumi.Input<Platform>; /// the platform to deploy to; defaults to "linux/amd64"
-  internal?: pulumi.Input<boolean>; /// whether the service requires a public IP or not; defaults to true
-  deploy?: pulumi.Input<Deploy>; /// the optional deployment configuration
-  ports?: pulumi.Input<pulumi.Input<Port>[]>; /// the ports to expose
-  environment?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>; /// the environment variables to set
-  secrets?: pulumi.Input<pulumi.Input<Secret>[]>; /// the secrets to expose as environment variables
-  forceNewDeployment?: pulumi.Input<boolean>; /// whether to force a new deployment or not; defaults to false
-  command?: pulumi.Input<pulumi.Input<string>[]>; /// the command to run; overrides the container image's CMD
+  fabricDNS?: pulumi.Input<string> /** the DNS name of the Defang Fabric service; defaults to the value of the DEFANG_FABRIC or prod, if unset */;
+  name?: pulumi.Input<string> /** the name of the service; defaults to the name of the resource */;
+  image: pulumi.Input<string> /** the container image to deploy */;
+  platform?: pulumi.Input<Platform> /** the platform to deploy to; defaults to "linux/amd64" */;
+  internal?: pulumi.Input<boolean> /** whether the service requires a public IP or not; defaults to true */;
+  deploy?: pulumi.Input<Deploy> /** the optional deployment configuration */;
+  ports?: pulumi.Input<pulumi.Input<Port>[]> /** the ports to expose */;
+  environment?: pulumi.Input<{
+    [key: string]: pulumi.Input<string>;
+  }> /** the environment variables to set */;
+  secrets?: pulumi.Input<
+    pulumi.Input<Secret>[]
+  > /** the secrets to expose as environment variables */;
+  forceNewDeployment?: pulumi.Input<boolean> /** whether to force a new deployment or not; defaults to false */;
+  command?: pulumi.Input<
+    pulumi.Input<string>[]
+  > /** the command to run; overrides the container image's CMD */;
   // build?: pulumi.Input<Build>;
 }
 
 export class DefangService extends pulumi.dynamic.Resource {
-  public readonly fabricDNS!: pulumi.Output<string>; /// the DNS name of the Defang Fabric service
-  public readonly fqdn!: pulumi.Output<string>; /// the fully qualified domain name of the service
-  public readonly name!: pulumi.Output<string>; /// the name of the service
+  public readonly fabricDNS!: pulumi.Output<string>; /** the DNS name of the Defang Fabric service */
+  public readonly fqdn!: pulumi.Output<string>; /** the fully qualified domain name of the service */
+  public readonly name!: pulumi.Output<string>; /** the name of the service */
 
   constructor(
     name: string,
