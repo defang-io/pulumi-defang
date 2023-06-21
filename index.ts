@@ -451,8 +451,10 @@ export interface Device {
 }
 
 export interface Resource {
-  cpu?: number /** number of vCPUs to reserve */;
-  memory?: number /** number of MiB to reserve */;
+  /** number of vCPUs to reserve */
+  cpu?: number;
+  /** number of MiB to reserve */
+  memory?: number;
   devices?: Device[];
 }
 
@@ -465,8 +467,10 @@ export interface Deploy {
 }
 
 export interface Secret {
-  source: pulumi.Input<string> /** the name of the secret to expose as an environment variable */;
-  value?: pulumi.Input<string> /** optional value of the secret; alternatively, the secret can be set via the Defang CLI */;
+  /** the name of the secret to expose as an environment variable */
+  source: pulumi.Input<string>;
+  /** optional value of the secret; alternatively, the secret can be set via the Defang CLI */
+  value?: pulumi.Input<string>;
 }
 
 // export interface Build {
@@ -475,31 +479,49 @@ export interface Secret {
 // }
 
 export interface DefangServiceArgs {
-  fabricDNS?: pulumi.Input<string> /** the DNS name of the Defang Fabric service; defaults to the value of the DEFANG_FABRIC or prod, if unset */;
-  name?: pulumi.Input<string> /** the name of the service; defaults to the name of the resource */;
-  image: pulumi.Input<string> /** the container image to deploy */;
-  platform?: pulumi.Input<Platform> /** the platform to deploy to; defaults to "linux/amd64" */;
-  internal?: pulumi.Input<boolean> /** whether the service requires a public IP or not; defaults to true */;
-  deploy?: pulumi.Input<Deploy> /** the optional deployment configuration */;
-  ports?: pulumi.Input<pulumi.Input<Port>[]> /** the ports to expose */;
-  environment?: pulumi.Input<{
-    [key: string]: pulumi.Input<string>;
-  }> /** the environment variables to set */;
-  secrets?: pulumi.Input<
-    pulumi.Input<Secret>[]
-  > /** the secrets to expose as environment variables */;
-  forceNewDeployment?: pulumi.Input<boolean> /** whether to force a new deployment or not; defaults to false */;
-  command?: pulumi.Input<
-    pulumi.Input<string>[]
-  > /** the command to run; overrides the container image's CMD */;
+  /** the DNS name of the Defang Fabric service; defaults to the value of the DEFANG_FABRIC or prod, if unset */
+  fabricDNS?: pulumi.Input<string>;
+  /** the name of the service; defaults to the name of the resource */
+  name?: pulumi.Input<string>;
+  /** the container image to deploy */
+  image: pulumi.Input<string>;
+  /** the platform to deploy to; defaults to "linux/amd64" */
+  platform?: pulumi.Input<Platform>;
+  /** whether the service requires a public IP or not; defaults to true */
+  internal?: pulumi.Input<boolean>;
+  /** the optional deployment configuration */
+  deploy?: pulumi.Input<Deploy>;
+  /** the ports to expose */
+  ports?: pulumi.Input<pulumi.Input<Port>[]>;
+  /** the environment variables to set */
+  environment?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
+  /** the secrets to expose as environment variables */
+  secrets?: pulumi.Input<pulumi.Input<Secret>[]>;
+  /** whether to force a new deployment or not; defaults to false */
+  forceNewDeployment?: pulumi.Input<boolean>;
+  /** the command to run; overrides the container image's CMD */
+  command?: pulumi.Input<pulumi.Input<string>[]>;
   // build?: pulumi.Input<Build>;
 }
 
+/**
+ * A Pulumi custom resource for managing a service on Defang.
+ */
 export class DefangService extends pulumi.dynamic.Resource {
-  public readonly fabricDNS!: pulumi.Output<string>; /** the DNS name of the Defang Fabric service */
-  public readonly fqdn!: pulumi.Output<string>; /** the fully qualified domain name of the service */
-  public readonly name!: pulumi.Output<string>; /** the name of the service */
+  /** the DNS name of the Defang Fabric service */
+  public readonly fabricDNS!: pulumi.Output<string>;
+  /** the fully qualified domain name of the service */
+  public readonly fqdn!: pulumi.Output<string>;
+  /** the name of the service */
+  public readonly name!: pulumi.Output<string>;
 
+  /**
+   * Declare a new service on Defang.
+   * @constructor
+   * @param name the name of the resource
+   * @param args the arguments to configure the service
+   * @param opts the Pulumi resource options
+   */
   constructor(
     name: string,
     args: DefangServiceArgs,
