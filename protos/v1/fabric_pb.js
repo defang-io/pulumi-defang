@@ -79,7 +79,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.io.defang.v1.ServiceInfo = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.io.defang.v1.ServiceInfo.repeatedFields_, null);
 };
 goog.inherits(proto.io.defang.v1.ServiceInfo, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -142,7 +142,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.io.defang.v1.Auth = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.io.defang.v1.Auth.repeatedFields_, null);
 };
 goog.inherits(proto.io.defang.v1.Auth, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -661,6 +661,13 @@ proto.io.defang.v1.UploadURLResponse.prototype.setUrl = function(value) {
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.io.defang.v1.ServiceInfo.repeatedFields_ = [6];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -695,7 +702,9 @@ proto.io.defang.v1.ServiceInfo.toObject = function(includeInstance, msg) {
     service: (f = msg.getService()) && proto.io.defang.v1.Service.toObject(includeInstance, f),
     fqdn: jspb.Message.getFieldWithDefault(msg, 2, ""),
     tenant: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    etag: jspb.Message.getFieldWithDefault(msg, 4, "")
+    etag: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    status: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    natIpsList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -748,6 +757,14 @@ proto.io.defang.v1.ServiceInfo.deserializeBinaryFromReader = function(msg, reade
     case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setEtag(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setStatus(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addNatIps(value);
       break;
     default:
       reader.skipField();
@@ -804,6 +821,20 @@ proto.io.defang.v1.ServiceInfo.serializeBinaryToWriter = function(message, write
   if (f.length > 0) {
     writer.writeString(
       4,
+      f
+    );
+  }
+  f = message.getStatus();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+  f = message.getNatIpsList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      6,
       f
     );
   }
@@ -898,6 +929,61 @@ proto.io.defang.v1.ServiceInfo.prototype.getEtag = function() {
  */
 proto.io.defang.v1.ServiceInfo.prototype.setEtag = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string status = 5;
+ * @return {string}
+ */
+proto.io.defang.v1.ServiceInfo.prototype.getStatus = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.setStatus = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * repeated string nat_ips = 6;
+ * @return {!Array<string>}
+ */
+proto.io.defang.v1.ServiceInfo.prototype.getNatIpsList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 6));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.setNatIpsList = function(value) {
+  return jspb.Message.setField(this, 6, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.addNatIps = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 6, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.clearNatIpsList = function() {
+  return this.setNatIpsList([]);
 };
 
 
@@ -1218,6 +1304,13 @@ proto.io.defang.v1.SecretValue.prototype.setValue = function(value) {
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.io.defang.v1.Auth.repeatedFields_ = [3];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -1250,7 +1343,8 @@ proto.io.defang.v1.Auth.prototype.toObject = function(opt_includeInstance) {
 proto.io.defang.v1.Auth.toObject = function(includeInstance, msg) {
   var f, obj = {
     tenant: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    authCode: jspb.Message.getFieldWithDefault(msg, 2, "")
+    authCode: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    scopeList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1295,6 +1389,10 @@ proto.io.defang.v1.Auth.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setAuthCode(value);
       break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addScope(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1338,6 +1436,13 @@ proto.io.defang.v1.Auth.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getScopeList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -1374,6 +1479,43 @@ proto.io.defang.v1.Auth.prototype.getAuthCode = function() {
  */
 proto.io.defang.v1.Auth.prototype.setAuthCode = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * repeated string scope = 3;
+ * @return {!Array<string>}
+ */
+proto.io.defang.v1.Auth.prototype.getScopeList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 3));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.io.defang.v1.Auth} returns this
+ */
+proto.io.defang.v1.Auth.prototype.setScopeList = function(value) {
+  return jspb.Message.setField(this, 3, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.io.defang.v1.Auth} returns this
+ */
+proto.io.defang.v1.Auth.prototype.addScope = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 3, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.io.defang.v1.Auth} returns this
+ */
+proto.io.defang.v1.Auth.prototype.clearScopeList = function() {
+  return this.setScopeList([]);
 };
 
 

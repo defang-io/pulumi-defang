@@ -38,6 +38,14 @@ export class ServiceInfo extends jspb.Message {
   getEtag(): string;
   setEtag(value: string): void;
 
+  getStatus(): string;
+  setStatus(value: string): void;
+
+  clearNatIpsList(): void;
+  getNatIpsList(): Array<string>;
+  setNatIpsList(value: Array<string>): void;
+  addNatIps(value: string, index?: number): string;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ServiceInfo.AsObject;
   static toObject(includeInstance: boolean, msg: ServiceInfo): ServiceInfo.AsObject;
@@ -54,6 +62,8 @@ export namespace ServiceInfo {
     fqdn: string,
     tenant: string,
     etag: string,
+    status: string,
+    natIpsList: Array<string>,
   }
 }
 
@@ -110,6 +120,11 @@ export class Auth extends jspb.Message {
   getAuthCode(): string;
   setAuthCode(value: string): void;
 
+  clearScopeList(): void;
+  getScopeList(): Array<string>;
+  setScopeList(value: Array<string>): void;
+  addScope(value: string, index?: number): string;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Auth.AsObject;
   static toObject(includeInstance: boolean, msg: Auth): Auth.AsObject;
@@ -124,6 +139,7 @@ export namespace Auth {
   export type AsObject = {
     tenant: string,
     authCode: string,
+    scopeList: Array<string>,
   }
 }
 

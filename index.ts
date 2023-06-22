@@ -228,6 +228,8 @@ interface DefangServiceOutputs {
   fabricDNS: string;
   service: pb.Service.AsObject; // this might contain undefined, which is not allowed
   fqdn: string;
+  natIPs: string[];
+  // etag: string;
 }
 
 function toOutputs(
@@ -239,6 +241,8 @@ function toOutputs(
     fabricDNS,
     service: deleteUndefined(service.getService()!.toObject()),
     fqdn: service.getFqdn() || oldFqdn!,
+    natIPs: service.getNatIpsList(),
+    // etag: service.getEtag(),
   };
 }
 
@@ -514,6 +518,8 @@ export class DefangService extends pulumi.dynamic.Resource {
   public readonly fqdn!: pulumi.Output<string>;
   /** the name of the service */
   public readonly name!: pulumi.Output<string>;
+  /** the public NAT IPs of the service */
+  public readonly natIPs!: pulumi.Output<string[]>;
 
   /**
    * Declare a new service on Defang.
