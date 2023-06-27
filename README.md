@@ -5,16 +5,23 @@ This [Dynamic Resource Provider](https://www.pulumi.com/docs/intro/concepts/reso
 
 ## Install
 
-The provider is available through NPM from the GitHub Package Registry. See [installation instructions](https://github.com/defang-io/pulumi-defang/pkgs/npm/pulumi-defang).
+The provider is available from NPMG Package Registry. See [installation instructions](https://www.npmjs.com/package/%2540defang-io/pulumi-defang).
+```sh
+npm i @defang-io/pulumi-defang
+```
 
 ## Example
 
 ```ts
 import { DefangService } from "@defang-io/pulumi-defang/lib";
 
-const service = new DefangService("defang-nginx", {
+const service = new DefangService("defang-demo", {
   // name: "…",                             // defaults to the Pulumi resource name
-  image: "nginx:latest",
+  // image: "nginx:latest",                 // pre-built container image
+  build: {
+    context: ".",
+    dockerfile: "Dockerfile.dev",
+  },
   ports: [{ target: 80, protocol: "http", mode: "ingress" }],
   // fabricDNS: "…",                        // override the Defang Fabric Controller endpoint
   // platform: "…",                         // "linux/arm64" | "linux/amd64" | "linux" (default)
@@ -32,6 +39,7 @@ const service = new DefangService("defang-nginx", {
 export const id = service.id;
 export const urn = service.urn;
 export const fqdn = service.fqdn;           // the final FQDN for your service
+export const natIPs = service.natIPs;       // the public NAT IPs of the service
 export const fabricDNS = service.fabricDNS;
 ```
 
@@ -40,3 +48,4 @@ export const fabricDNS = service.fabricDNS;
 * `DEFANG_ACCESS_TOKEN` - your access token; defaults to the token file from the CLI
 * `DEFANG_FABRIC` - override the Defang Fabric service endpoint; defaults to prod
 * `DEFANG_FORCE_UP` - set this to `1` or `true` to force an update (for debugging only)
+* `DEFANG_DEBUG` - set this to `1` or `true` to enable debug logging

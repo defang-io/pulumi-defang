@@ -1,12 +1,13 @@
-import * as pulumi from "@pulumi/pulumi";
 import * as grpc from "@grpc/grpc-js";
+import * as pulumi from "@pulumi/pulumi";
 import assert = require("assert");
+import { readFileSync } from "fs";
+import { join } from "path";
 
 import * as fabric from "./protos/v1/fabric_grpc_pb";
 import * as pb from "./protos/v1/fabric_pb";
+import { uploadTarball } from "./upload";
 import { deleteUndefined, isEqual, optionals } from "./utils";
-import { join } from "path";
-import { readFileSync } from "fs";
 
 let defaultFabric =
   process.env["DEFANG_FABRIC"] || "fabric-prod1.defang.dev:443";
@@ -17,11 +18,17 @@ export function setDefaultFabric(fabric: string) {
   defaultFabric = fabric;
 }
 
+function isSet(val?: string): boolean {
+  return ["true", "1"].includes(val!); // handles undefined just fine
+}
+
+const debug = isSet(process.env["DEFANG_DEBUG"]);
+
 // Pulumi stores the actual code of the dynamic provider in the stack. This
 // means that if there's a bug in the provider, we can't fix it in existing
 // stacks. To work around this, we can force an update of the provider code by
 // setting the environment variable DEFANG_FORCE_UP to "true" or "1".
-const forceUpdate = ["true", "1"].includes(process.env["DEFANG_FORCE_UP"]!);
+const forceUpdate = isSet(process.env["DEFANG_FORCE_UP"]);
 
 // The access token is used to authenticate with the gRPC server. It can be
 // passed in as an environment variable, read from the state file, or set using
@@ -34,9 +41,11 @@ function readAccessToken(fabric: string): string {
     join(process.env["HOME"]!, ".local", "state");
   const tokenPath = join(tokenDir, "defang", fabric.replace(/:\d+$/, ""));
   try {
+    if (debug) console.debug(`Reading access token from ${tokenPath}`);
     return readFileSync(tokenPath, "utf8").trim();
   } catch (e) {
-    console.error("Please log in with the Defang CLI: defang login");
+    const arg = fabric === defaultFabric ? "" : ` --cluster ${fabric}`;
+    console.error("Please log in with the Defang CLI: defang login" + arg);
     throw e;
   }
 }
@@ -84,7 +93,10 @@ async function connect(
 function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   const service = new pb.Service();
   service.setName(inputs.name);
-  service.setImage(inputs.image);
+  if (inputs.image) {
+    service.setImage(inputs.image);
+  }
+  // inputs.build is handled in updatex
   const deploy = new pb.Deploy();
   deploy.setReplicas(inputs.deploy?.replicas ?? 1);
   if (inputs.deploy?.resources) {
@@ -102,14 +114,6 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
     resources.setReservations(reservations);
     deploy.setResources(resources);
   }
-  // if (inputs.build) {
-  //   const build = new pb.Build();
-  //   build.setContext(inputs.build.context); // FIXME: use createUploadURL to create a signed URL for uploading the context
-  //   if (inputs.build.dockerfile) {
-  //     build.setDockerfile(inputs.build.dockerfile);
-  //   }
-  //   service.setBuild(build);
-  // }
   service.setInternal(inputs.internal ?? true);
   service.setDeploy(deploy);
   service.setPlatform(
@@ -141,6 +145,22 @@ function dummyServiceInfo(service: pb.Service): pb.ServiceInfo {
   return info;
 }
 
+async function uploadBuildContext(
+  client: fabric.FabricControllerClient,
+  context: string
+): Promise<string> {
+  const uploadUrlResponse = await new Promise<pb.UploadURLResponse>(
+    (resolve, reject) =>
+      client.createUploadURL(new pb.Void(), (err, res) =>
+        err ? reject(err) : resolve(res!)
+      )
+  );
+  const putUrl = uploadUrlResponse.getUrl();
+  if (debug) console.debug(`Uploading build context to ${putUrl}`);
+  await uploadTarball(putUrl, context);
+  return putUrl.replace(/\?.*$/, ""); // remove query params
+}
+
 async function updatex(
   inputs: DefangServiceInputs,
   force: boolean = false
@@ -148,6 +168,17 @@ async function updatex(
   const service = convertServiceInputs(inputs);
   const client = await connect(inputs.fabricDNS);
   try {
+    // Upload the build context, if provided
+    if (inputs.build?.context) {
+      const build = new pb.Build();
+      build.setContext(await uploadBuildContext(client, inputs.build.context));
+      if (inputs.build.dockerfile) {
+        build.setDockerfile(inputs.build.dockerfile);
+      }
+      service.getBuild()?.setContext(build.getContext());
+      service.setBuild(build);
+    }
+
     // Update any secrets w/ values first in case the service update depends on them
     await Promise.all(
       inputs.secrets?.map((secret) => {
@@ -159,19 +190,19 @@ async function updatex(
         sv.setValue(secret.value);
         return new Promise((resolve, reject) =>
           client.putSecret(sv, (err, res) =>
-            err && !force ? reject(err) : resolve(res)
+            err ? reject(err) : resolve(res!)
           )
         );
       }) ?? []
     );
 
-    const result = await new Promise<pb.ServiceInfo | undefined>(
-      (resolve, reject) =>
-        client.update(service, (err, res) =>
-          err && !force ? reject(err) : resolve(res)
-        )
+    return await new Promise<pb.ServiceInfo>((resolve, reject) =>
+      client.update(service, (err, res) => (err ? reject(err) : resolve(res!)))
     );
-    return result ?? dummyServiceInfo(service);
+  } catch (err) {
+    if (!force) throw err;
+    console.warn(`Forced update; ignoring error: ${err}`);
+    return dummyServiceInfo(service);
   } finally {
     client.close();
   }
@@ -212,14 +243,14 @@ interface UnwrappedSecret {
 interface DefangServiceInputs {
   fabricDNS: string;
   name: string;
-  image: string;
+  image?: string;
   platform?: Platform;
   internal?: boolean;
   deploy?: Deploy;
   ports?: Port[];
   environment?: { [key: string]: string };
   secrets?: UnwrappedSecret[];
-  // build?: Build;
+  build?: Build;
   forceNewDeployment?: boolean;
   command?: string[];
 }
@@ -251,14 +282,10 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     olds: DefangServiceInputs,
     news: DefangServiceInputs
   ): Promise<pulumi.dynamic.CheckResult<DefangServiceInputs>> {
-    // console.debug("check");
     if (!news.fabricDNS) {
       return {
         failures: [{ property: "fabricDNS", reason: "fabricDNS is required" }],
       };
-    }
-    if (!news.image) {
-      return { failures: [{ property: "image", reason: "image is required" }] };
     }
     // TODO: validate name
     if (!news.name) {
@@ -323,28 +350,40 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
         };
       }
     }
-    // if (news.build) {
-    //   if (!news.build.context) {
-    //     return {
-    //       failures: [
-    //         {
-    //           property: "build",
-    //           reason: "build context is required",
-    //         },
-    //       ],
-    //     };
-    //   }
-    //   if (news.build.dockerfile === "") {
-    //     return {
-    //       failures: [
-    //         {
-    //           property: "build",
-    //           reason: "dockerfile cannot be empty string",
-    //         },
-    //       ],
-    //     };
-    //   }
-    // }
+    if (news.build) {
+      if (!news.build.context) {
+        return {
+          failures: [
+            {
+              property: "build",
+              reason: "build context is required",
+            },
+          ],
+        };
+      }
+      if (news.build.dockerfile === "") {
+        return {
+          failures: [
+            {
+              property: "build",
+              reason: "dockerfile cannot be empty string",
+            },
+          ],
+        };
+      }
+      if (news.image) {
+        return {
+          failures: [
+            {
+              property: "image",
+              reason: "cannot specify both build and image",
+            },
+          ],
+        };
+      }
+    } else if (!news.image) {
+      return { failures: [{ property: "image", reason: "image is required" }] };
+    }
     return { inputs: news };
   },
   async create(
@@ -477,18 +516,20 @@ export interface Secret {
   value?: pulumi.Input<string>;
 }
 
-// export interface Build {
-//   context: string;
-//   dockerfile?: string;
-// }
+export interface Build {
+  /** the folder to send to the builder */
+  context: string;
+  /** the path to the Dockerfile; defaults to Dockerfile */
+  dockerfile?: string;
+}
 
 export interface DefangServiceArgs {
   /** the DNS name of the Defang Fabric service; defaults to the value of the DEFANG_FABRIC or prod, if unset */
   fabricDNS?: pulumi.Input<string>;
   /** the name of the service; defaults to the name of the resource */
   name?: pulumi.Input<string>;
-  /** the container image to deploy */
-  image: pulumi.Input<string>;
+  /** the container image to deploy; required when no build configuration was provided */
+  image?: pulumi.Input<string>;
   /** the platform to deploy to; defaults to "linux/amd64" */
   platform?: pulumi.Input<Platform>;
   /** whether the service requires a public IP or not; defaults to true */
@@ -501,11 +542,12 @@ export interface DefangServiceArgs {
   environment?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
   /** the secrets to expose as environment variables */
   secrets?: pulumi.Input<pulumi.Input<Secret>[]>;
-  /** whether to force a new deployment or not; defaults to false */
+  /** force deployment of the service even if nothing has changed */
   forceNewDeployment?: pulumi.Input<boolean>;
   /** the command to run; overrides the container image's CMD */
   command?: pulumi.Input<pulumi.Input<string>[]>;
-  // build?: pulumi.Input<Build>;
+  /** the optional build configuration; required when no image was provided */
+  build?: pulumi.Input<Build>;
 }
 
 /**
