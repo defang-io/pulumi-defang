@@ -85,7 +85,9 @@ async function connect(
 function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   const service = new pb.Service();
   service.setName(inputs.name);
-  service.setImage(inputs.image);
+  if (inputs.image) {
+    service.setImage(inputs.image);
+  }
   const deploy = new pb.Deploy();
   deploy.setReplicas(inputs.deploy?.replicas ?? 1);
   if (inputs.deploy?.resources) {
@@ -237,7 +239,7 @@ interface UnwrappedSecret {
 interface DefangServiceInputs {
   fabricDNS: string;
   name: string;
-  image: string;
+  image?: string;
   platform?: Platform;
   internal?: boolean;
   deploy?: Deploy;
@@ -281,9 +283,6 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
       return {
         failures: [{ property: "fabricDNS", reason: "fabricDNS is required" }],
       };
-    }
-    if (!news.image) {
-      return { failures: [{ property: "image", reason: "image is required" }] };
     }
     // TODO: validate name
     if (!news.name) {
@@ -369,6 +368,18 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
           ],
         };
       }
+      if (news.image) {
+        return {
+          failures: [
+            {
+              property: "image",
+              reason: "cannot specify both build and image",
+            },
+          ],
+        };
+      }
+    } else if (!news.image) {
+      return { failures: [{ property: "image", reason: "image is required" }] };
     }
     return { inputs: news };
   },
@@ -503,7 +514,9 @@ export interface Secret {
 }
 
 export interface Build {
+  /** the folder to send to the builder */
   context: string;
+  /** the path to the Dockerfile; defaults to Dockerfile */
   dockerfile?: string;
 }
 
@@ -512,8 +525,8 @@ export interface DefangServiceArgs {
   fabricDNS?: pulumi.Input<string>;
   /** the name of the service; defaults to the name of the resource */
   name?: pulumi.Input<string>;
-  /** the container image to deploy */
-  image: pulumi.Input<string>;
+  /** the container image to deploy; required when no build configuration was provided */
+  image?: pulumi.Input<string>;
   /** the platform to deploy to; defaults to "linux/amd64" */
   platform?: pulumi.Input<Platform>;
   /** whether the service requires a public IP or not; defaults to true */
@@ -526,10 +539,11 @@ export interface DefangServiceArgs {
   environment?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
   /** the secrets to expose as environment variables */
   secrets?: pulumi.Input<pulumi.Input<Secret>[]>;
+  /** force deployment of the service even if nothing has changed */
   forceNewDeployment?: pulumi.Input<boolean>;
   /** the command to run; overrides the container image's CMD */
   command?: pulumi.Input<pulumi.Input<string>[]>;
-  /** the optional build configuration */
+  /** the optional build configuration; required when no image was provided */
   build?: pulumi.Input<Build>;
 }
 
