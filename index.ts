@@ -35,9 +35,11 @@ function readAccessToken(fabric: string): string {
     join(process.env["HOME"]!, ".local", "state");
   const tokenPath = join(tokenDir, "defang", fabric.replace(/:\d+$/, ""));
   try {
+    pulumi.log.debug(`Reading access token from ${tokenPath}`);
     return readFileSync(tokenPath, "utf8").trim();
   } catch (e) {
-    console.error("Please log in with the Defang CLI: defang login");
+    const arg = fabric === defaultFabric ? "" : ` --cluster ${fabric}`;
+    pulumi.log.error("Please log in with the Defang CLI: defang login" + arg);
     throw e;
   }
 }
@@ -88,6 +90,7 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   if (inputs.image) {
     service.setImage(inputs.image);
   }
+  // inputs.build is handled in updatex
   const deploy = new pb.Deploy();
   deploy.setReplicas(inputs.deploy?.replicas ?? 1);
   if (inputs.deploy?.resources) {
@@ -105,14 +108,6 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
     resources.setReservations(reservations);
     deploy.setResources(resources);
   }
-  // if (inputs.build) {
-  //   const build = new pb.Build();
-  //   build.setContext(inputs.build.context); // FIXME: use createUploadURL to create a signed URL for uploading the context
-  //   if (inputs.build.dockerfile) {
-  //     build.setDockerfile(inputs.build.dockerfile);
-  //   }
-  //   service.setBuild(build);
-  // }
   service.setInternal(inputs.internal ?? true);
   service.setDeploy(deploy);
   service.setPlatform(
@@ -155,6 +150,7 @@ async function uploadBuildContext(
       )
   );
   const putUrl = uploadUrlResponse.getUrl();
+  pulumi.log.debug(`Uploading build context to ${putUrl}`);
   await uploadTarball(putUrl, context);
   return putUrl;
 }
@@ -173,6 +169,7 @@ async function updatex(
       if (inputs.build.dockerfile) {
         build.setDockerfile(inputs.build.dockerfile);
       }
+      service.getBuild()?.setContext(build.getContext());
       service.setBuild(build);
     }
 
@@ -198,6 +195,7 @@ async function updatex(
     );
   } catch (err) {
     if (!force) throw err;
+    pulumi.log.warn(`Forced update; ignoring error: ${err}`);
     return dummyServiceInfo(service);
   } finally {
     client.close();
