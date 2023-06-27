@@ -22,9 +22,7 @@ function isSet(val?: string): boolean {
   return ["true", "1"].includes(val!); // handles undefined just fine
 }
 
-const debug = isSet(process.env["DEFANG_DEBUG"])
-  ? console.debug
-  : pulumi.log.debug;
+const debug = isSet(process.env["DEFANG_DEBUG"]);
 
 // Pulumi stores the actual code of the dynamic provider in the stack. This
 // means that if there's a bug in the provider, we can't fix it in existing
@@ -43,7 +41,7 @@ function readAccessToken(fabric: string): string {
     join(process.env["HOME"]!, ".local", "state");
   const tokenPath = join(tokenDir, "defang", fabric.replace(/:\d+$/, ""));
   try {
-    debug(`Reading access token from ${tokenPath}`);
+    if (debug) console.debug(`Reading access token from ${tokenPath}`);
     return readFileSync(tokenPath, "utf8").trim();
   } catch (e) {
     const arg = fabric === defaultFabric ? "" : ` --cluster ${fabric}`;
@@ -158,7 +156,7 @@ async function uploadBuildContext(
       )
   );
   const putUrl = uploadUrlResponse.getUrl();
-  debug(`Uploading build context to ${putUrl}`);
+  if (debug) console.debug(`Uploading build context to ${putUrl}`);
   await uploadTarball(putUrl, context);
   return putUrl;
 }
