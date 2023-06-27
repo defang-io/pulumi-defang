@@ -18,11 +18,19 @@ export function setDefaultFabric(fabric: string) {
   defaultFabric = fabric;
 }
 
+function isSet(val?: string): boolean {
+  return ["true", "1"].includes(val!); // handles undefined just fine
+}
+
+const debug = isSet(process.env["DEFANG_DEBUG"])
+  ? console.debug
+  : pulumi.log.debug;
+
 // Pulumi stores the actual code of the dynamic provider in the stack. This
 // means that if there's a bug in the provider, we can't fix it in existing
 // stacks. To work around this, we can force an update of the provider code by
 // setting the environment variable DEFANG_FORCE_UP to "true" or "1".
-const forceUpdate = ["true", "1"].includes(process.env["DEFANG_FORCE_UP"]!);
+const forceUpdate = isSet(process.env["DEFANG_FORCE_UP"]);
 
 // The access token is used to authenticate with the gRPC server. It can be
 // passed in as an environment variable, read from the state file, or set using
@@ -35,11 +43,11 @@ function readAccessToken(fabric: string): string {
     join(process.env["HOME"]!, ".local", "state");
   const tokenPath = join(tokenDir, "defang", fabric.replace(/:\d+$/, ""));
   try {
-    pulumi.log.debug(`Reading access token from ${tokenPath}`);
+    debug(`Reading access token from ${tokenPath}`);
     return readFileSync(tokenPath, "utf8").trim();
   } catch (e) {
     const arg = fabric === defaultFabric ? "" : ` --cluster ${fabric}`;
-    pulumi.log.error("Please log in with the Defang CLI: defang login" + arg);
+    console.error("Please log in with the Defang CLI: defang login" + arg);
     throw e;
   }
 }
@@ -150,7 +158,7 @@ async function uploadBuildContext(
       )
   );
   const putUrl = uploadUrlResponse.getUrl();
-  pulumi.log.debug(`Uploading build context to ${putUrl}`);
+  debug(`Uploading build context to ${putUrl}`);
   await uploadTarball(putUrl, context);
   return putUrl;
 }
@@ -195,7 +203,7 @@ async function updatex(
     );
   } catch (err) {
     if (!force) throw err;
-    pulumi.log.warn(`Forced update; ignoring error: ${err}`);
+    console.warn(`Forced update; ignoring error: ${err}`);
     return dummyServiceInfo(service);
   } finally {
     client.close();
@@ -276,7 +284,6 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     olds: DefangServiceInputs,
     news: DefangServiceInputs
   ): Promise<pulumi.dynamic.CheckResult<DefangServiceInputs>> {
-    // console.debug("check");
     if (!news.fabricDNS) {
       return {
         failures: [{ property: "fabricDNS", reason: "fabricDNS is required" }],

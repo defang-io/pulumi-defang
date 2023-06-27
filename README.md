@@ -40,3 +40,4 @@ export const fabricDNS = service.fabricDNS;
 * `DEFANG_ACCESS_TOKEN` - your access token; defaults to the token file from the CLI
 * `DEFANG_FABRIC` - override the Defang Fabric service endpoint; defaults to prod
 * `DEFANG_FORCE_UP` - set this to `1` or `true` to force an update (for debugging only)
+* `DEFANG_DEBUG` - set this to `1` or `true` to enable debug logging
