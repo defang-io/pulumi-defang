@@ -29,8 +29,8 @@ export async function uploadTarball(
   cwd: string
 ): Promise<void> {
   const tempdir = await mkdtemp(join(tmpdir(), "defang-build-"));
+  console.debug(`Using temporary folder ${tempdir}`);
   const temppath = join(tempdir, "context.tar.gz");
-  console.debug(`Creating tarball in ${temppath}`);
 
   try {
     // Using stream.pipeline() instead of .pipe() to correctly handle errors

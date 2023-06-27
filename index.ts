@@ -158,7 +158,7 @@ async function uploadBuildContext(
   const putUrl = uploadUrlResponse.getUrl();
   if (debug) console.debug(`Uploading build context to ${putUrl}`);
   await uploadTarball(putUrl, context);
-  return putUrl;
+  return putUrl.replace(/\?.*$/, ""); // remove query params
 }
 
 async function updatex(
