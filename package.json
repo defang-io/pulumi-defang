@@ -6,7 +6,6 @@
     "url": "https://github.com/defang-io/pulumi-defang/issues"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.8.11",
     "@pulumi/pulumi": "^3.56.0",
     "google-protobuf": "^3.21.2",
     "node-fetch": "^3.3.1",
