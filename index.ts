@@ -260,7 +260,7 @@ interface DefangServiceOutputs {
   service: pb.Service.AsObject; // this might contain undefined, which is not allowed
   fqdn: string;
   natIPs: string[];
-  // etag: string;
+  etag: string;
 }
 
 function toOutputs(
@@ -273,7 +273,7 @@ function toOutputs(
     service: deleteUndefined(service.getService()!.toObject()),
     fqdn: service.getFqdn() || oldFqdn!,
     natIPs: service.getNatIpsList(),
-    // etag: service.getEtag(),
+    etag: service.getEtag(),
   };
 }
 
@@ -560,8 +560,10 @@ export class DefangService extends pulumi.dynamic.Resource {
   public readonly fqdn!: pulumi.Output<string>;
   /** the name of the service */
   public readonly name!: pulumi.Output<string>;
-  /** the public NAT IPs of the service */
+  /** the public NAT IPs of the service; useful for allow lists */
   public readonly natIPs!: pulumi.Output<string[]>;
+  /** the "etag" or deployment ID for the update; useful for tail */
+  public readonly etag!: pulumi.Output<string>;
 
   /**
    * Declare a new service on Defang.
