@@ -137,6 +137,11 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   if (inputs.command) {
     service.setCommandList(inputs.command);
   }
+  if (inputs.healthcheck) {
+    const healthcheck = new pb.HealthCheck();
+    healthcheck.setTestList(inputs.healthcheck.test);
+    service.setHealthcheck(healthcheck);
+  }
   return service;
 }
 
@@ -254,6 +259,7 @@ interface DefangServiceInputs {
   build?: Build;
   forceNewDeployment?: boolean;
   command?: string[];
+  healthcheck?: HealthCheck;
 }
 
 interface DefangServiceOutputs {
@@ -517,6 +523,11 @@ export interface Secret {
   value?: pulumi.Input<string>;
 }
 
+export interface HealthCheck {
+  /** optional health check test; first parameter can be "HTTP" for HTTP checks */
+  test: string[];
+}
+
 export interface Build {
   /** the folder to send to the builder */
   context: string;
@@ -549,6 +560,8 @@ export interface DefangServiceArgs {
   command?: pulumi.Input<pulumi.Input<string>[]>;
   /** the optional build configuration; required when no image was provided */
   build?: pulumi.Input<Build>;
+  /** the optional health-check test for the service */
+  healthcheck?: pulumi.Input<HealthCheck>;
 }
 
 /**
