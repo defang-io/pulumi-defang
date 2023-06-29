@@ -3,9 +3,10 @@ import * as pulumi from "@pulumi/pulumi";
 import assert = require("assert");
 import { readFileSync } from "fs";
 import { join } from "path";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
-import * as fabric from "./protos/v1/fabric_grpc_pb";
-import * as pb from "./protos/v1/fabric_pb";
+import * as fabric from "./protos/io/defang/v1/fabric_grpc_pb";
+import * as pb from "./protos/io/defang/v1/fabric_pb";
 import { uploadTarball } from "./upload";
 import { deleteUndefined, isEqual, optionals } from "./utils";
 
@@ -151,7 +152,7 @@ async function uploadBuildContext(
 ): Promise<string> {
   const uploadUrlResponse = await new Promise<pb.UploadURLResponse>(
     (resolve, reject) =>
-      client.createUploadURL(new pb.Void(), (err, res) =>
+      client.createUploadURL(new Empty(), (err, res) =>
         err ? reject(err) : resolve(res!)
       )
   );
@@ -400,7 +401,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     serviceId.setName(id);
     const client = await connect(olds.fabricDNS);
     try {
-      await new Promise<pb.Void>((resolve, reject) =>
+      await new Promise<Empty>((resolve, reject) =>
         client.delete(serviceId, (err, res) =>
           err ? reject(err) : resolve(res!)
         )
