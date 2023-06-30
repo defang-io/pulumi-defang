@@ -8,7 +8,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as fabric from "./protos/io/defang/v1/fabric_grpc_pb";
 import * as pb from "./protos/io/defang/v1/fabric_pb";
 import { uploadTarball } from "./upload";
-import { deleteUndefined, isEqual, optionals } from "./utils";
+import { deleteUndefined, isEqual, isValidUint, optionals } from "./utils";
 
 let defaultFabric =
   process.env["DEFANG_FABRIC"] || "fabric-prod1.defang.dev:443";
@@ -265,7 +265,7 @@ interface DefangServiceInputs {
 interface DefangServiceOutputs {
   fabricDNS: string;
   service: pb.Service.AsObject; // this might contain undefined, which is not allowed
-  fqdn: string;
+  fqdn?: string;
   natIPs: string[];
   etag: string;
 }
@@ -278,10 +278,14 @@ function toOutputs(
   return {
     fabricDNS,
     service: deleteUndefined(service.getService()!.toObject()),
-    fqdn: service.getFqdn() || oldFqdn!,
+    fqdn: service.getFqdn() || oldFqdn,
     natIPs: service.getNatIpsList(),
     etag: service.getEtag(),
   };
+}
+
+function isValidReservation(x?: number): boolean {
+  return x === undefined || x > 0; // returns false for NaN
 }
 
 const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
@@ -299,9 +303,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
       return { failures: [{ property: "name", reason: "name is required" }] };
     }
     if (news.deploy) {
-      if (
-        !Number.isInteger(news.deploy.replicas!) ||
-        news.deploy.replicas! < 0
+      if (!isValidUint(news.deploy.replicas ?? 0)
       ) {
         return {
           failures: [
@@ -312,7 +314,26 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
           ],
         };
       }
-      // TODO: validate cpu and memory > 0
+      if (!isValidReservation(news.deploy.resources?.reservations?.cpu)) {
+        return {
+          failures: [
+            {
+              property: "deploy",
+              reason: "cpu reservation must be > 0",
+            },
+          ],
+        };
+      }
+      if (!isValidReservation(news.deploy.resources?.reservations?.memory)) {
+        return {
+          failures: [
+            {
+              property: "deploy",
+              reason: "memory reservation must be > 0",
+            },
+          ],
+        };
+      }
     }
     for (const port of news.ports || []) {
       // port.protocol = port.protocol || "tcp"; TODO: should we set defaults here?
@@ -330,15 +351,12 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
           ],
         };
       }
-      if (
-        port.mode === "ingress" &&
-        !["http", "http2", "grpc"].includes(port.protocol!)
-      ) {
+      if (port.mode === "ingress" && ["udp", "tcp"].includes(port.protocol!)) {
         return {
           failures: [
             {
               property: "ports",
-              reason: "ingress ports must have protocol http, http2, or grpc",
+              reason: "ingress is not support by protocol " + port.protocol,
             },
           ],
         };
@@ -571,7 +589,7 @@ export class DefangService extends pulumi.dynamic.Resource {
   /** the DNS name of the Defang Fabric service */
   public readonly fabricDNS!: pulumi.Output<string>;
   /** the fully qualified domain name of the service */
-  public readonly fqdn!: pulumi.Output<string>;
+  public readonly fqdn!: pulumi.Output<string | undefined>;
   /** the name of the service */
   public readonly name!: pulumi.Output<string>;
   /** the public NAT IPs of the service; useful for allow lists */

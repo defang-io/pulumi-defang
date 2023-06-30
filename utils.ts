@@ -37,14 +37,24 @@ export function sortObject(obj: any): any {
 
 assert.deepStrictEqual(sortObject({ b: 2, a: 1 }), { a: 1, b: 2 });
 
-export function stringify(obj: any): string {
+export function stableStringify(obj: any): string {
   return JSON.stringify(obj, (_, v) => sortObject(v));
 }
 
-assert.strictEqual(stringify({ b: 2, a: 1 }), '{"a":1,"b":2}');
+assert.strictEqual(stableStringify({ b: 2, a: 1 }), '{"a":1,"b":2}');
 
 export function isEqual(a: any, b: any): boolean {
-  return stringify(a) === stringify(b);
+  return stableStringify(a) === stableStringify(b);
 }
 
 assert(isEqual({ b: 2, a: 1 }, { a: 1, b: 2, c: undefined }));
+
+export function isValidUint(x: number): boolean {
+  return x >= 0 && Number.isSafeInteger(x); // returns false for NaN
+}
+
+assert(isValidUint(0));
+assert(isValidUint(1));
+assert(!isValidUint(-1));
+assert(!isValidUint(1.1));
+assert(!isValidUint(NaN));
