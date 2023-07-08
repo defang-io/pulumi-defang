@@ -1172,7 +1172,7 @@ proto.io.defang.v1.UploadURLResponse.prototype.setUrl = function(value) {
  * @private {!Array<number>}
  * @const
  */
-proto.io.defang.v1.ServiceInfo.repeatedFields_ = [6,7];
+proto.io.defang.v1.ServiceInfo.repeatedFields_ = [6];
 
 
 
@@ -1210,8 +1210,7 @@ proto.io.defang.v1.ServiceInfo.toObject = function(includeInstance, msg) {
     tenant: jspb.Message.getFieldWithDefault(msg, 3, ""),
     etag: jspb.Message.getFieldWithDefault(msg, 4, ""),
     status: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    natIpsList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f,
-    secretVersionsList: (f = jspb.Message.getRepeatedField(msg, 7)) == null ? undefined : f
+    natIpsList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1272,12 +1271,6 @@ proto.io.defang.v1.ServiceInfo.deserializeBinaryFromReader = function(msg, reade
     case 6:
       var value = /** @type {string} */ (reader.readString());
       msg.addNatIps(value);
-      break;
-    case 7:
-      var values = /** @type {!Array<number>} */ (reader.isDelimited() ? reader.readPackedInt64() : [reader.readInt64()]);
-      for (var i = 0; i < values.length; i++) {
-        msg.addSecretVersions(values[i]);
-      }
       break;
     default:
       reader.skipField();
@@ -1348,13 +1341,6 @@ proto.io.defang.v1.ServiceInfo.serializeBinaryToWriter = function(message, write
   if (f.length > 0) {
     writer.writeRepeatedString(
       6,
-      f
-    );
-  }
-  f = message.getSecretVersionsList();
-  if (f.length > 0) {
-    writer.writePackedInt64(
-      7,
       f
     );
   }
@@ -1504,43 +1490,6 @@ proto.io.defang.v1.ServiceInfo.prototype.addNatIps = function(value, opt_index) 
  */
 proto.io.defang.v1.ServiceInfo.prototype.clearNatIpsList = function() {
   return this.setNatIpsList([]);
-};
-
-
-/**
- * repeated int64 secret_versions = 7;
- * @return {!Array<number>}
- */
-proto.io.defang.v1.ServiceInfo.prototype.getSecretVersionsList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 7));
-};
-
-
-/**
- * @param {!Array<number>} value
- * @return {!proto.io.defang.v1.ServiceInfo} returns this
- */
-proto.io.defang.v1.ServiceInfo.prototype.setSecretVersionsList = function(value) {
-  return jspb.Message.setField(this, 7, value || []);
-};
-
-
-/**
- * @param {number} value
- * @param {number=} opt_index
- * @return {!proto.io.defang.v1.ServiceInfo} returns this
- */
-proto.io.defang.v1.ServiceInfo.prototype.addSecretVersions = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 7, value, opt_index);
-};
-
-
-/**
- * Clears the list making it empty but non-null.
- * @return {!proto.io.defang.v1.ServiceInfo} returns this
- */
-proto.io.defang.v1.ServiceInfo.prototype.clearSecretVersionsList = function() {
-  return this.setSecretVersionsList([]);
 };
 
 

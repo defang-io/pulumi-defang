@@ -266,8 +266,10 @@ interface DefangServiceOutputs {
   fabricDNS: string;
   service: pb.Service.AsObject; // this might contain undefined, which is not allowed
   fqdn?: string;
-  natIPs: string[];
+  // tenant: string;
   etag: string;
+  // status: string;
+  natIPs: string[];
 }
 
 function toOutputs(
@@ -279,8 +281,8 @@ function toOutputs(
     fabricDNS,
     service: deleteUndefined(service.getService()!.toObject()),
     fqdn: service.getFqdn() || oldFqdn,
-    natIPs: service.getNatIpsList(),
     etag: service.getEtag(),
+    natIPs: service.getNatIpsList(),
   };
 }
 
@@ -303,8 +305,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
       return { failures: [{ property: "name", reason: "name is required" }] };
     }
     if (news.deploy) {
-      if (!isValidUint(news.deploy.replicas ?? 0)
-      ) {
+      if (!isValidUint(news.deploy.replicas ?? 0)) {
         return {
           failures: [
             {
@@ -586,12 +587,12 @@ export interface DefangServiceArgs {
  * A Pulumi custom resource for managing a service on Defang.
  */
 export class DefangService extends pulumi.dynamic.Resource {
+  /** the name of the service resource */
+  public readonly name!: pulumi.Output<string>;
   /** the DNS name of the Defang Fabric service */
   public readonly fabricDNS!: pulumi.Output<string>;
   /** the fully qualified domain name of the service */
   public readonly fqdn!: pulumi.Output<string | undefined>;
-  /** the name of the service */
-  public readonly name!: pulumi.Output<string>;
   /** the public NAT IPs of the service; useful for allow lists */
   public readonly natIPs!: pulumi.Output<string[]>;
   /** the "etag" or deployment ID for the update; useful for tail */
@@ -615,6 +616,11 @@ export class DefangService extends pulumi.dynamic.Resource {
     if (!args.fabricDNS) {
       args.fabricDNS = defaultFabric;
     }
-    super(defangServiceProvider, name, { fqdn: undefined, ...args }, opts);
+    super(
+      defangServiceProvider,
+      name,
+      { natIPs: undefined, etag: undefined, fqdn: undefined, ...args },
+      opts
+    );
   }
 }
