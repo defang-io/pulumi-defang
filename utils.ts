@@ -1,5 +1,9 @@
 import assert = require("assert");
 
+export type AbsPath = `/${string}`;
+
+export type HttpUrl = `http://${string}`;
+
 // Like `optionals` from Nixpkgs, returns [] if the condition is false.
 export function optionals<T>(cond: any, ...args: T[]): T[] {
   return cond ? args : [];

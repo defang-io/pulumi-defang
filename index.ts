@@ -8,7 +8,13 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as fabric from "./protos/io/defang/v1/fabric_grpc_pb";
 import * as pb from "./protos/io/defang/v1/fabric_pb";
 import { uploadTarball } from "./upload";
-import { deleteUndefined, isEqual, isValidUint, optionals } from "./utils";
+import {
+  HttpUrl,
+  deleteUndefined,
+  isEqual,
+  isValidUint,
+  optionals,
+} from "./utils";
 
 let defaultFabric =
   process.env["DEFANG_FABRIC"] || "fabric-prod1.defang.dev:443";
@@ -352,15 +358,22 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
           ],
         };
       }
-      if (port.mode === "ingress" && ["udp", "tcp"].includes(port.protocol!)) {
-        return {
-          failures: [
-            {
-              property: "ports",
-              reason: "ingress is not support by protocol " + port.protocol,
-            },
-          ],
-        };
+      if (port.mode === "ingress") {
+        if (["udp", "tcp"].includes(port.protocol!)) {
+          return {
+            failures: [
+              {
+                property: "ports",
+                reason: "ingress is not support by protocol " + port.protocol,
+              },
+            ],
+          };
+        }
+        if (!news.healthcheck?.test) {
+          console.warn(
+            "ingress port without healthcheck defaults to GET / HTTP/1.1"
+          );
+        }
       }
     }
     for (const secret of news.secrets || []) {
@@ -543,8 +556,8 @@ export interface Secret {
 }
 
 export interface HealthCheck {
-  /** optional health check test; first parameter can be "HTTP" for HTTP checks */
-  test: string[];
+  /** optional health check test */
+  test: ["CMD", "curl", HttpUrl]; // TODO: support NONE and curl flags
 }
 
 export interface Build {
