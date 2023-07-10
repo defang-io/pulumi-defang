@@ -265,7 +265,7 @@ interface DefangServiceInputs {
 interface DefangServiceOutputs {
   fabricDNS: string;
   service: pb.Service.AsObject; // this might contain undefined, which is not allowed
-  fqdn?: string;
+  fqdn: string[];
   // tenant: string;
   etag: string;
   // status: string;
@@ -275,12 +275,12 @@ interface DefangServiceOutputs {
 function toOutputs(
   fabricDNS: string,
   service: pb.ServiceInfo,
-  oldFqdn?: string
+  oldFqdn?: string[]
 ): DefangServiceOutputs {
   return {
     fabricDNS,
     service: deleteUndefined(service.getService()!.toObject()),
-    fqdn: service.getFqdn() || oldFqdn,
+    fqdn: service.getFqdnList() ?? oldFqdn,
     etag: service.getEtag(),
     natIPs: service.getNatIpsList(),
   };
@@ -591,9 +591,9 @@ export class DefangService extends pulumi.dynamic.Resource {
   public readonly name!: pulumi.Output<string>;
   /** the DNS name of the Defang Fabric service */
   public readonly fabricDNS!: pulumi.Output<string>;
-  /** the fully qualified domain name of the service */
-  public readonly fqdn!: pulumi.Output<string | undefined>;
-  /** the public NAT IPs of the service; useful for allow lists */
+  /** the fully qualified domain name(s) of the service, one for each port */
+  public readonly fqdn!: pulumi.Output<string[]>;
+  /** the public NAT IPs of the service; useful for allow-lists */
   public readonly natIPs!: pulumi.Output<string[]>;
   /** the "etag" or deployment ID for the update; useful for tail */
   public readonly etag!: pulumi.Output<string>;

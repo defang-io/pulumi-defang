@@ -1172,7 +1172,7 @@ proto.io.defang.v1.UploadURLResponse.prototype.setUrl = function(value) {
  * @private {!Array<number>}
  * @const
  */
-proto.io.defang.v1.ServiceInfo.repeatedFields_ = [6];
+proto.io.defang.v1.ServiceInfo.repeatedFields_ = [2,6];
 
 
 
@@ -1206,7 +1206,7 @@ proto.io.defang.v1.ServiceInfo.prototype.toObject = function(opt_includeInstance
 proto.io.defang.v1.ServiceInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
     service: (f = msg.getService()) && proto.io.defang.v1.Service.toObject(includeInstance, f),
-    fqdn: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    fqdnList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f,
     tenant: jspb.Message.getFieldWithDefault(msg, 3, ""),
     etag: jspb.Message.getFieldWithDefault(msg, 4, ""),
     status: jspb.Message.getFieldWithDefault(msg, 5, ""),
@@ -1254,7 +1254,7 @@ proto.io.defang.v1.ServiceInfo.deserializeBinaryFromReader = function(msg, reade
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setFqdn(value);
+      msg.addFqdn(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
@@ -1309,9 +1309,9 @@ proto.io.defang.v1.ServiceInfo.serializeBinaryToWriter = function(message, write
       proto.io.defang.v1.Service.serializeBinaryToWriter
     );
   }
-  f = message.getFqdn();
+  f = message.getFqdnList();
   if (f.length > 0) {
-    writer.writeString(
+    writer.writeRepeatedString(
       2,
       f
     );
@@ -1385,20 +1385,39 @@ proto.io.defang.v1.ServiceInfo.prototype.hasService = function() {
 
 
 /**
- * optional string fqdn = 2;
- * @return {string}
+ * repeated string fqdn = 2;
+ * @return {!Array<string>}
  */
-proto.io.defang.v1.ServiceInfo.prototype.getFqdn = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+proto.io.defang.v1.ServiceInfo.prototype.getFqdnList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 2));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.setFqdnList = function(value) {
+  return jspb.Message.setField(this, 2, value || []);
 };
 
 
 /**
  * @param {string} value
+ * @param {number=} opt_index
  * @return {!proto.io.defang.v1.ServiceInfo} returns this
  */
-proto.io.defang.v1.ServiceInfo.prototype.setFqdn = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
+proto.io.defang.v1.ServiceInfo.prototype.addFqdn = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 2, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.clearFqdnList = function() {
+  return this.setFqdnList([]);
 };
 
 

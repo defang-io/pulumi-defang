@@ -101,8 +101,10 @@ export class ServiceInfo extends jspb.Message {
   getService(): Service | undefined;
   setService(value?: Service): void;
 
-  getFqdn(): string;
-  setFqdn(value: string): void;
+  clearFqdnList(): void;
+  getFqdnList(): Array<string>;
+  setFqdnList(value: Array<string>): void;
+  addFqdn(value: string, index?: number): string;
 
   getTenant(): string;
   setTenant(value: string): void;
@@ -131,7 +133,7 @@ export class ServiceInfo extends jspb.Message {
 export namespace ServiceInfo {
   export type AsObject = {
     service?: Service.AsObject,
-    fqdn: string,
+    fqdnList: Array<string>,
     tenant: string,
     etag: string,
     status: string,
