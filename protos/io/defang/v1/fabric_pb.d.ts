@@ -120,6 +120,11 @@ export class ServiceInfo extends jspb.Message {
   setNatIpsList(value: Array<string>): void;
   addNatIps(value: string, index?: number): string;
 
+  clearLbIpsList(): void;
+  getLbIpsList(): Array<string>;
+  setLbIpsList(value: Array<string>): void;
+  addLbIps(value: string, index?: number): string;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ServiceInfo.AsObject;
   static toObject(includeInstance: boolean, msg: ServiceInfo): ServiceInfo.AsObject;
@@ -138,6 +143,7 @@ export namespace ServiceInfo {
     etag: string,
     status: string,
     natIpsList: Array<string>,
+    lbIpsList: Array<string>,
   }
 }
 

@@ -1172,7 +1172,7 @@ proto.io.defang.v1.UploadURLResponse.prototype.setUrl = function(value) {
  * @private {!Array<number>}
  * @const
  */
-proto.io.defang.v1.ServiceInfo.repeatedFields_ = [2,6];
+proto.io.defang.v1.ServiceInfo.repeatedFields_ = [2,6,7];
 
 
 
@@ -1210,7 +1210,8 @@ proto.io.defang.v1.ServiceInfo.toObject = function(includeInstance, msg) {
     tenant: jspb.Message.getFieldWithDefault(msg, 3, ""),
     etag: jspb.Message.getFieldWithDefault(msg, 4, ""),
     status: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    natIpsList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f
+    natIpsList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f,
+    lbIpsList: (f = jspb.Message.getRepeatedField(msg, 7)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1271,6 +1272,10 @@ proto.io.defang.v1.ServiceInfo.deserializeBinaryFromReader = function(msg, reade
     case 6:
       var value = /** @type {string} */ (reader.readString());
       msg.addNatIps(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addLbIps(value);
       break;
     default:
       reader.skipField();
@@ -1341,6 +1346,13 @@ proto.io.defang.v1.ServiceInfo.serializeBinaryToWriter = function(message, write
   if (f.length > 0) {
     writer.writeRepeatedString(
       6,
+      f
+    );
+  }
+  f = message.getLbIpsList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      7,
       f
     );
   }
@@ -1509,6 +1521,43 @@ proto.io.defang.v1.ServiceInfo.prototype.addNatIps = function(value, opt_index) 
  */
 proto.io.defang.v1.ServiceInfo.prototype.clearNatIpsList = function() {
   return this.setNatIpsList([]);
+};
+
+
+/**
+ * repeated string lb_ips = 7;
+ * @return {!Array<string>}
+ */
+proto.io.defang.v1.ServiceInfo.prototype.getLbIpsList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 7));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.setLbIpsList = function(value) {
+  return jspb.Message.setField(this, 7, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.addLbIps = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 7, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.clearLbIpsList = function() {
+  return this.setLbIpsList([]);
 };
 
 

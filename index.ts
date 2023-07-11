@@ -276,6 +276,7 @@ interface DefangServiceOutputs {
   etag: string;
   // status: string;
   natIPs: string[];
+  lbIPs: string[];
 }
 
 function toOutputs(
@@ -289,6 +290,7 @@ function toOutputs(
     fqdn: service.getFqdnList() ?? oldFqdn,
     etag: service.getEtag(),
     natIPs: service.getNatIpsList(),
+    lbIPs: service.getLbIpsList(),
   };
 }
 
@@ -610,6 +612,8 @@ export class DefangService extends pulumi.dynamic.Resource {
   public readonly natIPs!: pulumi.Output<string[]>;
   /** the "etag" or deployment ID for the update; useful for tail */
   public readonly etag!: pulumi.Output<string>;
+  /** the private load balancer IPs; useful for allow-lists */
+  public readonly lbIPs!: pulumi.Output<string[]>;
 
   /**
    * Declare a new service on Defang.
@@ -632,7 +636,13 @@ export class DefangService extends pulumi.dynamic.Resource {
     super(
       defangServiceProvider,
       name,
-      { natIPs: undefined, etag: undefined, fqdn: undefined, ...args },
+      {
+        lbIPs: undefined,
+        natIPs: undefined,
+        etag: undefined,
+        fqdn: undefined,
+        ...args,
+      },
       opts
     );
   }

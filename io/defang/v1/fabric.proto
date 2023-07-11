@@ -57,6 +57,7 @@ message ServiceInfo {
   string etag = 4;
   string status = 5;
   repeated string nat_ips = 6; // comma-separated list of NAT IPs
+  repeated string lb_ips = 7; // comma-separated list of load-balancer IPs
 
   // bool is_function = 5; // true if service is a function
   // string natsJwt = 5;
