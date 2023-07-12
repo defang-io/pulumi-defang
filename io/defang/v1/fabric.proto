@@ -12,7 +12,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 service FabricController {
-  rpc GetStatus(google.protobuf.Empty) returns (Status); // public
+  rpc GetStatus(google.protobuf.Empty) returns (Status);   // public
   rpc GetVersion(google.protobuf.Empty) returns (Version); // public
 
   rpc Tail(ServiceID) returns (stream LogEntry);
@@ -23,7 +23,7 @@ service FabricController {
   // rpc Promote(google.protobuf.Empty) returns (google.protobuf.Empty);
   rpc GetServices(google.protobuf.Empty) returns (Services);
 
-  rpc GenerateToken(Auth) returns (Token);
+  rpc GenerateToken(Auth) returns (Token); // public
   rpc GenerateFiles(GenerateFilesRequest) returns (GenerateFilesResponse);
 
   rpc PutSecret(SecretValue) returns (google.protobuf.Empty);
@@ -42,22 +42,20 @@ message File {
   string content = 2;
 }
 
-message GenerateFilesResponse {
-  repeated File files = 1;
-}
+message GenerateFilesResponse { repeated File files = 1; }
 
-message UploadURLResponse {
-  string url = 1;
-}
+message UploadURLResponse { string url = 1; }
 
 message ServiceInfo {
   Service service = 1;
-  repeated string fqdn = 2; // fully qualified domain name(s)
-  string tenant = 3; // tenant ID (or project ID)
+  repeated string endpoints = 2; // list of endpoints, one for each port
+  string tenant = 3;             // tenant ID (or project ID)
   string etag = 4;
   string status = 5;
   repeated string nat_ips = 6; // comma-separated list of NAT IPs
-  repeated string lb_ips = 7; // comma-separated list of load-balancer IPs
+  repeated string lb_ips = 7;  // comma-separated list of load-balancer IPs
+  string private_fqdn = 8;     // fully qualified domain name (host)
+  string public_fqdn = 9;      // fully qualified domain name (ingress)
 
   // bool is_function = 5; // true if service is a function
   // string natsJwt = 5;
@@ -68,9 +66,7 @@ message ServiceInfo {
 //   repeated SecretValue secrets = 2;
 // }
 
-message Secrets {
-  repeated string names = 1;
-}
+message Secrets { repeated string names = 1; }
 
 message SecretValue {
   string name = 1;
@@ -79,8 +75,9 @@ message SecretValue {
 
 message Auth {
   string tenant = 1;
-  string auth_code = 2; // from GitHub authorization code flow
+  string auth_code = 2;      // from GitHub authorization code flow
   repeated string scope = 3; // "tail", "read", etc.
+  string assertion = 4;      // jwt-bearer
   // string refresh_token = 3;
 }
 
@@ -92,9 +89,7 @@ message Token {
   // string id_token = 5; // "eyJhbGciOiJSUzI…"
 }
 
-message Status {
-  string version = 1;
-}
+message Status { string version = 1; }
 
 message Version {
   string fabric = 1;
@@ -111,29 +106,28 @@ enum Platform {
   LINUX_ANY = 2;
 }
 
-message ServiceID {
-  string name = 1;
-}
+message ServiceID { string name = 1; }
 
 message Device {
   repeated string capabilities = 1; // "gpu", "tpu", etc.
-  string driver = 2; // "nvidia", "amd", etc.
-  uint32 count = 3; // number of devices to reserve
+  string driver = 2;                // "nvidia", "amd", etc.
+  uint32 count = 3;                 // number of devices to reserve
   // repeated string device_ids = 4; // device IDs to reserve
   // map<string, string> options = 5;
 }
 
-/* placement specifies constraints and preferences for platform to select a physical node to run service containers. */
+/* placement specifies constraints and preferences for platform to select a
+ * physical node to run service containers. */
 // message Placement {
-//   /* constraints defines a REQUIRED property the platform's node MUST fulfill to run service container. */
-//   map<string, string> constraints = 1;
-//   /* preferences defines a property the platform's node SHOULD fulfill to run service container. */
-//   map<string, string> preferences = 2;
+//   /* constraints defines a REQUIRED property the platform's node MUST fulfill
+//   to run service container. */ map<string, string> constraints = 1;
+//   /* preferences defines a property the platform's node SHOULD fulfill to run
+//   service container. */ map<string, string> preferences = 2;
 // }
 
 message Resource {
-  float memory = 1; // in MiB
-  float cpus = 2; // fractional vCPUs
+  float memory = 1;            // in MiB
+  float cpus = 2;              // fractional vCPUs
   repeated Device devices = 3; // devices & capabilities
 }
 
@@ -143,7 +137,7 @@ message Resources {
 }
 
 message Deploy {
-  uint32 replicas = 1; // number of initial replicas
+  uint32 replicas = 1;     // number of initial replicas
   Resources resources = 2; // reservations and limits
   // Placement placement = 3;
   // EndpointMode endpoint_mode
@@ -165,7 +159,7 @@ enum Protocol {
 }
 
 enum Mode {
-  HOST = 0; // no load-balancer; suitable for internal services and functions
+  HOST = 0;    // no load-balancer; suitable for internal services and functions
   INGRESS = 1; // with load-balancer; suitable for public services
 }
 
@@ -183,10 +177,11 @@ message Secret {
 }
 
 message Build {
-  string context = 1; // path or URL to the build context
-  string dockerfile = 2; // path to the Dockerfile
+  string context = 1;           // path or URL to the build context
+  string dockerfile = 2;        // path to the Dockerfile
+  map<string, string> args = 3; // build-time variables
 
-  // map<string, string> args = 3;
+  // string dockerfile_inline = 4; // inline Dockerfile
   // repeated string ssh = 4;
   // repeated string cache_from = 4;
   // repeated string cache_to = 4;
@@ -225,19 +220,16 @@ message Service {
   HealthCheck healthcheck = 10;
   repeated string command = 11;
 
-  // uint64 etag = 8; TODO: this could be useful for optimistic concurrency from the clients
-  // repeated Range expose = 7; only for taskdef?
-  // repeated string profiles = 8;
-  // bool init = 10;
-  // repeated string entrypoint
-  // string domainname
+  // uint64 etag = 8; TODO: this could be useful for optimistic concurrency from
+  // the clients repeated Range expose = 7; only for taskdef? repeated string
+  // profiles = 8; bool init = 10; repeated string entrypoint string domainname
 }
 
 message Event {
   string specversion = 1; // required (but we don't care)
-  string type = 2; // required
-  string source = 3; // required
-  string id = 4; // required
+  string type = 2;        // required
+  string source = 3;      // required
+  string id = 4;          // required
   string datacontenttype = 5;
   string dataschema = 6;
   string subject = 7;

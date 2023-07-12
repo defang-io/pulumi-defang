@@ -288,7 +288,8 @@ getServices: {
     responseSerialize: serialize_io_defang_v1_Token,
     responseDeserialize: deserialize_io_defang_v1_Token,
   },
-  generateFiles: {
+  // public
+generateFiles: {
     path: '/io.defang.v1.FabricController/GenerateFiles',
     requestStream: false,
     responseStream: false,

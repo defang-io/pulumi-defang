@@ -101,10 +101,10 @@ export class ServiceInfo extends jspb.Message {
   getService(): Service | undefined;
   setService(value?: Service): void;
 
-  clearFqdnList(): void;
-  getFqdnList(): Array<string>;
-  setFqdnList(value: Array<string>): void;
-  addFqdn(value: string, index?: number): string;
+  clearEndpointsList(): void;
+  getEndpointsList(): Array<string>;
+  setEndpointsList(value: Array<string>): void;
+  addEndpoints(value: string, index?: number): string;
 
   getTenant(): string;
   setTenant(value: string): void;
@@ -125,6 +125,12 @@ export class ServiceInfo extends jspb.Message {
   setLbIpsList(value: Array<string>): void;
   addLbIps(value: string, index?: number): string;
 
+  getPrivateFqdn(): string;
+  setPrivateFqdn(value: string): void;
+
+  getPublicFqdn(): string;
+  setPublicFqdn(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ServiceInfo.AsObject;
   static toObject(includeInstance: boolean, msg: ServiceInfo): ServiceInfo.AsObject;
@@ -138,12 +144,14 @@ export class ServiceInfo extends jspb.Message {
 export namespace ServiceInfo {
   export type AsObject = {
     service?: Service.AsObject,
-    fqdnList: Array<string>,
+    endpointsList: Array<string>,
     tenant: string,
     etag: string,
     status: string,
     natIpsList: Array<string>,
     lbIpsList: Array<string>,
+    privateFqdn: string,
+    publicFqdn: string,
   }
 }
 
@@ -205,6 +213,9 @@ export class Auth extends jspb.Message {
   setScopeList(value: Array<string>): void;
   addScope(value: string, index?: number): string;
 
+  getAssertion(): string;
+  setAssertion(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Auth.AsObject;
   static toObject(includeInstance: boolean, msg: Auth): Auth.AsObject;
@@ -220,6 +231,7 @@ export namespace Auth {
     tenant: string,
     authCode: string,
     scopeList: Array<string>,
+    assertion: string,
   }
 }
 
@@ -512,6 +524,8 @@ export class Build extends jspb.Message {
   getDockerfile(): string;
   setDockerfile(value: string): void;
 
+  getArgsMap(): jspb.Map<string, string>;
+  clearArgsMap(): void;
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Build.AsObject;
   static toObject(includeInstance: boolean, msg: Build): Build.AsObject;
@@ -526,6 +540,7 @@ export namespace Build {
   export type AsObject = {
     context: string,
     dockerfile: string,
+    argsMap: Array<[string, string]>,
   }
 }
 

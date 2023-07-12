@@ -1,9 +1,9 @@
 import * as grpc from "@grpc/grpc-js";
 import * as pulumi from "@pulumi/pulumi";
-import assert = require("assert");
 import { readFileSync } from "fs";
-import { join } from "path";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { join } from "path";
+import assert = require("assert");
 
 import * as fabric from "./protos/io/defang/v1/fabric_grpc_pb";
 import * as pb from "./protos/io/defang/v1/fabric_pb";
@@ -269,28 +269,37 @@ interface DefangServiceInputs {
 }
 
 interface DefangServiceOutputs {
-  fabricDNS: string;
-  service: pb.Service.AsObject; // this might contain undefined, which is not allowed
-  fqdn: string[];
-  // tenant: string;
+  endpoints: string[];
   etag: string;
-  // status: string;
-  natIPs: string[];
+  fabricDNS: string;
   lbIPs: string[];
+  natIPs: string[];
+  privateFqdn?: string;
+  publicFqdn?: string;
+  service: pb.Service.AsObject; // this might contain undefined, which is not allowed
+  // status: string;
+  // tenant: string;
+}
+
+function unempty(s: string): string | undefined {
+  return s || undefined;
 }
 
 function toOutputs(
   fabricDNS: string,
   service: pb.ServiceInfo,
-  oldFqdn?: string[]
+  old?: DefangServiceOutputs
 ): DefangServiceOutputs {
+  // FIXME: the fallbacks of `?? old?.` here don't work sinces the lhs is never undefined
   return {
+    endpoints: service.getEndpointsList() ?? old?.endpoints,
+    etag: service.getEtag() ?? old?.etag,
     fabricDNS,
+    lbIPs: service.getLbIpsList() ?? old?.lbIPs,
+    natIPs: service.getNatIpsList() ?? old?.natIPs,
+    privateFqdn: unempty(service.getPrivateFqdn() ?? old?.privateFqdn), // can be empty string
+    publicFqdn: unempty(service.getPublicFqdn() ?? old?.publicFqdn), // can be empty string
     service: deleteUndefined(service.getService()!.toObject()),
-    fqdn: service.getFqdnList() ?? oldFqdn,
-    etag: service.getEtag(),
-    natIPs: service.getNatIpsList(),
-    lbIPs: service.getLbIpsList(),
   };
 }
 
@@ -487,7 +496,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     const result = await updatex(news, forceUpdate);
     assert.strictEqual(result.getService()?.getName(), id);
     return {
-      outs: toOutputs(news.fabricDNS, result, olds.fqdn),
+      outs: toOutputs(news.fabricDNS, result, olds),
     };
   },
   async read(
@@ -606,14 +615,18 @@ export class DefangService extends pulumi.dynamic.Resource {
   public readonly name!: pulumi.Output<string>;
   /** the DNS name of the Defang Fabric service */
   public readonly fabricDNS!: pulumi.Output<string>;
-  /** the fully qualified domain name(s) of the service, one for each port */
-  public readonly fqdn!: pulumi.Output<string[]>;
+  /** the fully qualified endpoint(s) of the service, one for each port */
+  public readonly endpoints!: pulumi.Output<string[]>;
   /** the public NAT IPs of the service; useful for allow-lists */
   public readonly natIPs!: pulumi.Output<string[]>;
   /** the "etag" or deployment ID for the update; useful for tail */
   public readonly etag!: pulumi.Output<string>;
   /** the private load balancer IPs; useful for allow-lists */
   public readonly lbIPs!: pulumi.Output<string[]>;
+  /** the private fully qualified domain name of the service; only for services with host ports */
+  public readonly privateFqdn!: pulumi.Output<string | undefined>;
+  /** the public fully qualified domain name of the service; only for services with ingress ports */
+  public readonly publicFqdn!: pulumi.Output<string | undefined>;
 
   /**
    * Declare a new service on Defang.
@@ -637,10 +650,12 @@ export class DefangService extends pulumi.dynamic.Resource {
       defangServiceProvider,
       name,
       {
+        endpoints: undefined,
+        etag: undefined,
         lbIPs: undefined,
         natIPs: undefined,
-        etag: undefined,
-        fqdn: undefined,
+        privateFqdn: undefined,
+        publicFqdn: undefined,
         ...args,
       },
       opts

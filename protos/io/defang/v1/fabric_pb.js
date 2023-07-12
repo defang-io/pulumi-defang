@@ -1206,12 +1206,14 @@ proto.io.defang.v1.ServiceInfo.prototype.toObject = function(opt_includeInstance
 proto.io.defang.v1.ServiceInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
     service: (f = msg.getService()) && proto.io.defang.v1.Service.toObject(includeInstance, f),
-    fqdnList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f,
+    endpointsList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f,
     tenant: jspb.Message.getFieldWithDefault(msg, 3, ""),
     etag: jspb.Message.getFieldWithDefault(msg, 4, ""),
     status: jspb.Message.getFieldWithDefault(msg, 5, ""),
     natIpsList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f,
-    lbIpsList: (f = jspb.Message.getRepeatedField(msg, 7)) == null ? undefined : f
+    lbIpsList: (f = jspb.Message.getRepeatedField(msg, 7)) == null ? undefined : f,
+    privateFqdn: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    publicFqdn: jspb.Message.getFieldWithDefault(msg, 9, "")
   };
 
   if (includeInstance) {
@@ -1255,7 +1257,7 @@ proto.io.defang.v1.ServiceInfo.deserializeBinaryFromReader = function(msg, reade
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.addFqdn(value);
+      msg.addEndpoints(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
@@ -1276,6 +1278,14 @@ proto.io.defang.v1.ServiceInfo.deserializeBinaryFromReader = function(msg, reade
     case 7:
       var value = /** @type {string} */ (reader.readString());
       msg.addLbIps(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPrivateFqdn(value);
+      break;
+    case 9:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPublicFqdn(value);
       break;
     default:
       reader.skipField();
@@ -1314,7 +1324,7 @@ proto.io.defang.v1.ServiceInfo.serializeBinaryToWriter = function(message, write
       proto.io.defang.v1.Service.serializeBinaryToWriter
     );
   }
-  f = message.getFqdnList();
+  f = message.getEndpointsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       2,
@@ -1353,6 +1363,20 @@ proto.io.defang.v1.ServiceInfo.serializeBinaryToWriter = function(message, write
   if (f.length > 0) {
     writer.writeRepeatedString(
       7,
+      f
+    );
+  }
+  f = message.getPrivateFqdn();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
+      f
+    );
+  }
+  f = message.getPublicFqdn();
+  if (f.length > 0) {
+    writer.writeString(
+      9,
       f
     );
   }
@@ -1397,10 +1421,10 @@ proto.io.defang.v1.ServiceInfo.prototype.hasService = function() {
 
 
 /**
- * repeated string fqdn = 2;
+ * repeated string endpoints = 2;
  * @return {!Array<string>}
  */
-proto.io.defang.v1.ServiceInfo.prototype.getFqdnList = function() {
+proto.io.defang.v1.ServiceInfo.prototype.getEndpointsList = function() {
   return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 2));
 };
 
@@ -1409,7 +1433,7 @@ proto.io.defang.v1.ServiceInfo.prototype.getFqdnList = function() {
  * @param {!Array<string>} value
  * @return {!proto.io.defang.v1.ServiceInfo} returns this
  */
-proto.io.defang.v1.ServiceInfo.prototype.setFqdnList = function(value) {
+proto.io.defang.v1.ServiceInfo.prototype.setEndpointsList = function(value) {
   return jspb.Message.setField(this, 2, value || []);
 };
 
@@ -1419,7 +1443,7 @@ proto.io.defang.v1.ServiceInfo.prototype.setFqdnList = function(value) {
  * @param {number=} opt_index
  * @return {!proto.io.defang.v1.ServiceInfo} returns this
  */
-proto.io.defang.v1.ServiceInfo.prototype.addFqdn = function(value, opt_index) {
+proto.io.defang.v1.ServiceInfo.prototype.addEndpoints = function(value, opt_index) {
   return jspb.Message.addToRepeatedField(this, 2, value, opt_index);
 };
 
@@ -1428,8 +1452,8 @@ proto.io.defang.v1.ServiceInfo.prototype.addFqdn = function(value, opt_index) {
  * Clears the list making it empty but non-null.
  * @return {!proto.io.defang.v1.ServiceInfo} returns this
  */
-proto.io.defang.v1.ServiceInfo.prototype.clearFqdnList = function() {
-  return this.setFqdnList([]);
+proto.io.defang.v1.ServiceInfo.prototype.clearEndpointsList = function() {
+  return this.setEndpointsList([]);
 };
 
 
@@ -1558,6 +1582,42 @@ proto.io.defang.v1.ServiceInfo.prototype.addLbIps = function(value, opt_index) {
  */
 proto.io.defang.v1.ServiceInfo.prototype.clearLbIpsList = function() {
   return this.setLbIpsList([]);
+};
+
+
+/**
+ * optional string private_fqdn = 8;
+ * @return {string}
+ */
+proto.io.defang.v1.ServiceInfo.prototype.getPrivateFqdn = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.setPrivateFqdn = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
+};
+
+
+/**
+ * optional string public_fqdn = 9;
+ * @return {string}
+ */
+proto.io.defang.v1.ServiceInfo.prototype.getPublicFqdn = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.setPublicFqdn = function(value) {
+  return jspb.Message.setProto3StringField(this, 9, value);
 };
 
 
@@ -1918,7 +1978,8 @@ proto.io.defang.v1.Auth.toObject = function(includeInstance, msg) {
   var f, obj = {
     tenant: jspb.Message.getFieldWithDefault(msg, 1, ""),
     authCode: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    scopeList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f
+    scopeList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
+    assertion: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -1967,6 +2028,10 @@ proto.io.defang.v1.Auth.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.addScope(value);
       break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAssertion(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -2014,6 +2079,13 @@ proto.io.defang.v1.Auth.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeRepeatedString(
       3,
+      f
+    );
+  }
+  f = message.getAssertion();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
       f
     );
   }
@@ -2090,6 +2162,24 @@ proto.io.defang.v1.Auth.prototype.addScope = function(value, opt_index) {
  */
 proto.io.defang.v1.Auth.prototype.clearScopeList = function() {
   return this.setScopeList([]);
+};
+
+
+/**
+ * optional string assertion = 4;
+ * @return {string}
+ */
+proto.io.defang.v1.Auth.prototype.getAssertion = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.io.defang.v1.Auth} returns this
+ */
+proto.io.defang.v1.Auth.prototype.setAssertion = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -4054,7 +4144,8 @@ proto.io.defang.v1.Build.prototype.toObject = function(opt_includeInstance) {
 proto.io.defang.v1.Build.toObject = function(includeInstance, msg) {
   var f, obj = {
     context: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    dockerfile: jspb.Message.getFieldWithDefault(msg, 2, "")
+    dockerfile: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    argsMap: (f = msg.getArgsMap()) ? f.toObject(includeInstance, undefined) : []
   };
 
   if (includeInstance) {
@@ -4099,6 +4190,12 @@ proto.io.defang.v1.Build.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setDockerfile(value);
       break;
+    case 3:
+      var value = msg.getArgsMap();
+      reader.readMessage(value, function(message, reader) {
+        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "", "");
+         });
+      break;
     default:
       reader.skipField();
       break;
@@ -4142,6 +4239,10 @@ proto.io.defang.v1.Build.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getArgsMap(true);
+  if (f && f.getLength() > 0) {
+    f.serializeBinary(3, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
+  }
 };
 
 
@@ -4179,6 +4280,28 @@ proto.io.defang.v1.Build.prototype.getDockerfile = function() {
 proto.io.defang.v1.Build.prototype.setDockerfile = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
+
+
+/**
+ * map<string, string> args = 3;
+ * @param {boolean=} opt_noLazyCreate Do not create the map if
+ * empty, instead returning `undefined`
+ * @return {!jspb.Map<string,string>}
+ */
+proto.io.defang.v1.Build.prototype.getArgsMap = function(opt_noLazyCreate) {
+  return /** @type {!jspb.Map<string,string>} */ (
+      jspb.Message.getMapField(this, 3, opt_noLazyCreate,
+      null));
+};
+
+
+/**
+ * Clears values from the map. The map will be non-null.
+ * @return {!proto.io.defang.v1.Build} returns this
+ */
+proto.io.defang.v1.Build.prototype.clearArgsMap = function() {
+  this.getArgsMap().clear();
+  return this;};
 
 
 
