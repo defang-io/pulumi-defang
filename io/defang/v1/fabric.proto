@@ -14,8 +14,11 @@ import "google/protobuf/timestamp.proto";
 service FabricController {
   rpc GetStatus(google.protobuf.Empty) returns (Status);   // public
   rpc GetVersion(google.protobuf.Empty) returns (Version); // public
+  rpc Token(TokenRequest) returns (TokenResponse); // public
 
-  rpc Tail(ServiceID) returns (stream LogEntry);
+  rpc RevokeToken(google.protobuf.Empty) returns (google.protobuf.Empty);
+
+  rpc Tail(TailRequest) returns (stream TailResponse);
   rpc Update(Service) returns (ServiceInfo);
   rpc Get(ServiceID) returns (ServiceInfo);
   rpc Delete(ServiceID) returns (google.protobuf.Empty);
@@ -23,7 +26,6 @@ service FabricController {
   // rpc Promote(google.protobuf.Empty) returns (google.protobuf.Empty);
   rpc GetServices(google.protobuf.Empty) returns (Services);
 
-  rpc GenerateToken(Auth) returns (Token); // public
   rpc GenerateFiles(GenerateFilesRequest) returns (GenerateFilesResponse);
 
   rpc PutSecret(SecretValue) returns (google.protobuf.Empty);
@@ -73,7 +75,7 @@ message SecretValue {
   string value = 2;
 }
 
-message Auth {
+message TokenRequest {
   string tenant = 1;
   string auth_code = 2;      // from GitHub authorization code flow
   repeated string scope = 3; // "tail", "read", etc.
@@ -81,7 +83,7 @@ message Auth {
   // string refresh_token = 3;
 }
 
-message Token {
+message TokenResponse {
   string access_token = 1; // our JWT
   // string refresh_token = 2;
   // string token_type = 3; // "Bearer"
@@ -96,7 +98,21 @@ message Version {
   string nats = 2;
 }
 
-message LogEntry { string message = 1; }
+message TailRequest {
+  string service = 1; // was "name"
+  // google.protobuf.Timestamp since = 3;
+  // string etag = 3;
+}
+
+message LogEntry {
+  string message = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+message TailResponse {
+  string raw = 1; // obsolete
+  repeated LogEntry entries = 2;
+}
 
 message Services { repeated ServiceInfo services = 1; }
 

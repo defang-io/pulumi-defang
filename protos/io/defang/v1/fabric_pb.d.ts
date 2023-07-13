@@ -201,7 +201,7 @@ export namespace SecretValue {
   }
 }
 
-export class Auth extends jspb.Message {
+export class TokenRequest extends jspb.Message {
   getTenant(): string;
   setTenant(value: string): void;
 
@@ -217,16 +217,16 @@ export class Auth extends jspb.Message {
   setAssertion(value: string): void;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): Auth.AsObject;
-  static toObject(includeInstance: boolean, msg: Auth): Auth.AsObject;
+  toObject(includeInstance?: boolean): TokenRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: TokenRequest): TokenRequest.AsObject;
   static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: Auth, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): Auth;
-  static deserializeBinaryFromReader(message: Auth, reader: jspb.BinaryReader): Auth;
+  static serializeBinaryToWriter(message: TokenRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): TokenRequest;
+  static deserializeBinaryFromReader(message: TokenRequest, reader: jspb.BinaryReader): TokenRequest;
 }
 
-export namespace Auth {
+export namespace TokenRequest {
   export type AsObject = {
     tenant: string,
     authCode: string,
@@ -235,21 +235,21 @@ export namespace Auth {
   }
 }
 
-export class Token extends jspb.Message {
+export class TokenResponse extends jspb.Message {
   getAccessToken(): string;
   setAccessToken(value: string): void;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): Token.AsObject;
-  static toObject(includeInstance: boolean, msg: Token): Token.AsObject;
+  toObject(includeInstance?: boolean): TokenResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: TokenResponse): TokenResponse.AsObject;
   static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: Token, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): Token;
-  static deserializeBinaryFromReader(message: Token, reader: jspb.BinaryReader): Token;
+  static serializeBinaryToWriter(message: TokenResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): TokenResponse;
+  static deserializeBinaryFromReader(message: TokenResponse, reader: jspb.BinaryReader): TokenResponse;
 }
 
-export namespace Token {
+export namespace TokenResponse {
   export type AsObject = {
     accessToken: string,
   }
@@ -299,9 +299,34 @@ export namespace Version {
   }
 }
 
+export class TailRequest extends jspb.Message {
+  getService(): string;
+  setService(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): TailRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: TailRequest): TailRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: TailRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): TailRequest;
+  static deserializeBinaryFromReader(message: TailRequest, reader: jspb.BinaryReader): TailRequest;
+}
+
+export namespace TailRequest {
+  export type AsObject = {
+    service: string,
+  }
+}
+
 export class LogEntry extends jspb.Message {
   getMessage(): string;
   setMessage(value: string): void;
+
+  hasTimestamp(): boolean;
+  clearTimestamp(): void;
+  getTimestamp(): google_protobuf_timestamp_pb.Timestamp | undefined;
+  setTimestamp(value?: google_protobuf_timestamp_pb.Timestamp): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): LogEntry.AsObject;
@@ -316,6 +341,33 @@ export class LogEntry extends jspb.Message {
 export namespace LogEntry {
   export type AsObject = {
     message: string,
+    timestamp?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+  }
+}
+
+export class TailResponse extends jspb.Message {
+  getRaw(): string;
+  setRaw(value: string): void;
+
+  clearEntriesList(): void;
+  getEntriesList(): Array<LogEntry>;
+  setEntriesList(value: Array<LogEntry>): void;
+  addEntries(value?: LogEntry, index?: number): LogEntry;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): TailResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: TailResponse): TailResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: TailResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): TailResponse;
+  static deserializeBinaryFromReader(message: TailResponse, reader: jspb.BinaryReader): TailResponse;
+}
+
+export namespace TailResponse {
+  export type AsObject = {
+    raw: string,
+    entriesList: Array<LogEntry.AsObject>,
   }
 }
 
