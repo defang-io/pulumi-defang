@@ -2679,7 +2679,8 @@ proto.io.defang.v1.TailRequest.prototype.toObject = function(opt_includeInstance
  */
 proto.io.defang.v1.TailRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    service: jspb.Message.getFieldWithDefault(msg, 1, "")
+    service: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    etag: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -2720,6 +2721,10 @@ proto.io.defang.v1.TailRequest.deserializeBinaryFromReader = function(msg, reade
       var value = /** @type {string} */ (reader.readString());
       msg.setService(value);
       break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEtag(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -2756,6 +2761,13 @@ proto.io.defang.v1.TailRequest.serializeBinaryToWriter = function(message, write
       f
     );
   }
+  f = message.getEtag();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -2774,6 +2786,24 @@ proto.io.defang.v1.TailRequest.prototype.getService = function() {
  */
 proto.io.defang.v1.TailRequest.prototype.setService = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string etag = 3;
+ * @return {string}
+ */
+proto.io.defang.v1.TailRequest.prototype.getEtag = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.io.defang.v1.TailRequest} returns this
+ */
+proto.io.defang.v1.TailRequest.prototype.setEtag = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -2997,9 +3027,11 @@ proto.io.defang.v1.TailResponse.prototype.toObject = function(opt_includeInstanc
  */
 proto.io.defang.v1.TailResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    raw: jspb.Message.getFieldWithDefault(msg, 1, ""),
     entriesList: jspb.Message.toObjectList(msg.getEntriesList(),
-    proto.io.defang.v1.LogEntry.toObject, includeInstance)
+    proto.io.defang.v1.LogEntry.toObject, includeInstance),
+    service: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    etag: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    host: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -3036,14 +3068,22 @@ proto.io.defang.v1.TailResponse.deserializeBinaryFromReader = function(msg, read
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setRaw(value);
-      break;
     case 2:
       var value = new proto.io.defang.v1.LogEntry;
       reader.readMessage(value,proto.io.defang.v1.LogEntry.deserializeBinaryFromReader);
       msg.addEntries(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setService(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEtag(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHost(value);
       break;
     default:
       reader.skipField();
@@ -3074,13 +3114,6 @@ proto.io.defang.v1.TailResponse.prototype.serializeBinary = function() {
  */
 proto.io.defang.v1.TailResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getRaw();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
   f = message.getEntriesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
@@ -3089,24 +3122,27 @@ proto.io.defang.v1.TailResponse.serializeBinaryToWriter = function(message, writ
       proto.io.defang.v1.LogEntry.serializeBinaryToWriter
     );
   }
-};
-
-
-/**
- * optional string raw = 1;
- * @return {string}
- */
-proto.io.defang.v1.TailResponse.prototype.getRaw = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.io.defang.v1.TailResponse} returns this
- */
-proto.io.defang.v1.TailResponse.prototype.setRaw = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
+  f = message.getService();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getEtag();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getHost();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
 };
 
 
@@ -3145,6 +3181,60 @@ proto.io.defang.v1.TailResponse.prototype.addEntries = function(opt_value, opt_i
  */
 proto.io.defang.v1.TailResponse.prototype.clearEntriesList = function() {
   return this.setEntriesList([]);
+};
+
+
+/**
+ * optional string service = 3;
+ * @return {string}
+ */
+proto.io.defang.v1.TailResponse.prototype.getService = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.io.defang.v1.TailResponse} returns this
+ */
+proto.io.defang.v1.TailResponse.prototype.setService = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string etag = 4;
+ * @return {string}
+ */
+proto.io.defang.v1.TailResponse.prototype.getEtag = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.io.defang.v1.TailResponse} returns this
+ */
+proto.io.defang.v1.TailResponse.prototype.setEtag = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string host = 5;
+ * @return {string}
+ */
+proto.io.defang.v1.TailResponse.prototype.getHost = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.io.defang.v1.TailResponse} returns this
+ */
+proto.io.defang.v1.TailResponse.prototype.setHost = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 

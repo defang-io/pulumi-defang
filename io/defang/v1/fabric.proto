@@ -100,8 +100,8 @@ message Version {
 
 message TailRequest {
   string service = 1; // was "name"
-  // google.protobuf.Timestamp since = 3;
-  // string etag = 3;
+  // google.protobuf.Timestamp since = 2;
+  string etag = 3;
 }
 
 message LogEntry {
@@ -110,8 +110,11 @@ message LogEntry {
 }
 
 message TailResponse {
-  string raw = 1; // obsolete
+  reserved 1; // was "string raw"
   repeated LogEntry entries = 2;
+  string service = 3;
+  string etag = 4;
+  string host = 5;
 }
 
 message Services { repeated ServiceInfo services = 1; }

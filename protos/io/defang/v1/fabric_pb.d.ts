@@ -303,6 +303,9 @@ export class TailRequest extends jspb.Message {
   getService(): string;
   setService(value: string): void;
 
+  getEtag(): string;
+  setEtag(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): TailRequest.AsObject;
   static toObject(includeInstance: boolean, msg: TailRequest): TailRequest.AsObject;
@@ -316,6 +319,7 @@ export class TailRequest extends jspb.Message {
 export namespace TailRequest {
   export type AsObject = {
     service: string,
+    etag: string,
   }
 }
 
@@ -346,13 +350,19 @@ export namespace LogEntry {
 }
 
 export class TailResponse extends jspb.Message {
-  getRaw(): string;
-  setRaw(value: string): void;
-
   clearEntriesList(): void;
   getEntriesList(): Array<LogEntry>;
   setEntriesList(value: Array<LogEntry>): void;
   addEntries(value?: LogEntry, index?: number): LogEntry;
+
+  getService(): string;
+  setService(value: string): void;
+
+  getEtag(): string;
+  setEtag(value: string): void;
+
+  getHost(): string;
+  setHost(value: string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): TailResponse.AsObject;
@@ -366,8 +376,10 @@ export class TailResponse extends jspb.Message {
 
 export namespace TailResponse {
   export type AsObject = {
-    raw: string,
     entriesList: Array<LogEntry.AsObject>,
+    service: string,
+    etag: string,
+    host: string,
   }
 }
 
