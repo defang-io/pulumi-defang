@@ -290,8 +290,8 @@ function toOutputs(
   service: pb.ServiceInfo,
   old?: DefangServiceOutputs
 ): DefangServiceOutputs {
-  // FIXME: the fallbacks of `?? old?.` here don't work sinces the lhs is never undefined
-  return {
+  // FIXME: the fallbacks of `?? old?.` here don't work since the lhs is never undefined
+  return deleteUndefined({
     endpoints: service.getEndpointsList() ?? old?.endpoints,
     etag: service.getEtag() ?? old?.etag,
     fabricDNS,
@@ -299,8 +299,8 @@ function toOutputs(
     natIPs: service.getNatIpsList() ?? old?.natIPs,
     privateFqdn: unempty(service.getPrivateFqdn() ?? old?.privateFqdn), // can be empty string
     publicFqdn: unempty(service.getPublicFqdn() ?? old?.publicFqdn), // can be empty string
-    service: deleteUndefined(service.getService()!.toObject()),
-  };
+    service: service.getService()!.toObject(),
+  });
 }
 
 function isValidReservation(x?: number): boolean {
