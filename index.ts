@@ -148,6 +148,9 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
     healthcheck.setTestList(inputs.healthcheck.test);
     service.setHealthcheck(healthcheck);
   }
+  if (inputs.domainname) {
+    service.setDomainname(inputs.domainname);
+  }
   return service;
 }
 
@@ -187,7 +190,11 @@ async function updatex(
       if (inputs.build.dockerfile) {
         build.setDockerfile(inputs.build.dockerfile);
       }
-      service.getBuild()?.setContext(build.getContext());
+      if (inputs.build.args) {
+        for (const [key, value] of Object.entries(inputs.build.args)) {
+          build.getArgsMap().set(key, value);
+        }
+      }
       service.setBuild(build);
     }
 
@@ -266,6 +273,7 @@ interface DefangServiceInputs {
   forceNewDeployment?: boolean;
   command?: string[];
   healthcheck?: HealthCheck;
+  domainname?: string;
 }
 
 interface DefangServiceOutputs {
@@ -576,6 +584,8 @@ export interface Build {
   context: string;
   /** the path to the Dockerfile; defaults to Dockerfile */
   dockerfile?: string;
+  /** the build args to pass to the builder */
+  args?: { [key: string]: string };
 }
 
 export interface DefangServiceArgs {
@@ -605,6 +615,8 @@ export interface DefangServiceArgs {
   build?: pulumi.Input<Build>;
   /** the optional health-check test for the service */
   healthcheck?: pulumi.Input<HealthCheck>;
+  /** the optional fully qualified domain name for the service; requires CNAME to the publicFqdn */
+  domainname?: pulumi.Input<string>;
 }
 
 /**

@@ -303,6 +303,11 @@ export class TailRequest extends jspb.Message {
   getService(): string;
   setService(value: string): void;
 
+  hasSince(): boolean;
+  clearSince(): void;
+  getSince(): google_protobuf_timestamp_pb.Timestamp | undefined;
+  setSince(value?: google_protobuf_timestamp_pb.Timestamp): void;
+
   getEtag(): string;
   setEtag(value: string): void;
 
@@ -319,6 +324,7 @@ export class TailRequest extends jspb.Message {
 export namespace TailRequest {
   export type AsObject = {
     service: string,
+    since?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     etag: string,
   }
 }
@@ -675,6 +681,9 @@ export class Service extends jspb.Message {
   setCommandList(value: Array<string>): void;
   addCommand(value: string, index?: number): string;
 
+  getDomainname(): string;
+  setDomainname(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Service.AsObject;
   static toObject(includeInstance: boolean, msg: Service): Service.AsObject;
@@ -698,6 +707,7 @@ export namespace Service {
     secretsList: Array<Secret.AsObject>,
     healthcheck?: HealthCheck.AsObject,
     commandList: Array<string>,
+    domainname: string,
   }
 }
 

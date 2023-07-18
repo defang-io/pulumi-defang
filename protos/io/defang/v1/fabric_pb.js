@@ -2680,6 +2680,7 @@ proto.io.defang.v1.TailRequest.prototype.toObject = function(opt_includeInstance
 proto.io.defang.v1.TailRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     service: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    since: (f = msg.getSince()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
     etag: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
@@ -2721,6 +2722,11 @@ proto.io.defang.v1.TailRequest.deserializeBinaryFromReader = function(msg, reade
       var value = /** @type {string} */ (reader.readString());
       msg.setService(value);
       break;
+    case 2:
+      var value = new google_protobuf_timestamp_pb.Timestamp;
+      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
+      msg.setSince(value);
+      break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.setEtag(value);
@@ -2761,6 +2767,14 @@ proto.io.defang.v1.TailRequest.serializeBinaryToWriter = function(message, write
       f
     );
   }
+  f = message.getSince();
+  if (f != null) {
+    writer.writeMessage(
+      2,
+      f,
+      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
+    );
+  }
   f = message.getEtag();
   if (f.length > 0) {
     writer.writeString(
@@ -2786,6 +2800,43 @@ proto.io.defang.v1.TailRequest.prototype.getService = function() {
  */
 proto.io.defang.v1.TailRequest.prototype.setService = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional google.protobuf.Timestamp since = 2;
+ * @return {?proto.google.protobuf.Timestamp}
+ */
+proto.io.defang.v1.TailRequest.prototype.getSince = function() {
+  return /** @type{?proto.google.protobuf.Timestamp} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 2));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.Timestamp|undefined} value
+ * @return {!proto.io.defang.v1.TailRequest} returns this
+*/
+proto.io.defang.v1.TailRequest.prototype.setSince = function(value) {
+  return jspb.Message.setWrapperField(this, 2, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.io.defang.v1.TailRequest} returns this
+ */
+proto.io.defang.v1.TailRequest.prototype.clearSince = function() {
+  return this.setSince(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.io.defang.v1.TailRequest.prototype.hasSince = function() {
+  return jspb.Message.getField(this, 2) != null;
 };
 
 
@@ -5016,7 +5067,8 @@ proto.io.defang.v1.Service.toObject = function(includeInstance, msg) {
     secretsList: jspb.Message.toObjectList(msg.getSecretsList(),
     proto.io.defang.v1.Secret.toObject, includeInstance),
     healthcheck: (f = msg.getHealthcheck()) && proto.io.defang.v1.HealthCheck.toObject(includeInstance, f),
-    commandList: (f = jspb.Message.getRepeatedField(msg, 11)) == null ? undefined : f
+    commandList: (f = jspb.Message.getRepeatedField(msg, 11)) == null ? undefined : f,
+    domainname: jspb.Message.getFieldWithDefault(msg, 12, "")
   };
 
   if (includeInstance) {
@@ -5103,6 +5155,10 @@ proto.io.defang.v1.Service.deserializeBinaryFromReader = function(msg, reader) {
     case 11:
       var value = /** @type {string} */ (reader.readString());
       msg.addCommand(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setDomainname(value);
       break;
     default:
       reader.skipField();
@@ -5209,6 +5265,13 @@ proto.io.defang.v1.Service.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeRepeatedString(
       11,
+      f
+    );
+  }
+  f = message.getDomainname();
+  if (f.length > 0) {
+    writer.writeString(
+      12,
       f
     );
   }
@@ -5530,6 +5593,24 @@ proto.io.defang.v1.Service.prototype.addCommand = function(value, opt_index) {
  */
 proto.io.defang.v1.Service.prototype.clearCommandList = function() {
   return this.setCommandList([]);
+};
+
+
+/**
+ * optional string domainname = 12;
+ * @return {string}
+ */
+proto.io.defang.v1.Service.prototype.getDomainname = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.io.defang.v1.Service} returns this
+ */
+proto.io.defang.v1.Service.prototype.setDomainname = function(value) {
+  return jspb.Message.setProto3StringField(this, 12, value);
 };
 
 
