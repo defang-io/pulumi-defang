@@ -19,6 +19,28 @@ function deserialize_google_protobuf_Empty(buffer_arg) {
   return google_protobuf_empty_pb.Empty.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_io_defang_v1_DeleteRequest(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.DeleteRequest)) {
+    throw new Error('Expected argument of type io.defang.v1.DeleteRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_DeleteRequest(buffer_arg) {
+  return io_defang_v1_fabric_pb.DeleteRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_DeleteResponse(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.DeleteResponse)) {
+    throw new Error('Expected argument of type io.defang.v1.DeleteResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_DeleteResponse(buffer_arg) {
+  return io_defang_v1_fabric_pb.DeleteResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_io_defang_v1_Event(arg) {
   if (!(arg instanceof io_defang_v1_fabric_pb.Event)) {
     throw new Error('Expected argument of type io.defang.v1.Event');
@@ -281,12 +303,12 @@ revokeToken: {
     path: '/io.defang.v1.FabricController/Delete',
     requestStream: false,
     responseStream: false,
-    requestType: io_defang_v1_fabric_pb.ServiceID,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_io_defang_v1_ServiceID,
-    requestDeserialize: deserialize_io_defang_v1_ServiceID,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
+    requestType: io_defang_v1_fabric_pb.DeleteRequest,
+    responseType: io_defang_v1_fabric_pb.DeleteResponse,
+    requestSerialize: serialize_io_defang_v1_DeleteRequest,
+    requestDeserialize: deserialize_io_defang_v1_DeleteRequest,
+    responseSerialize: serialize_io_defang_v1_DeleteResponse,
+    responseDeserialize: deserialize_io_defang_v1_DeleteResponse,
   },
   publish: {
     path: '/io.defang.v1.FabricController/Publish',

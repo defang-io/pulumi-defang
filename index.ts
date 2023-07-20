@@ -454,15 +454,20 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     };
   },
   async delete(id: string, olds: DefangServiceOutputs): Promise<void> {
-    const serviceId = new pb.ServiceID();
-    serviceId.setName(id);
+    const serviceIds = new pb.DeleteRequest();
+    serviceIds.addNames(id);
     const client = await connect(olds.fabricDNS);
     try {
       await new Promise<Empty>((resolve, reject) =>
-        client.delete(serviceId, (err, res) =>
+        client.delete(serviceIds, (err, res) =>
           err ? reject(err) : resolve(res!)
         )
       );
+    } catch (err) {
+      // Ignore "not found" errors
+      if ((err as grpc.ServiceError).code !== grpc.status.NOT_FOUND) {
+        throw err;
+      }
     } finally {
       client.close();
     }
