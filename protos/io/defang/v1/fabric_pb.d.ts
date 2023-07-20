@@ -856,10 +856,10 @@ export namespace SubscribeRequest {
 }
 
 export class SubscribeResponse extends jspb.Message {
-  hasInfo(): boolean;
-  clearInfo(): void;
-  getInfo(): ServiceInfo | undefined;
-  setInfo(value?: ServiceInfo): void;
+  clearServicesList(): void;
+  getServicesList(): Array<ServiceInfo>;
+  setServicesList(value: Array<ServiceInfo>): void;
+  addServices(value?: ServiceInfo, index?: number): ServiceInfo;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SubscribeResponse.AsObject;
@@ -873,7 +873,7 @@ export class SubscribeResponse extends jspb.Message {
 
 export namespace SubscribeResponse {
   export type AsObject = {
-    info?: ServiceInfo.AsObject,
+    servicesList: Array<ServiceInfo.AsObject>,
   }
 }
 

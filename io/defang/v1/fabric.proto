@@ -265,5 +265,5 @@ message PublishRequest { Event event = 1; }
 message SubscribeRequest { string service = 1; }
 
 message SubscribeResponse {
-  ServiceInfo info = 2;
+  repeated ServiceInfo services = 1;
 }

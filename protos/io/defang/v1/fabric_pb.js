@@ -700,7 +700,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.io.defang.v1.SubscribeResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.io.defang.v1.SubscribeResponse.repeatedFields_, null);
 };
 goog.inherits(proto.io.defang.v1.SubscribeResponse, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -6737,6 +6737,13 @@ proto.io.defang.v1.SubscribeRequest.prototype.setService = function(value) {
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.io.defang.v1.SubscribeResponse.repeatedFields_ = [1];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -6768,7 +6775,8 @@ proto.io.defang.v1.SubscribeResponse.prototype.toObject = function(opt_includeIn
  */
 proto.io.defang.v1.SubscribeResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    info: (f = msg.getInfo()) && proto.io.defang.v1.ServiceInfo.toObject(includeInstance, f)
+    servicesList: jspb.Message.toObjectList(msg.getServicesList(),
+    proto.io.defang.v1.ServiceInfo.toObject, includeInstance)
   };
 
   if (includeInstance) {
@@ -6805,10 +6813,10 @@ proto.io.defang.v1.SubscribeResponse.deserializeBinaryFromReader = function(msg,
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 2:
+    case 1:
       var value = new proto.io.defang.v1.ServiceInfo;
       reader.readMessage(value,proto.io.defang.v1.ServiceInfo.deserializeBinaryFromReader);
-      msg.setInfo(value);
+      msg.addServices(value);
       break;
     default:
       reader.skipField();
@@ -6839,10 +6847,10 @@ proto.io.defang.v1.SubscribeResponse.prototype.serializeBinary = function() {
  */
 proto.io.defang.v1.SubscribeResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getInfo();
-  if (f != null) {
-    writer.writeMessage(
-      2,
+  f = message.getServicesList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      1,
       f,
       proto.io.defang.v1.ServiceInfo.serializeBinaryToWriter
     );
@@ -6851,39 +6859,40 @@ proto.io.defang.v1.SubscribeResponse.serializeBinaryToWriter = function(message,
 
 
 /**
- * optional ServiceInfo info = 2;
- * @return {?proto.io.defang.v1.ServiceInfo}
+ * repeated ServiceInfo services = 1;
+ * @return {!Array<!proto.io.defang.v1.ServiceInfo>}
  */
-proto.io.defang.v1.SubscribeResponse.prototype.getInfo = function() {
-  return /** @type{?proto.io.defang.v1.ServiceInfo} */ (
-    jspb.Message.getWrapperField(this, proto.io.defang.v1.ServiceInfo, 2));
+proto.io.defang.v1.SubscribeResponse.prototype.getServicesList = function() {
+  return /** @type{!Array<!proto.io.defang.v1.ServiceInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.io.defang.v1.ServiceInfo, 1));
 };
 
 
 /**
- * @param {?proto.io.defang.v1.ServiceInfo|undefined} value
+ * @param {!Array<!proto.io.defang.v1.ServiceInfo>} value
  * @return {!proto.io.defang.v1.SubscribeResponse} returns this
 */
-proto.io.defang.v1.SubscribeResponse.prototype.setInfo = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
+proto.io.defang.v1.SubscribeResponse.prototype.setServicesList = function(value) {
+  return jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
 
 
 /**
- * Clears the message field making it undefined.
+ * @param {!proto.io.defang.v1.ServiceInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.io.defang.v1.ServiceInfo}
+ */
+proto.io.defang.v1.SubscribeResponse.prototype.addServices = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.io.defang.v1.ServiceInfo, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
  * @return {!proto.io.defang.v1.SubscribeResponse} returns this
  */
-proto.io.defang.v1.SubscribeResponse.prototype.clearInfo = function() {
-  return this.setInfo(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.io.defang.v1.SubscribeResponse.prototype.hasInfo = function() {
-  return jspb.Message.getField(this, 2) != null;
+proto.io.defang.v1.SubscribeResponse.prototype.clearServicesList = function() {
+  return this.setServicesList([]);
 };
 
 
