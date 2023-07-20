@@ -435,23 +435,23 @@ export namespace TailResponse {
   }
 }
 
-export class Services extends jspb.Message {
+export class ListServicesResponse extends jspb.Message {
   clearServicesList(): void;
   getServicesList(): Array<ServiceInfo>;
   setServicesList(value: Array<ServiceInfo>): void;
   addServices(value?: ServiceInfo, index?: number): ServiceInfo;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): Services.AsObject;
-  static toObject(includeInstance: boolean, msg: Services): Services.AsObject;
+  toObject(includeInstance?: boolean): ListServicesResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: ListServicesResponse): ListServicesResponse.AsObject;
   static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: Services, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): Services;
-  static deserializeBinaryFromReader(message: Services, reader: jspb.BinaryReader): Services;
+  static serializeBinaryToWriter(message: ListServicesResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListServicesResponse;
+  static deserializeBinaryFromReader(message: ListServicesResponse, reader: jspb.BinaryReader): ListServicesResponse;
 }
 
-export namespace Services {
+export namespace ListServicesResponse {
   export type AsObject = {
     servicesList: Array<ServiceInfo.AsObject>,
   }
@@ -810,6 +810,70 @@ export namespace Event {
     subject: string,
     time?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     data: Uint8Array | string,
+  }
+}
+
+export class PublishRequest extends jspb.Message {
+  hasEvent(): boolean;
+  clearEvent(): void;
+  getEvent(): Event | undefined;
+  setEvent(value?: Event): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PublishRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: PublishRequest): PublishRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: PublishRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PublishRequest;
+  static deserializeBinaryFromReader(message: PublishRequest, reader: jspb.BinaryReader): PublishRequest;
+}
+
+export namespace PublishRequest {
+  export type AsObject = {
+    event?: Event.AsObject,
+  }
+}
+
+export class SubscribeRequest extends jspb.Message {
+  getService(): string;
+  setService(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SubscribeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: SubscribeRequest): SubscribeRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SubscribeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SubscribeRequest;
+  static deserializeBinaryFromReader(message: SubscribeRequest, reader: jspb.BinaryReader): SubscribeRequest;
+}
+
+export namespace SubscribeRequest {
+  export type AsObject = {
+    service: string,
+  }
+}
+
+export class SubscribeResponse extends jspb.Message {
+  hasInfo(): boolean;
+  clearInfo(): void;
+  getInfo(): ServiceInfo | undefined;
+  setInfo(value?: ServiceInfo): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SubscribeResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: SubscribeResponse): SubscribeResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SubscribeResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SubscribeResponse;
+  static deserializeBinaryFromReader(message: SubscribeResponse, reader: jspb.BinaryReader): SubscribeResponse;
+}
+
+export namespace SubscribeResponse {
+  export type AsObject = {
+    info?: ServiceInfo.AsObject,
   }
 }
 

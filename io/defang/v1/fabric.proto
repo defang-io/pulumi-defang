@@ -14,17 +14,18 @@ import "google/protobuf/timestamp.proto";
 service FabricController {
   rpc GetStatus(google.protobuf.Empty) returns (Status);   // public
   rpc GetVersion(google.protobuf.Empty) returns (Version); // public
-  rpc Token(TokenRequest) returns (TokenResponse); // public
+  rpc Token(TokenRequest) returns (TokenResponse);         // public
 
   rpc RevokeToken(google.protobuf.Empty) returns (google.protobuf.Empty);
 
   rpc Tail(TailRequest) returns (stream TailResponse);
   rpc Update(Service) returns (ServiceInfo);
-  rpc Get(ServiceID) returns (ServiceInfo);
+  rpc Get(ServiceID) returns (ServiceInfo); // should be GetService
   rpc Delete(DeleteRequest) returns (DeleteResponse);
-  rpc Publish(Event) returns (google.protobuf.Empty);
+  rpc Publish(PublishRequest) returns (google.protobuf.Empty);
+  rpc Subscribe(SubscribeRequest) returns (stream SubscribeResponse);
   // rpc Promote(google.protobuf.Empty) returns (google.protobuf.Empty);
-  rpc GetServices(google.protobuf.Empty) returns (Services);
+  rpc GetServices(google.protobuf.Empty) returns (ListServicesResponse); // should be ListServices
 
   rpc GenerateFiles(GenerateFilesRequest) returns (GenerateFilesResponse);
 
@@ -34,13 +35,9 @@ service FabricController {
   // rpc DeleteSecret(SecretValue) returns (google.protobuf.Empty);
 }
 
-message DeleteRequest {
-  repeated string names = 1;
-}
+message DeleteRequest { repeated string names = 1; }
 
-message DeleteResponse {
-  string etag = 1;
-}
+message DeleteResponse { string etag = 1; }
 
 message GenerateFilesRequest {
   string prompt = 1;
@@ -127,7 +124,7 @@ message TailResponse {
   string host = 5;
 }
 
-message Services { repeated ServiceInfo services = 1; }
+message ListServicesResponse { repeated ServiceInfo services = 1; }
 
 enum Platform {
   LINUX_AMD64 = 0;
@@ -261,4 +258,12 @@ message Event {
   string subject = 7;
   google.protobuf.Timestamp time = 8;
   bytes data = 9;
+}
+
+message PublishRequest { Event event = 1; }
+
+message SubscribeRequest { string service = 1; }
+
+message SubscribeResponse {
+  ServiceInfo info = 2;
 }

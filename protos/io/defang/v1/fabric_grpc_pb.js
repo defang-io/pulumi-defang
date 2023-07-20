@@ -41,17 +41,6 @@ function deserialize_io_defang_v1_DeleteResponse(buffer_arg) {
   return io_defang_v1_fabric_pb.DeleteResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_io_defang_v1_Event(arg) {
-  if (!(arg instanceof io_defang_v1_fabric_pb.Event)) {
-    throw new Error('Expected argument of type io.defang.v1.Event');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_io_defang_v1_Event(buffer_arg) {
-  return io_defang_v1_fabric_pb.Event.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_io_defang_v1_GenerateFilesRequest(arg) {
   if (!(arg instanceof io_defang_v1_fabric_pb.GenerateFilesRequest)) {
     throw new Error('Expected argument of type io.defang.v1.GenerateFilesRequest');
@@ -72,6 +61,28 @@ function serialize_io_defang_v1_GenerateFilesResponse(arg) {
 
 function deserialize_io_defang_v1_GenerateFilesResponse(buffer_arg) {
   return io_defang_v1_fabric_pb.GenerateFilesResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_ListServicesResponse(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.ListServicesResponse)) {
+    throw new Error('Expected argument of type io.defang.v1.ListServicesResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_ListServicesResponse(buffer_arg) {
+  return io_defang_v1_fabric_pb.ListServicesResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_PublishRequest(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.PublishRequest)) {
+    throw new Error('Expected argument of type io.defang.v1.PublishRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_PublishRequest(buffer_arg) {
+  return io_defang_v1_fabric_pb.PublishRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_io_defang_v1_SecretValue(arg) {
@@ -129,17 +140,6 @@ function deserialize_io_defang_v1_ServiceInfo(buffer_arg) {
   return io_defang_v1_fabric_pb.ServiceInfo.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_io_defang_v1_Services(arg) {
-  if (!(arg instanceof io_defang_v1_fabric_pb.Services)) {
-    throw new Error('Expected argument of type io.defang.v1.Services');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_io_defang_v1_Services(buffer_arg) {
-  return io_defang_v1_fabric_pb.Services.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_io_defang_v1_Status(arg) {
   if (!(arg instanceof io_defang_v1_fabric_pb.Status)) {
     throw new Error('Expected argument of type io.defang.v1.Status');
@@ -149,6 +149,28 @@ function serialize_io_defang_v1_Status(arg) {
 
 function deserialize_io_defang_v1_Status(buffer_arg) {
   return io_defang_v1_fabric_pb.Status.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_SubscribeRequest(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.SubscribeRequest)) {
+    throw new Error('Expected argument of type io.defang.v1.SubscribeRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_SubscribeRequest(buffer_arg) {
+  return io_defang_v1_fabric_pb.SubscribeRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_SubscribeResponse(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.SubscribeResponse)) {
+    throw new Error('Expected argument of type io.defang.v1.SubscribeResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_SubscribeResponse(buffer_arg) {
+  return io_defang_v1_fabric_pb.SubscribeResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_io_defang_v1_TailRequest(arg) {
@@ -299,7 +321,8 @@ revokeToken: {
     responseSerialize: serialize_io_defang_v1_ServiceInfo,
     responseDeserialize: deserialize_io_defang_v1_ServiceInfo,
   },
-  delete: {
+  // should be GetService
+delete: {
     path: '/io.defang.v1.FabricController/Delete',
     requestStream: false,
     responseStream: false,
@@ -314,12 +337,23 @@ revokeToken: {
     path: '/io.defang.v1.FabricController/Publish',
     requestStream: false,
     responseStream: false,
-    requestType: io_defang_v1_fabric_pb.Event,
+    requestType: io_defang_v1_fabric_pb.PublishRequest,
     responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_io_defang_v1_Event,
-    requestDeserialize: deserialize_io_defang_v1_Event,
+    requestSerialize: serialize_io_defang_v1_PublishRequest,
+    requestDeserialize: deserialize_io_defang_v1_PublishRequest,
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  subscribe: {
+    path: '/io.defang.v1.FabricController/Subscribe',
+    requestStream: false,
+    responseStream: true,
+    requestType: io_defang_v1_fabric_pb.SubscribeRequest,
+    responseType: io_defang_v1_fabric_pb.SubscribeResponse,
+    requestSerialize: serialize_io_defang_v1_SubscribeRequest,
+    requestDeserialize: deserialize_io_defang_v1_SubscribeRequest,
+    responseSerialize: serialize_io_defang_v1_SubscribeResponse,
+    responseDeserialize: deserialize_io_defang_v1_SubscribeResponse,
   },
   // rpc Promote(google.protobuf.Empty) returns (google.protobuf.Empty);
 getServices: {
@@ -327,13 +361,14 @@ getServices: {
     requestStream: false,
     responseStream: false,
     requestType: google_protobuf_empty_pb.Empty,
-    responseType: io_defang_v1_fabric_pb.Services,
+    responseType: io_defang_v1_fabric_pb.ListServicesResponse,
     requestSerialize: serialize_google_protobuf_Empty,
     requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_io_defang_v1_Services,
-    responseDeserialize: deserialize_io_defang_v1_Services,
+    responseSerialize: serialize_io_defang_v1_ListServicesResponse,
+    responseDeserialize: deserialize_io_defang_v1_ListServicesResponse,
   },
-  generateFiles: {
+  // should be ListServices
+generateFiles: {
     path: '/io.defang.v1.FabricController/GenerateFiles',
     requestStream: false,
     responseStream: false,
