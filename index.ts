@@ -77,8 +77,9 @@ function hasPort(url: string): boolean {
 async function connect(
   fabricDNS: string
 ): Promise<fabric.FabricControllerClient> {
+  const withoutTenant = fabricDNS.replace(/^.*@/, "");
   const client = new fabric.FabricControllerClient(
-    hasPort(fabricDNS) ? fabricDNS : `${fabricDNS}:443`,
+    hasPort(withoutTenant) ? withoutTenant : `${withoutTenant}:443`,
     grpc.credentials.combineChannelCredentials(
       grpc.credentials.createSsl(),
       grpc.credentials.createFromMetadataGenerator((_, callback) => {
