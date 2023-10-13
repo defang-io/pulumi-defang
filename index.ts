@@ -316,45 +316,39 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     olds: DefangServiceInputs,
     news: DefangServiceInputs
   ): Promise<pulumi.dynamic.CheckResult<DefangServiceInputs>> {
+    const failures: pulumi.dynamic.CheckFailure[] = [];
+
     if (!news.fabricDNS) {
-      return {
-        failures: [{ property: "fabricDNS", reason: "fabricDNS is required" }],
-      };
+      failures.push({ property: "fabricDNS", reason: "fabricDNS is required" });
     }
     // TODO: validate name
     if (!news.name) {
-      return { failures: [{ property: "name", reason: "name is required" }] };
+      failures.push({ property: "name", reason: "name is required" });
     }
     if (news.deploy) {
       if (!isValidUint(news.deploy.replicas ?? 0)) {
-        return {
-          failures: [
+        failures.push(
             {
               property: "deploy",
               reason: "replicas must be an integer ≥ 0",
             },
-          ],
-        };
+          );
       }
       if (!isValidReservation(news.deploy.resources?.reservations?.cpu)) {
-        return {
-          failures: [
+        failures.push(
             {
               property: "deploy",
               reason: "cpu reservation must be > 0",
             },
-          ],
-        };
+          );
       }
       if (!isValidReservation(news.deploy.resources?.reservations?.memory)) {
-        return {
-          failures: [
+        failures.push(
             {
               property: "deploy",
               reason: "memory reservation must be > 0",
             },
-          ],
-        };
+          );
       }
     }
     for (const port of news.ports || []) {
@@ -364,25 +358,21 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
         port.target > 32767 ||
         !Number.isInteger(port.target)
       ) {
-        return {
-          failures: [
+        failures.push(
             {
               property: "ports",
               reason: "target port must be an integer between 1 and 32767",
             },
-          ],
-        };
+          );
       }
       if (port.mode === "ingress") {
         if (["udp", "tcp"].includes(port.protocol!)) {
-          return {
-            failures: [
+          failures.push(
               {
                 property: "ports",
                 reason: "ingress is not support by protocol " + port.protocol,
               },
-            ],
-          };
+            );
         }
         if (!news.healthcheck?.test) {
           console.warn(
@@ -394,51 +384,43 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     for (const secret of news.secrets || []) {
       // TODO: validate source name
       if (!secret.source) {
-        return {
-          failures: [
+        failures.push(
             {
               property: "secrets",
               reason: "secret source is required",
             },
-          ],
-        };
+          );
       }
     }
     if (news.build) {
       if (!news.build.context) {
-        return {
-          failures: [
+        failures.push(
             {
               property: "build",
               reason: "build context is required",
             },
-          ],
-        };
+          );
       }
       if (news.build.dockerfile === "") {
-        return {
-          failures: [
+        failures.push(
             {
               property: "build",
               reason: "dockerfile cannot be empty string",
             },
-          ],
-        };
+          );
       }
       if (news.image) {
-        return {
-          failures: [
+        failures.push(
             {
               property: "image",
               reason: "cannot specify both build and image",
             },
-          ],
-        };
+          );
       }
     } else if (!news.image) {
-      return { failures: [{ property: "image", reason: "image is required" }] };
+      failures.push({ property: "image", reason: "image is required" });
     }
-    return { inputs: news };
+    return { inputs: news, failures };
   },
   async create(
     inputs: DefangServiceInputs
