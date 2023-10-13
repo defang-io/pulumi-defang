@@ -1,13 +1,15 @@
 import * as grpc from "@grpc/grpc-js";
 import * as pulumi from "@pulumi/pulumi";
-import { readFileSync } from "fs";
+import { createHash } from "crypto";
+import { createReadStream, promises, readFileSync } from "fs";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { join } from "path";
+import { dirname, join } from "path";
+import { promises as stream } from "stream";
 import assert = require("assert");
 
 import * as fabric from "./protos/io/defang/v1/fabric_grpc_pb";
 import * as pb from "./protos/io/defang/v1/fabric_pb";
-import { uploadTarball } from "./upload";
+import { createTarball, uploadTarball } from "./upload";
 import {
   HttpUrl,
   deleteUndefined,
@@ -99,6 +101,7 @@ async function connect(
 
 function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   const service = new pb.Service();
+
   service.setName(inputs.name);
   if (inputs.image) {
     service.setImage(inputs.image);
@@ -160,20 +163,40 @@ function dummyServiceInfo(service: pb.Service): pb.ServiceInfo {
   return info;
 }
 
-async function uploadBuildContext(
+async function getRemoteBuildContext(
   client: fabric.FabricControllerClient,
-  context: string
+  context: string,
+  force: boolean
 ): Promise<string> {
-  const uploadUrlResponse = await new Promise<pb.UploadURLResponse>(
-    (resolve, reject) =>
-      client.createUploadURL(new pb.UploadURLRequest(), (err, res) =>
-        err ? reject(err) : resolve(res!)
-      )
-  );
-  const putUrl = uploadUrlResponse.getUrl();
-  if (debug) console.debug(`Uploading build context to ${putUrl}`);
-  await uploadTarball(putUrl, context);
-  return putUrl.replace(/\?.*$/, ""); // remove query params
+  const temppath = await createTarball(context);
+  try {
+    const req = new pb.UploadURLRequest();
+
+    if (!force) {
+      // Calculate the digest of the tarball and pass it to the fabric controller (to avoid building the same image twice)
+      const hash = createHash("sha256");
+      await stream.pipeline(createReadStream(temppath), hash);
+      const digest = "sha256-" + hash.digest("base64"); // same as Nix
+      if (debug) console.debug(`Digest: ${digest}`);
+      req.setDigest(digest);
+    }
+
+    const uploadUrlResponse = await new Promise<pb.UploadURLResponse>(
+      (resolve, reject) =>
+        client.createUploadURL(req, (err, res) =>
+          err ? reject(err) : resolve(res!)
+        )
+    );
+    const putUrl = uploadUrlResponse.getUrl();
+    if (debug) console.debug(`Uploading build context to ${putUrl}`);
+
+    await uploadTarball(putUrl, temppath);
+
+    return putUrl.replace(/\?.*$/, ""); // remove query params
+  } finally {
+    await promises.rm(temppath);
+    await promises.rmdir(dirname(temppath));
+  }
 }
 
 async function updatex(
@@ -186,7 +209,9 @@ async function updatex(
     // Upload the build context, if provided
     if (inputs.build?.context) {
       const build = new pb.Build();
-      build.setContext(await uploadBuildContext(client, inputs.build.context));
+      build.setContext(
+        await getRemoteBuildContext(client, inputs.build.context, force)
+      );
       if (inputs.build.dockerfile) {
         build.setDockerfile(inputs.build.dockerfile);
       }
@@ -310,7 +335,10 @@ function isValidReservation(x?: number): boolean {
   return x === undefined || x > 0; // returns false for NaN
 }
 
-const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
+const defangServiceProvider: pulumi.dynamic.ResourceProvider<
+  DefangServiceInputs,
+  DefangServiceOutputs
+> = {
   async check(
     olds: DefangServiceInputs,
     news: DefangServiceInputs
@@ -473,10 +501,11 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
   },
   async read(
     id: string,
-    olds: DefangServiceOutputs
+    olds?: DefangServiceOutputs
   ): Promise<pulumi.dynamic.ReadResult<DefangServiceOutputs>> {
     const serviceId = new pb.ServiceID();
     serviceId.setName(id);
+    assert(olds?.fabricDNS, "fabricDNS is required");
     const client = await connect(olds.fabricDNS);
     try {
       const result = await new Promise<pb.ServiceInfo | undefined>(
