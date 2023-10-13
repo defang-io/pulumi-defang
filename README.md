@@ -5,7 +5,7 @@ This [Dynamic Resource Provider](https://www.pulumi.com/docs/intro/concepts/reso
 
 ## Install
 
-The provider is available from NPMG Package Registry. See [installation instructions](https://www.npmjs.com/package/%2540defang-io/pulumi-defang).
+The provider is available from NPM Package Registry. See [installation instructions](https://www.npmjs.com/package/%2540defang-io/pulumi-defang).
 ```sh
 npm i @defang-io/pulumi-defang
 ```
@@ -17,8 +17,8 @@ import { DefangService } from "@defang-io/pulumi-defang/lib";
 
 const service = new DefangService("defang-demo", {
   // name: "…",                             // defaults to the Pulumi resource name
-  // image: "nginx:latest",                 // pre-built container image
-  build: {
+  // image: "nginx:latest",                 // use a pre-built container image, or
+  build: {                                  // build from source
     context: ".",
     dockerfile: "Dockerfile.dev",
   },
