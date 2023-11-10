@@ -22,7 +22,7 @@ interface IFabricControllerService extends grpc.ServiceDefinition<grpc.UntypedSe
   generateFiles: grpc.MethodDefinition<io_defang_v1_fabric_pb.GenerateFilesRequest, io_defang_v1_fabric_pb.GenerateFilesResponse>;
   putSecret: grpc.MethodDefinition<io_defang_v1_fabric_pb.SecretValue, google_protobuf_empty_pb.Empty>;
   listSecrets: grpc.MethodDefinition<google_protobuf_empty_pb.Empty, io_defang_v1_fabric_pb.Secrets>;
-  createUploadURL: grpc.MethodDefinition<google_protobuf_empty_pb.Empty, io_defang_v1_fabric_pb.UploadURLResponse>;
+  createUploadURL: grpc.MethodDefinition<io_defang_v1_fabric_pb.UploadURLRequest, io_defang_v1_fabric_pb.UploadURLResponse>;
 }
 
 export const FabricControllerService: IFabricControllerService;
@@ -42,7 +42,7 @@ export interface IFabricControllerServer extends grpc.UntypedServiceImplementati
   generateFiles: grpc.handleUnaryCall<io_defang_v1_fabric_pb.GenerateFilesRequest, io_defang_v1_fabric_pb.GenerateFilesResponse>;
   putSecret: grpc.handleUnaryCall<io_defang_v1_fabric_pb.SecretValue, google_protobuf_empty_pb.Empty>;
   listSecrets: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, io_defang_v1_fabric_pb.Secrets>;
-  createUploadURL: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, io_defang_v1_fabric_pb.UploadURLResponse>;
+  createUploadURL: grpc.handleUnaryCall<io_defang_v1_fabric_pb.UploadURLRequest, io_defang_v1_fabric_pb.UploadURLResponse>;
 }
 
 export class FabricControllerClient extends grpc.Client {
@@ -87,7 +87,7 @@ export class FabricControllerClient extends grpc.Client {
   listSecrets(argument: google_protobuf_empty_pb.Empty, callback: grpc.requestCallback<io_defang_v1_fabric_pb.Secrets>): grpc.ClientUnaryCall;
   listSecrets(argument: google_protobuf_empty_pb.Empty, metadataOrOptions: grpc.Metadata | grpc.CallOptions | null, callback: grpc.requestCallback<io_defang_v1_fabric_pb.Secrets>): grpc.ClientUnaryCall;
   listSecrets(argument: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata | null, options: grpc.CallOptions | null, callback: grpc.requestCallback<io_defang_v1_fabric_pb.Secrets>): grpc.ClientUnaryCall;
-  createUploadURL(argument: google_protobuf_empty_pb.Empty, callback: grpc.requestCallback<io_defang_v1_fabric_pb.UploadURLResponse>): grpc.ClientUnaryCall;
-  createUploadURL(argument: google_protobuf_empty_pb.Empty, metadataOrOptions: grpc.Metadata | grpc.CallOptions | null, callback: grpc.requestCallback<io_defang_v1_fabric_pb.UploadURLResponse>): grpc.ClientUnaryCall;
-  createUploadURL(argument: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata | null, options: grpc.CallOptions | null, callback: grpc.requestCallback<io_defang_v1_fabric_pb.UploadURLResponse>): grpc.ClientUnaryCall;
+  createUploadURL(argument: io_defang_v1_fabric_pb.UploadURLRequest, callback: grpc.requestCallback<io_defang_v1_fabric_pb.UploadURLResponse>): grpc.ClientUnaryCall;
+  createUploadURL(argument: io_defang_v1_fabric_pb.UploadURLRequest, metadataOrOptions: grpc.Metadata | grpc.CallOptions | null, callback: grpc.requestCallback<io_defang_v1_fabric_pb.UploadURLResponse>): grpc.ClientUnaryCall;
+  createUploadURL(argument: io_defang_v1_fabric_pb.UploadURLRequest, metadata: grpc.Metadata | null, options: grpc.CallOptions | null, callback: grpc.requestCallback<io_defang_v1_fabric_pb.UploadURLResponse>): grpc.ClientUnaryCall;
 }

@@ -62,3 +62,8 @@ assert(isValidUint(1));
 assert(!isValidUint(-1));
 assert(!isValidUint(1.1));
 assert(!isValidUint(NaN));
+
+
+export function trueOr1(val?: string): boolean {
+  return ["true", "1"].includes(val!); // handles undefined just fine
+}

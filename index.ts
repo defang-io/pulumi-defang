@@ -1,17 +1,20 @@
 import * as grpc from "@grpc/grpc-js";
 import * as pulumi from "@pulumi/pulumi";
-import { readFileSync } from "fs";
+import { createHash } from "crypto";
+import { createReadStream, promises, readFileSync } from "fs";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { join } from "path";
+import { dirname, join } from "path";
+import { promises as stream } from "stream";
 import assert = require("assert");
 
 import * as fabric from "./protos/io/defang/v1/fabric_grpc_pb";
 import * as pb from "./protos/io/defang/v1/fabric_pb";
-import { uploadTarball } from "./upload";
+import { createTarball, uploadTarball } from "./upload";
 import {
   HttpUrl,
   deleteUndefined,
   isEqual,
+  trueOr1,
   isValidUint,
   optionals,
 } from "./utils";
@@ -25,17 +28,13 @@ export function setDefaultFabric(fabric: string) {
   defaultFabric = fabric;
 }
 
-function isSet(val?: string): boolean {
-  return ["true", "1"].includes(val!); // handles undefined just fine
-}
-
-const debug = isSet(process.env["DEFANG_DEBUG"]);
+const debug = trueOr1(process.env["DEFANG_DEBUG"]);
 
 // Pulumi stores the actual code of the dynamic provider in the stack. This
 // means that if there's a bug in the provider, we can't fix it in existing
 // stacks. To work around this, we can force an update of the provider code by
 // setting the environment variable DEFANG_FORCE_UP to "true" or "1".
-const forceUpdate = isSet(process.env["DEFANG_FORCE_UP"]);
+const forceUpdate = trueOr1(process.env["DEFANG_FORCE_UP"]);
 
 // The access token is used to authenticate with the gRPC server. It can be
 // passed in as an environment variable, read from the state file, or set using
@@ -100,6 +99,7 @@ async function connect(
 
 function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   const service = new pb.Service();
+
   service.setName(inputs.name);
   if (inputs.image) {
     service.setImage(inputs.image);
@@ -161,20 +161,40 @@ function dummyServiceInfo(service: pb.Service): pb.ServiceInfo {
   return info;
 }
 
-async function uploadBuildContext(
+async function getRemoteBuildContext(
   client: fabric.FabricControllerClient,
-  context: string
+  context: string,
+  force: boolean
 ): Promise<string> {
-  const uploadUrlResponse = await new Promise<pb.UploadURLResponse>(
-    (resolve, reject) =>
-      client.createUploadURL(new Empty(), (err, res) =>
-        err ? reject(err) : resolve(res!)
-      )
-  );
-  const putUrl = uploadUrlResponse.getUrl();
-  if (debug) console.debug(`Uploading build context to ${putUrl}`);
-  await uploadTarball(putUrl, context);
-  return putUrl.replace(/\?.*$/, ""); // remove query params
+  const temppath = await createTarball(context);
+  try {
+    const req = new pb.UploadURLRequest();
+
+    if (!force) {
+      // Calculate the digest of the tarball and pass it to the fabric controller (to avoid building the same image twice)
+      const hash = createHash("sha256");
+      await stream.pipeline(createReadStream(temppath), hash);
+      const digest = "sha256-" + hash.digest("base64"); // same as Nix
+      if (debug) console.debug(`Digest: ${digest}`);
+      req.setDigest(digest);
+    }
+
+    const uploadUrlResponse = await new Promise<pb.UploadURLResponse>(
+      (resolve, reject) =>
+        client.createUploadURL(req, (err, res) =>
+          err ? reject(err) : resolve(res!)
+        )
+    );
+    const putUrl = uploadUrlResponse.getUrl();
+    if (debug) console.debug(`Uploading build context to ${putUrl}`);
+
+    await uploadTarball(putUrl, temppath);
+
+    return putUrl.replace(/\?.*$/, ""); // remove query params
+  } finally {
+    await promises.rm(temppath);
+    await promises.rmdir(dirname(temppath));
+  }
 }
 
 async function updatex(
@@ -187,7 +207,9 @@ async function updatex(
     // Upload the build context, if provided
     if (inputs.build?.context) {
       const build = new pb.Build();
-      build.setContext(await uploadBuildContext(client, inputs.build.context));
+      build.setContext(
+        await getRemoteBuildContext(client, inputs.build.context, force)
+      );
       if (inputs.build.dockerfile) {
         build.setDockerfile(inputs.build.dockerfile);
       }
@@ -311,7 +333,10 @@ function isValidReservation(x?: number): boolean {
   return x === undefined || x > 0; // returns false for NaN
 }
 
-const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
+const defangServiceProvider: pulumi.dynamic.ResourceProvider<
+  DefangServiceInputs,
+  DefangServiceOutputs
+> = {
   async check(
     olds: DefangServiceInputs,
     news: DefangServiceInputs
@@ -327,28 +352,22 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     }
     if (news.deploy) {
       if (!isValidUint(news.deploy.replicas ?? 0)) {
-        failures.push(
-            {
-              property: "deploy",
-              reason: "replicas must be an integer ≥ 0",
-            },
-          );
+        failures.push({
+          property: "deploy",
+          reason: "replicas must be an integer ≥ 0",
+        });
       }
       if (!isValidReservation(news.deploy.resources?.reservations?.cpu)) {
-        failures.push(
-            {
-              property: "deploy",
-              reason: "cpu reservation must be > 0",
-            },
-          );
+        failures.push({
+          property: "deploy",
+          reason: "cpu reservation must be > 0",
+        });
       }
       if (!isValidReservation(news.deploy.resources?.reservations?.memory)) {
-        failures.push(
-            {
-              property: "deploy",
-              reason: "memory reservation must be > 0",
-            },
-          );
+        failures.push({
+          property: "deploy",
+          reason: "memory reservation must be > 0",
+        });
       }
     }
     for (const port of news.ports || []) {
@@ -358,21 +377,17 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
         port.target > 32767 ||
         !Number.isInteger(port.target)
       ) {
-        failures.push(
-            {
-              property: "ports",
-              reason: "target port must be an integer between 1 and 32767",
-            },
-          );
+        failures.push({
+          property: "ports",
+          reason: "target port must be an integer between 1 and 32767",
+        });
       }
       if (port.mode === "ingress") {
         if (["udp", "tcp"].includes(port.protocol!)) {
-          failures.push(
-              {
-                property: "ports",
-                reason: "ingress is not support by protocol " + port.protocol,
-              },
-            );
+          failures.push({
+            property: "ports",
+            reason: "ingress is not support by protocol " + port.protocol,
+          });
         }
         if (!news.healthcheck?.test) {
           console.warn(
@@ -384,38 +399,30 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
     for (const secret of news.secrets || []) {
       // TODO: validate source name
       if (!secret.source) {
-        failures.push(
-            {
-              property: "secrets",
-              reason: "secret source is required",
-            },
-          );
+        failures.push({
+          property: "secrets",
+          reason: "secret source is required",
+        });
       }
     }
     if (news.build) {
       if (!news.build.context) {
-        failures.push(
-            {
-              property: "build",
-              reason: "build context is required",
-            },
-          );
+        failures.push({
+          property: "build",
+          reason: "build context is required",
+        });
       }
       if (news.build.dockerfile === "") {
-        failures.push(
-            {
-              property: "build",
-              reason: "dockerfile cannot be empty string",
-            },
-          );
+        failures.push({
+          property: "build",
+          reason: "dockerfile cannot be empty string",
+        });
       }
       if (news.image) {
-        failures.push(
-            {
-              property: "image",
-              reason: "cannot specify both build and image",
-            },
-          );
+        failures.push({
+          property: "image",
+          reason: "cannot specify both build and image",
+        });
       }
     } else if (!news.image) {
       failures.push({ property: "image", reason: "image is required" });
@@ -492,10 +499,11 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider = {
   },
   async read(
     id: string,
-    olds: DefangServiceOutputs
+    olds?: DefangServiceOutputs
   ): Promise<pulumi.dynamic.ReadResult<DefangServiceOutputs>> {
     const serviceId = new pb.ServiceID();
     serviceId.setName(id);
+    assert(olds?.fabricDNS, "fabricDNS is required");
     const client = await connect(olds.fabricDNS);
     try {
       const result = await new Promise<pb.ServiceInfo | undefined>(
