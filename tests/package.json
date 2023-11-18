@@ -1,0 +1,16 @@
+{
+    "name": "defangtest",
+    "private": true,
+    "main": "index.ts",
+    "devDependencies": {
+        "@types/node": "^16",
+        "typescript": "^5.1.3"
+    },
+    "dependencies": {
+        "@defang-io/pulumi-defang": "github:defang-io/pulumi-defang",
+        "@pulumi/pulumi": "~3.76.0"
+    },
+    "scripts": {
+        "test": "pulumi login file://. && PULUMI_CONFIG_PASSPHRASE= pulumi up -s test --yes ; pulumi destroy -s test --yes"
+    }
+}
