@@ -3,7 +3,7 @@
     "strict": true,
     "outDir": "lib",
     "target": "es2019",
-    "module": "Node16",
+    "module": "commonjs",
     "moduleResolution": "Node16",
     "declaration": true,
     "skipLibCheck": true,
