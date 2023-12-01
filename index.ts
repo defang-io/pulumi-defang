@@ -255,11 +255,6 @@ function convertPorts(ports: Port[] = []): pb.Port[] {
   });
 }
 
-interface UnwrappedSecret {
-  source: string;
-  value?: string; // testing
-}
-
 interface DefangServiceInputs {
   fabricDNS: string;
   name: string;
@@ -269,8 +264,8 @@ interface DefangServiceInputs {
   deploy?: Deploy;
   ports?: Port[];
   environment?: { [key: string]: string };
-  secrets?: UnwrappedSecret[];
-  build?: Build;
+  secrets?: pulumi.Unwrap<Secret>[];
+  build?: pulumi.Unwrap<Build>;
   forceNewDeployment?: boolean;
   command?: string[];
   healthcheck?: HealthCheck;
@@ -591,7 +586,7 @@ export interface Build {
   /** the path to the Dockerfile; defaults to Dockerfile */
   dockerfile?: string;
   /** the build args to pass to the builder */
-  args?: { [key: string]: string };
+  args?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
 }
 
 export interface DefangServiceArgs {
