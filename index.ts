@@ -23,9 +23,9 @@ let defaultFabric =
   process.env["DEFANG_FABRIC"] || "fabric-prod1.defang.dev:443";
 
 /** Override the default Fabric service to use for all Defang resources. */
-export function setDefaultFabric(fabric: string) {
-  assert(fabric, "fabric must be non-empty");
-  defaultFabric = fabric;
+export function setDefaultFabric(fabricDns: string) {
+  assert(fabricDns, "fabricDns must be non-empty");
+  defaultFabric = fabricDns;
 }
 
 const debug = trueOr1(process.env["DEFANG_DEBUG"]);
@@ -41,24 +41,26 @@ const forceUpdate = trueOr1(process.env["DEFANG_FORCE_UP"]);
 // the `setAccessToken` function.
 let accessToken: string | undefined;
 
-function readAccessToken(fabric: string): string {
+function readAccessToken(fabricDns: string): string {
   const tokenDir =
     process.env["XDG_STATE_HOME"] ||
     join(process.env["HOME"]!, ".local", "state");
-  const tokenPath = join(tokenDir, "defang", fabric.replace(/:\d+$/, ""));
+  const tokenPath = join(tokenDir, "defang", fabricDns.replace(/:\d+$/, ""));
   try {
     if (debug) console.debug(`Reading access token from ${tokenPath}`);
     return readFileSync(tokenPath, "utf8").trim();
   } catch (e) {
-    const arg = fabric === defaultFabric ? "" : ` --cluster ${fabric}`;
+    const arg = fabricDns === defaultFabric ? "" : ` --cluster ${fabricDns}`;
     console.error("Please log in with the Defang CLI: defang login" + arg);
     throw e;
   }
 }
 
-function getAccessToken(fabric: string): string {
+function getAccessToken(fabricDns: string): string {
   return (
-    accessToken || process.env["DEFANG_ACCESS_TOKEN"] || readAccessToken(fabric)
+    accessToken ||
+    process.env["DEFANG_ACCESS_TOKEN"] ||
+    readAccessToken(fabricDns)
   );
 }
 
@@ -74,9 +76,9 @@ function hasPort(url: string): boolean {
 
 // Connect to our gRPC server
 async function connect(
-  fabricDNS: string
+  fabricDns: string
 ): Promise<fabric.FabricControllerClient> {
-  const withoutTenant = fabricDNS.replace(/^.*@/, "");
+  const withoutTenant = fabricDns.replace(/^.*@/, "");
   const client = new fabric.FabricControllerClient(
     hasPort(withoutTenant) ? withoutTenant : `${withoutTenant}:443`,
     grpc.credentials.combineChannelCredentials(
@@ -84,7 +86,7 @@ async function connect(
       grpc.credentials.createFromMetadataGenerator((_, callback) => {
         const metadata = new grpc.Metadata();
         // TODO: automatically generate a new token once it expires
-        metadata.set("authorization", "Bearer " + getAccessToken(fabricDNS));
+        metadata.set("authorization", "Bearer " + getAccessToken(fabricDns));
         callback(null, metadata);
       })
     )
