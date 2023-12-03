@@ -167,7 +167,7 @@ async function uploadBuildContext(
 ): Promise<string> {
   const uploadUrlResponse = await new Promise<pb.UploadURLResponse>(
     (resolve, reject) =>
-      client.createUploadURL(new Empty(), (err, res) =>
+      client.createUploadURL(new pb.UploadURLRequest(), (err, res) =>
         err ? reject(err) : resolve(res!)
       )
   );
