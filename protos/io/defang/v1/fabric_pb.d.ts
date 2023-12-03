@@ -117,6 +117,26 @@ export namespace GenerateFilesResponse {
   }
 }
 
+export class UploadURLRequest extends jspb.Message {
+  getDigest(): string;
+  setDigest(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UploadURLRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: UploadURLRequest): UploadURLRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: UploadURLRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UploadURLRequest;
+  static deserializeBinaryFromReader(message: UploadURLRequest, reader: jspb.BinaryReader): UploadURLRequest;
+}
+
+export namespace UploadURLRequest {
+  export type AsObject = {
+    digest: string,
+  }
+}
+
 export class UploadURLResponse extends jspb.Message {
   getUrl(): string;
   setUrl(value: string): void;

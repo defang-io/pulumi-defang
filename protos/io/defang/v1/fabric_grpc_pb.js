@@ -217,6 +217,17 @@ function deserialize_io_defang_v1_TokenResponse(buffer_arg) {
   return io_defang_v1_fabric_pb.TokenResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_io_defang_v1_UploadURLRequest(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.UploadURLRequest)) {
+    throw new Error('Expected argument of type io.defang.v1.UploadURLRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_UploadURLRequest(buffer_arg) {
+  return io_defang_v1_fabric_pb.UploadURLRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_io_defang_v1_UploadURLResponse(arg) {
   if (!(arg instanceof io_defang_v1_fabric_pb.UploadURLResponse)) {
     throw new Error('Expected argument of type io.defang.v1.UploadURLResponse');
@@ -406,10 +417,10 @@ createUploadURL: {
     path: '/io.defang.v1.FabricController/CreateUploadURL',
     requestStream: false,
     responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
+    requestType: io_defang_v1_fabric_pb.UploadURLRequest,
     responseType: io_defang_v1_fabric_pb.UploadURLResponse,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
+    requestSerialize: serialize_io_defang_v1_UploadURLRequest,
+    requestDeserialize: deserialize_io_defang_v1_UploadURLRequest,
     responseSerialize: serialize_io_defang_v1_UploadURLResponse,
     responseDeserialize: deserialize_io_defang_v1_UploadURLResponse,
   },
