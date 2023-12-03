@@ -14,6 +14,7 @@ import {
   isEqual,
   isValidUint,
   optionals,
+  trueOr1,
 } from "./utils";
 
 let defaultFabric =
@@ -25,17 +26,13 @@ export function setDefaultFabric(fabric: string) {
   defaultFabric = fabric;
 }
 
-function isSet(val?: string): boolean {
-  return ["true", "1"].includes(val!); // handles undefined just fine
-}
-
-const debug = isSet(process.env["DEFANG_DEBUG"]);
+const debug = trueOr1(process.env["DEFANG_DEBUG"]);
 
 // Pulumi stores the actual code of the dynamic provider in the stack. This
 // means that if there's a bug in the provider, we can't fix it in existing
 // stacks. To work around this, we can force an update of the provider code by
 // setting the environment variable DEFANG_FORCE_UP to "true" or "1".
-const forceUpdate = isSet(process.env["DEFANG_FORCE_UP"]);
+const forceUpdate = trueOr1(process.env["DEFANG_FORCE_UP"]);
 
 // The access token is used to authenticate with the gRPC server. It can be
 // passed in as an environment variable, read from the state file, or set using
