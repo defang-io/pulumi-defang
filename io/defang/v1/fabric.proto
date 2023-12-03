@@ -1,7 +1,7 @@
 // protos/v1/fabric.proto
 syntax = "proto3";
 
-option go_package = "github.com/defang-io/defang-mvp/fabric/protos/io/defang/v1";
+option go_package = "github.com/defang-io/defang/src/protos/io/defang/v1";
 // option java_multiple_files = true;
 // option java_package = "io.defang.fabric";
 // option java_outer_classname = "FabricProto";
@@ -31,7 +31,7 @@ service FabricController {
 
   rpc PutSecret(SecretValue) returns (google.protobuf.Empty);
   rpc ListSecrets(google.protobuf.Empty) returns (Secrets); // no values
-  rpc CreateUploadURL(google.protobuf.Empty) returns (UploadURLResponse);
+  rpc CreateUploadURL(UploadURLRequest) returns (UploadURLResponse);
   // rpc DeleteSecret(SecretValue) returns (google.protobuf.Empty);
 }
 
@@ -50,6 +50,8 @@ message File {
 }
 
 message GenerateFilesResponse { repeated File files = 1; }
+
+message UploadURLRequest { string digest = 1; }
 
 message UploadURLResponse { string url = 1; }
 
@@ -237,7 +239,7 @@ message Service {
   string name = 1;
   string image = 2;
   Platform platform = 3;
-  bool internal = 4;
+  bool internal = 4; // true if service is internal TODO: not part of spec
   Deploy deploy = 5;
   repeated Port ports = 6;
   map<string, string> environment = 7;
