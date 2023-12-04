@@ -496,6 +496,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
     const newService = convertServiceInputs(newInputs).toObject();
     if (newInputs.build && oldOutputs.service.build) {
       // Create a (mock) upload URL for the build context, so we can compare it below
+      // TODO: this is a bit hacky, because we mimic the behavior of the Fabric controller
       assert(
         newService.build,
         "service.build should've been set in convertServiceInputs"
