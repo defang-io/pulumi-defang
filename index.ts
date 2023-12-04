@@ -185,6 +185,24 @@ async function sha256sum(path: string): Promise<string> {
   return digest;
 }
 
+const s3InvalidCharsRegexp = /[^a-zA-Z0-9!_.*'()-]/g; // from fabric_grpc.go
+
+function mockCreateUploadURL(old: string, digest: string): string {
+  const suffix = digest.replace(s3InvalidCharsRegexp, "_"); // from fabric_grpc.go
+  const baseUrl = dirname(old);
+  return `${baseUrl}/${suffix}`;
+}
+
+async function getRemoteBuildContextDigest(context: string): Promise<string> {
+  const temppath = await createTarball(context);
+  try {
+    return await sha256sum(temppath);
+  } finally {
+    await promises.rm(temppath);
+    await promises.rmdir(dirname(temppath));
+  }
+}
+
 async function getRemoteBuildContext(
   client: fabric.FabricControllerClient,
   context: string,
@@ -477,19 +495,15 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
     assert.equal(id, oldOutputs.service.name);
     const newService = convertServiceInputs(newInputs).toObject();
     if (newInputs.build && oldOutputs.service.build) {
+      // Create a (mock) upload URL for the build context, so we can compare it below
       assert(
         newService.build,
         "service.build should've been set in convertServiceInputs"
       );
-      const temppath = await createTarball(newInputs.build.context);
-      try {
-        const digest = await sha256sum(temppath);
-        const baseUrl = dirname(oldOutputs.service.build.context);
-        newService.build.context = join(baseUrl, digest);
-      } finally {
-        await promises.rm(temppath);
-        await promises.rmdir(dirname(temppath));
-      }
+      newService.build.context = mockCreateUploadURL(
+        oldOutputs.service.build.context,
+        await getRemoteBuildContextDigest(newInputs.build.context)
+      );
     }
     if (debug) console.debug(`Old: ${stableStringify(oldOutputs.service)}`);
     if (debug) console.debug(`New: ${stableStringify(newService)}`);
