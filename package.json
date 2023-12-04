@@ -1,6 +1,6 @@
 {
   "name": "@defang-io/pulumi-defang",
-  "version": "0.13.2",
+  "version": "0.14.0",
   "author": "Defang Software Labs Inc.",
   "bugs": {
     "url": "https://github.com/defang-io/pulumi-defang/issues"
@@ -19,7 +19,7 @@
     "@types/tar": "^6.1.5",
     "grpc-tools": "^1.12.4",
     "ts-protoc-gen": "^0.15.0",
-    "typescript": "^5.1.3"
+    "typescript": "~5.1.6"
   },
   "engines": {
     "node": ">=16"
