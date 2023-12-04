@@ -42,7 +42,7 @@ export async function createTarball(cwd: string): Promise<string> {
         mtime: new Date(315532800*1000), // 1980-01-01 00:00:00 GMT same as Nix
         portable: true,
         strict: true,
-      } as any, // cast needed for mtime
+      } as any, // cast needed for mtime (bug in tar type definitions)
       ["."]
     ),
     createWriteStream(temppath)
