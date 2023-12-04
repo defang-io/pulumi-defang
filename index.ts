@@ -107,7 +107,20 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   if (inputs.image) {
     service.setImage(inputs.image);
   }
-  // inputs.build is handled in updatex
+  if (inputs.build?.context) {
+    const build = new pb.Build();
+    // inputs.build.context is handled in updatex()
+    // build.setContext(…);
+    if (inputs.build.dockerfile) {
+      build.setDockerfile(inputs.build.dockerfile);
+    }
+    if (inputs.build.args) {
+      for (const [key, value] of Object.entries(inputs.build.args)) {
+        build.getArgsMap().set(key, value);
+      }
+    }
+    service.setBuild(build);
+  }
   const deploy = new pb.Deploy();
   deploy.setReplicas(inputs.deploy?.replicas ?? 1);
   if (inputs.deploy?.resources) {
@@ -164,6 +177,14 @@ function dummyServiceInfo(service: pb.Service): pb.ServiceInfo {
   return info;
 }
 
+async function sha256sum(path: string): Promise<string> {
+  const hash = createHash("sha256");
+  await stream.pipeline(createReadStream(path), hash);
+  const digest = "sha256-" + hash.digest("base64"); // same as Nix
+  if (debug) console.debug(`Digest: ${digest}`);
+  return digest;
+}
+
 async function getRemoteBuildContext(
   client: fabric.FabricControllerClient,
   context: string,
@@ -175,11 +196,7 @@ async function getRemoteBuildContext(
 
     if (!force) {
       // Calculate the digest of the tarball and pass it to the fabric controller (to avoid building the same image twice)
-      const hash = createHash("sha256");
-      await stream.pipeline(createReadStream(temppath), hash);
-      const digest = "sha256-" + hash.digest("base64"); // same as Nix
-      if (debug) console.debug(`Digest: ${digest}`);
-      req.setDigest(digest);
+      req.setDigest(await sha256sum(temppath));
     }
 
     const uploadUrlResponse = await new Promise<pb.UploadURLResponse>(
@@ -209,19 +226,11 @@ async function updatex(
   try {
     // Upload the build context, if provided
     if (inputs.build?.context) {
-      const build = new pb.Build();
+      const build = service.getBuild();
+      assert(build, "service.build should've been set in convertServiceInputs");
       build.setContext(
         await getRemoteBuildContext(client, inputs.build.context, force)
       );
-      if (inputs.build.dockerfile) {
-        build.setDockerfile(inputs.build.dockerfile);
-      }
-      if (inputs.build.args) {
-        for (const [key, value] of Object.entries(inputs.build.args)) {
-          build.getArgsMap().set(key, value);
-        }
-      }
-      service.setBuild(build);
     }
 
     // Update any secrets w/ values first in case the service update depends on them
@@ -467,6 +476,21 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
   ): Promise<pulumi.dynamic.DiffResult> {
     assert.equal(id, oldOutputs.service.name);
     const newService = convertServiceInputs(newInputs).toObject();
+    if (newInputs.build && oldOutputs.service.build) {
+      assert(
+        newService.build,
+        "service.build should've been set in convertServiceInputs"
+      );
+      const temppath = await createTarball(newInputs.build.context);
+      try {
+        const digest = await sha256sum(temppath);
+        const baseUrl = dirname(oldOutputs.service.build.context);
+        newService.build.context = join(baseUrl, digest);
+      } finally {
+        await promises.rm(temppath);
+        await promises.rmdir(dirname(temppath));
+      }
+    }
     if (debug) console.debug(`Old: ${stableStringify(oldOutputs.service)}`);
     if (debug) console.debug(`New: ${stableStringify(newService)}`);
     return {
