@@ -16,6 +16,7 @@ import {
   isEqual,
   isValidUint,
   optionals,
+  stableStringify,
   trueOr1,
 } from "./utils";
 
@@ -465,13 +466,13 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
     newInputs: DefangServiceInputs
   ): Promise<pulumi.dynamic.DiffResult> {
     assert.equal(id, oldOutputs.service.name);
+    const newService = convertServiceInputs(newInputs).toObject();
+    if (debug) console.debug(`Old: ${stableStringify(oldOutputs.service)}`);
+    if (debug) console.debug(`New: ${stableStringify(newService)}`);
     return {
       changes:
         newInputs.forceNewDeployment ||
-        !isEqual(
-          oldOutputs.service,
-          convertServiceInputs(newInputs).toObject()
-        ),
+        !isEqual(oldOutputs.service, newService),
       replaces: forceUpdate
         ? [] // prevent calling delete
         : [
