@@ -193,8 +193,11 @@ function mockCreateUploadURL(old: string, digest: string): string {
   return `${baseUrl}/${suffix}`;
 }
 
-async function getRemoteBuildContextDigest(context: string): Promise<string> {
-  const temppath = await createTarball(context);
+async function getRemoteBuildContextDigest(
+  context: string,
+  dockerfile?: string
+): Promise<string> {
+  const temppath = await createTarball(context, dockerfile);
   try {
     return await sha256sum(temppath);
   } finally {
@@ -206,9 +209,10 @@ async function getRemoteBuildContextDigest(context: string): Promise<string> {
 async function getRemoteBuildContext(
   client: fabric.FabricControllerClient,
   context: string,
-  force: boolean
+  force: boolean,
+  dockerfile?: string
 ): Promise<string> {
-  const temppath = await createTarball(context);
+  const temppath = await createTarball(context, dockerfile);
   try {
     const req = new pb.UploadURLRequest();
 
@@ -247,7 +251,12 @@ async function updatex(
       const build = service.getBuild();
       assert(build, "service.build should've been set in convertServiceInputs");
       build.setContext(
-        await getRemoteBuildContext(client, inputs.build.context, force)
+        await getRemoteBuildContext(
+          client,
+          inputs.build.context,
+          force,
+          build.getDockerfile()
+        )
       );
     }
 
@@ -503,7 +512,10 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
       );
       newService.build.context = mockCreateUploadURL(
         oldOutputs.service.build.context,
-        await getRemoteBuildContextDigest(newInputs.build.context)
+        await getRemoteBuildContextDigest(
+          newInputs.build.context,
+          newInputs.build.dockerfile
+        )
       );
     }
     if (debug) console.debug(`Old: ${stableStringify(oldOutputs.service)}`);

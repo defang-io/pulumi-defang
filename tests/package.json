@@ -11,6 +11,6 @@
         "@pulumi/pulumi": "~3.76.0"
     },
     "scripts": {
-        "test": "pulumi login file://. && PULUMI_CONFIG_PASSPHRASE= pulumi up -s test --yes ; pulumi destroy -s test --yes"
+        "test": "ts-node unit.ts && pulumi login file://. && PULUMI_CONFIG_PASSPHRASE= pulumi up -s test --yes ; pulumi destroy -s test --yes"
     }
 }

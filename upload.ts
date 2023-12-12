@@ -1,6 +1,6 @@
 import { createReadStream, createWriteStream, promises } from "fs";
 import { tmpdir } from "os";
-import { basename, join } from "path";
+import { basename, join, normalize } from "path";
 import { promises as stream } from "stream";
 import * as tar from "tar";
 
@@ -22,31 +22,55 @@ function filter(path: string): boolean {
     case "docker-compose.yml":
     case "docker-compose.yaml":
     case "node_modules":
+    case "thumbs.db":
       return false; // omit
   }
   return true; // keep
 }
 
-export async function createTarball(cwd: string): Promise<string> {
+export async function createTarball(
+  cwd: string,
+  dockerfile?: string
+): Promise<string> {
   const tempdir = await promises.mkdtemp(join(tmpdir(), "defang-build-"));
   console.debug(`Using temporary folder ${tempdir}`);
   const temppath = join(tempdir, "context.tar.gz");
+  try {
+    let foundDockerfile = false;
+    if (!dockerfile) {
+      dockerfile = "Dockerfile";
+    } else {
+      dockerfile = normalize(dockerfile);
+    }
 
-  // Using stream.pipeline() instead of .pipe() to correctly handle errors
-  await stream.pipeline(
-    tar.create(
-      {
-        cwd,
-        filter,
-        gzip: true,
-        mtime: new Date(315532800*1000), // 1980-01-01 00:00:00 GMT same as Nix
-        portable: true,
-        strict: true,
-      } as any, // cast needed for mtime (bug in tar type definitions)
-      ["."]
-    ),
-    createWriteStream(temppath)
-  );
+    // Using stream.pipeline() instead of .pipe() to correctly handle errors
+    await stream.pipeline(
+      tar.create(
+        {
+          cwd,
+          filter: (p: string) => (
+            (foundDockerfile ||= normalize(p) === dockerfile), filter(p)
+          ),
+          gzip: true,
+          mtime: new Date(315532800 * 1000), // 1980-01-01 00:00:00 GMT same as Nix
+          portable: true,
+          strict: true,
+        } as any, // cast needed for mtime (bug in tar type definitions)
+        ["."]
+      ),
+      createWriteStream(temppath)
+    );
+
+    if (!foundDockerfile) {
+      throw new Error(
+        `the specified dockerfile could not be read: ${dockerfile}`
+      );
+    }
+  } catch (err) {
+    await promises.rm(temppath);
+    await promises.rmdir(tempdir);
+    throw err;
+  }
   return temppath;
 }
 

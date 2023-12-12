@@ -3,7 +3,7 @@ import { DefangService } from "@defang-io/pulumi-defang/lib";
 const fromDir = new DefangService("test1", {
   build: {
     context: "./test1",
-    dockerfile: "Dockerfile.test",
+    dockerfile: "./Dockerfile.test",
     args: {
       DNS: `defang-test1.prod1.defang.dev`,
     },
