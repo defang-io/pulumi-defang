@@ -22,7 +22,7 @@ function filter(path: string): boolean {
     case "docker-compose.yml":
     case "docker-compose.yaml":
     case "node_modules":
-    case "thumbs.db":
+    case "Thumbs.db":
       return false; // omit
   }
   return true; // keep
