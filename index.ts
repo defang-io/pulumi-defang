@@ -19,6 +19,7 @@ import {
   stableStringify,
   trueOr1,
 } from "./utils";
+import { c } from "tar";
 
 let defaultFabric =
   process.env["DEFANG_FABRIC"] || "fabric-prod1.defang.dev:443";
@@ -42,18 +43,22 @@ const forceUpdate = trueOr1(process.env["DEFANG_FORCE_UP"]);
 // the `setAccessToken` function.
 let accessToken: string | undefined;
 
+function printDefangHint(fabricDns: string) {
+  const arg = fabricDns === defaultFabric ? "" : ` --cluster ${fabricDns}`;
+  pulumi.log.error("Please log in with the Defang CLI: defang login" + arg);
+}
+
 function readAccessToken(fabricDns: string): string {
   const tokenDir =
     process.env["XDG_STATE_HOME"] ||
     join(process.env["HOME"]!, ".local", "state");
   const tokenPath = join(tokenDir, "defang", fabricDns.replace(/:\d+$/, ""));
   try {
-    if (debug) console.debug(`Reading access token from ${tokenPath}`);
+    if (debug) pulumi.log.info(`Reading access token from ${tokenPath}`);
     return readFileSync(tokenPath, "utf8").trim();
-  } catch (e) {
-    const arg = fabricDns === defaultFabric ? "" : ` --cluster ${fabricDns}`;
-    console.error("Please log in with the Defang CLI: defang login" + arg);
-    throw e;
+  } catch (err) {
+    printDefangHint(fabricDns);
+    throw err;
   }
 }
 
@@ -181,7 +186,7 @@ async function sha256sum(path: string): Promise<string> {
   const hash = createHash("sha256");
   await stream.pipeline(createReadStream(path), hash);
   const digest = "sha256-" + hash.digest("base64"); // same as Nix
-  if (debug) console.debug(`Digest: ${digest}`);
+  if (debug) pulumi.log.info(`Digest: ${digest}`);
   return digest;
 }
 
@@ -228,7 +233,7 @@ async function getRemoteBuildContext(
         )
     );
     const putUrl = uploadUrlResponse.getUrl();
-    if (debug) console.debug(`Uploading build context to ${putUrl}`);
+    if (debug) pulumi.log.info(`Uploading build context to ${putUrl}`);
 
     await uploadTarball(putUrl, temppath);
 
@@ -239,7 +244,7 @@ async function getRemoteBuildContext(
   }
 }
 
-async function updatex(
+async function upsert(
   inputs: DefangServiceInputs,
   force: boolean = false
 ): Promise<pb.ServiceInfo> {
@@ -281,8 +286,11 @@ async function updatex(
       client.update(service, (err, res) => (err ? reject(err) : resolve(res!)))
     );
   } catch (err) {
+    if ((err as grpc.ServiceError).code === grpc.status.UNAUTHENTICATED) {
+      printDefangHint(inputs.fabricDNS);
+    }
     if (!force) throw err;
-    console.warn(`Forced update; ignoring error: ${err}`);
+    pulumi.log.warn(`Forced update; ignoring error: ${err}`);
     return dummyServiceInfo(service);
   } finally {
     client.close();
@@ -429,7 +437,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
           });
         }
         if (!news.healthcheck?.test) {
-          console.warn(
+          pulumi.log.warn(
             "ingress port without healthcheck defaults to GET / HTTP/1.1"
           );
         }
@@ -471,7 +479,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
   async create(
     inputs: DefangServiceInputs
   ): Promise<pulumi.dynamic.CreateResult<DefangServiceOutputs>> {
-    const result = await updatex(inputs);
+    const result = await upsert(inputs);
     return {
       id: result.getService()!.getName(), // TODO: do we need to return a unique ID?
       outs: toOutputs(inputs.fabricDNS, result),
@@ -488,9 +496,16 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
         )
       );
     } catch (err) {
-      // Ignore "not found" errors
-      if ((err as grpc.ServiceError).code !== grpc.status.NOT_FOUND) {
-        throw err;
+      switch ((err as grpc.ServiceError).code) {
+        case grpc.status.NOT_FOUND: // Ignore "not found" errors
+          pulumi.log.debug(`Service ${id} not found; assuming already deleted`);
+          break;
+        case grpc.status.UNAUTHENTICATED:
+          printDefangHint(olds.fabricDNS);
+          throw err;
+        default:
+          // TODO: what if the fabric was destroyed? Assume the service is gone iff DEFANG_FORCE_UP?
+          throw err;
       }
     } finally {
       client.close();
@@ -518,8 +533,8 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
         )
       );
     }
-    if (debug) console.debug(`Old: ${stableStringify(oldOutputs.service)}`);
-    if (debug) console.debug(`New: ${stableStringify(newService)}`);
+    if (debug) pulumi.log.info(`Old: ${stableStringify(oldOutputs.service)}`);
+    if (debug) pulumi.log.info(`New: ${stableStringify(newService)}`);
     return {
       changes:
         newInputs.forceNewDeployment ||
@@ -545,7 +560,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
     assert.equal(id, olds.service.name);
     assert.equal(olds.service.name, news.name);
     assert.equal(olds.fabricDNS, news.fabricDNS);
-    const result = await updatex(news, forceUpdate);
+    const result = await upsert(news, forceUpdate);
     assert.strictEqual(result.getService()?.getName(), id);
     return {
       outs: toOutputs(news.fabricDNS, result, olds),
@@ -574,6 +589,11 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
             props: toOutputs(olds.fabricDNS, result),
           }
         : {};
+    } catch (err) {
+      if ((err as grpc.ServiceError).code === grpc.status.UNAUTHENTICATED) {
+        printDefangHint(olds.fabricDNS);
+      }
+      throw err;
     } finally {
       client.close();
     }
