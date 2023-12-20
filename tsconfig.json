@@ -14,8 +14,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["mocha"]
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "*.ts"
