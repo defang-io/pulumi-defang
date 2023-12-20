@@ -2571,7 +2571,8 @@ proto.io.defang.v1.TokenRequest.toObject = function(includeInstance, msg) {
     tenant: jspb.Message.getFieldWithDefault(msg, 1, ""),
     authCode: jspb.Message.getFieldWithDefault(msg, 2, ""),
     scopeList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
-    assertion: jspb.Message.getFieldWithDefault(msg, 4, "")
+    assertion: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    expiresIn: jspb.Message.getFieldWithDefault(msg, 5, 0)
   };
 
   if (includeInstance) {
@@ -2623,6 +2624,10 @@ proto.io.defang.v1.TokenRequest.deserializeBinaryFromReader = function(msg, read
     case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setAssertion(value);
+      break;
+    case 5:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setExpiresIn(value);
       break;
     default:
       reader.skipField();
@@ -2678,6 +2683,13 @@ proto.io.defang.v1.TokenRequest.serializeBinaryToWriter = function(message, writ
   if (f.length > 0) {
     writer.writeString(
       4,
+      f
+    );
+  }
+  f = message.getExpiresIn();
+  if (f !== 0) {
+    writer.writeUint32(
+      5,
       f
     );
   }
@@ -2772,6 +2784,24 @@ proto.io.defang.v1.TokenRequest.prototype.getAssertion = function() {
  */
 proto.io.defang.v1.TokenRequest.prototype.setAssertion = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional uint32 expires_in = 5;
+ * @return {number}
+ */
+proto.io.defang.v1.TokenRequest.prototype.getExpiresIn = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.io.defang.v1.TokenRequest} returns this
+ */
+proto.io.defang.v1.TokenRequest.prototype.setExpiresIn = function(value) {
+  return jspb.Message.setProto3IntField(this, 5, value);
 };
 
 
@@ -5279,7 +5309,8 @@ proto.io.defang.v1.Build.toObject = function(includeInstance, msg) {
   var f, obj = {
     context: jspb.Message.getFieldWithDefault(msg, 1, ""),
     dockerfile: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    argsMap: (f = msg.getArgsMap()) ? f.toObject(includeInstance, undefined) : []
+    argsMap: (f = msg.getArgsMap()) ? f.toObject(includeInstance, undefined) : [],
+    shmSize: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0)
   };
 
   if (includeInstance) {
@@ -5330,6 +5361,10 @@ proto.io.defang.v1.Build.deserializeBinaryFromReader = function(msg, reader) {
         jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "", "");
          });
       break;
+    case 4:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setShmSize(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -5376,6 +5411,13 @@ proto.io.defang.v1.Build.serializeBinaryToWriter = function(message, writer) {
   f = message.getArgsMap(true);
   if (f && f.getLength() > 0) {
     f.serializeBinary(3, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
+  }
+  f = message.getShmSize();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      4,
+      f
+    );
   }
 };
 
@@ -5436,6 +5478,24 @@ proto.io.defang.v1.Build.prototype.getArgsMap = function(opt_noLazyCreate) {
 proto.io.defang.v1.Build.prototype.clearArgsMap = function() {
   this.getArgsMap().clear();
   return this;};
+
+
+/**
+ * optional float shm_size = 4;
+ * @return {number}
+ */
+proto.io.defang.v1.Build.prototype.getShmSize = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 4, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.io.defang.v1.Build} returns this
+ */
+proto.io.defang.v1.Build.prototype.setShmSize = function(value) {
+  return jspb.Message.setProto3FloatField(this, 4, value);
+};
 
 
 
@@ -5646,7 +5706,8 @@ proto.io.defang.v1.Service.toObject = function(includeInstance, msg) {
     proto.io.defang.v1.Secret.toObject, includeInstance),
     healthcheck: (f = msg.getHealthcheck()) && proto.io.defang.v1.HealthCheck.toObject(includeInstance, f),
     commandList: (f = jspb.Message.getRepeatedField(msg, 11)) == null ? undefined : f,
-    domainname: jspb.Message.getFieldWithDefault(msg, 12, "")
+    domainname: jspb.Message.getFieldWithDefault(msg, 12, ""),
+    init: jspb.Message.getBooleanFieldWithDefault(msg, 13, false)
   };
 
   if (includeInstance) {
@@ -5737,6 +5798,10 @@ proto.io.defang.v1.Service.deserializeBinaryFromReader = function(msg, reader) {
     case 12:
       var value = /** @type {string} */ (reader.readString());
       msg.setDomainname(value);
+      break;
+    case 13:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setInit(value);
       break;
     default:
       reader.skipField();
@@ -5850,6 +5915,13 @@ proto.io.defang.v1.Service.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       12,
+      f
+    );
+  }
+  f = message.getInit();
+  if (f) {
+    writer.writeBool(
+      13,
       f
     );
   }
@@ -6189,6 +6261,24 @@ proto.io.defang.v1.Service.prototype.getDomainname = function() {
  */
 proto.io.defang.v1.Service.prototype.setDomainname = function(value) {
   return jspb.Message.setProto3StringField(this, 12, value);
+};
+
+
+/**
+ * optional bool init = 13;
+ * @return {boolean}
+ */
+proto.io.defang.v1.Service.prototype.getInit = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 13, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.io.defang.v1.Service} returns this
+ */
+proto.io.defang.v1.Service.prototype.setInit = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 13, value);
 };
 
 

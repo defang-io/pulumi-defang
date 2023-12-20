@@ -278,6 +278,9 @@ export class TokenRequest extends jspb.Message {
   getAssertion(): string;
   setAssertion(value: string): void;
 
+  getExpiresIn(): number;
+  setExpiresIn(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): TokenRequest.AsObject;
   static toObject(includeInstance: boolean, msg: TokenRequest): TokenRequest.AsObject;
@@ -294,6 +297,7 @@ export namespace TokenRequest {
     authCode: string,
     scopeList: Array<string>,
     assertion: string,
+    expiresIn: number,
   }
 }
 
@@ -662,6 +666,9 @@ export class Build extends jspb.Message {
 
   getArgsMap(): jspb.Map<string, string>;
   clearArgsMap(): void;
+  getShmSize(): number;
+  setShmSize(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Build.AsObject;
   static toObject(includeInstance: boolean, msg: Build): Build.AsObject;
@@ -677,6 +684,7 @@ export namespace Build {
     context: string,
     dockerfile: string,
     argsMap: Array<[string, string]>,
+    shmSize: number,
   }
 }
 
@@ -750,6 +758,9 @@ export class Service extends jspb.Message {
   getDomainname(): string;
   setDomainname(value: string): void;
 
+  getInit(): boolean;
+  setInit(value: boolean): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Service.AsObject;
   static toObject(includeInstance: boolean, msg: Service): Service.AsObject;
@@ -774,6 +785,7 @@ export namespace Service {
     healthcheck?: HealthCheck.AsObject,
     commandList: Array<string>,
     domainname: string,
+    init: boolean,
   }
 }
 

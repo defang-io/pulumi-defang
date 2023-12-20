@@ -19,7 +19,6 @@ import {
   stableStringify,
   trueOr1,
 } from "./utils";
-import { c } from "tar";
 
 let defaultFabric =
   process.env["DEFANG_FABRIC"] || "fabric-prod1.defang.dev:443";
@@ -124,6 +123,9 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
         build.getArgsMap().set(key, value);
       }
     }
+    if (inputs.build.shmSize) {
+      build.setShmSize(inputs.build.shmSize);
+    }
     service.setBuild(build);
   }
   const deploy = new pb.Deploy();
@@ -173,6 +175,7 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   if (inputs.domainname) {
     service.setDomainname(inputs.domainname);
   }
+  service.setInit(inputs.init ?? false);
   return service;
 }
 
@@ -325,20 +328,21 @@ function convertPorts(ports: Port[] = []): pb.Port[] {
 }
 
 interface DefangServiceInputs {
-  fabricDNS: string;
-  name: string;
-  image?: string;
-  platform?: Platform;
-  internal?: boolean;
-  deploy?: Deploy;
-  ports?: Port[];
-  environment?: { [key: string]: string };
-  secrets?: pulumi.Unwrap<Secret>[];
   build?: pulumi.Unwrap<Build>;
-  forceNewDeployment?: boolean;
   command?: string[];
-  healthcheck?: HealthCheck;
+  deploy?: Deploy;
   domainname?: string;
+  environment?: { [key: string]: string };
+  fabricDNS: string;
+  forceNewDeployment?: boolean;
+  healthcheck?: HealthCheck;
+  image?: string;
+  init?: boolean;
+  internal?: boolean; // defaults to true
+  name: string;
+  platform?: Platform;
+  ports?: Port[];
+  secrets?: pulumi.Unwrap<Secret>[];
 }
 
 interface DefangServiceOutputs {
@@ -453,22 +457,28 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
       }
     }
     if (news.build) {
+      if (news.image) {
+        failures.push({
+          property: "image",
+          reason: "cannot specify both build and image",
+        });
+      }
       if (!news.build.context) {
         failures.push({
-          property: "build",
+          property: "build.context",
           reason: "build context is required",
         });
       }
       if (news.build.dockerfile === "") {
         failures.push({
-          property: "build",
+          property: "build.dockerfile",
           reason: "dockerfile cannot be empty string",
         });
       }
-      if (news.image) {
+      if (!isValidReservation(news.build.shmSize)) {
         failures.push({
-          property: "image",
-          reason: "cannot specify both build and image",
+          property: "build.shmSize",
+          reason: "shmSize must be an integer > 0",
         });
       }
     } else if (!news.image) {
@@ -651,6 +661,8 @@ export interface Build {
   dockerfile?: string;
   /** the build args to pass to the builder */
   args?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
+  /** the shm_size in MiB to pass to the builder */
+  shmSize?: pulumi.Input<number>;
 }
 
 export interface DefangServiceArgs {
