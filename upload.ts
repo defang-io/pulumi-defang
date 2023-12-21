@@ -1,4 +1,4 @@
-import { createReadStream, createWriteStream, promises } from "fs";
+import { createReadStream, createWriteStream, promises, Stats } from "fs";
 import { tmpdir } from "os";
 import { basename, join, normalize } from "path";
 import { promises as stream } from "stream";
@@ -6,7 +6,7 @@ import * as tar from "tar";
 
 const extractMessageRegex = /<Message>(.*?)<\/Message>/;
 
-function filter(path: string): boolean {
+function filter(path: string, stat: Stats): boolean {
   // TODO: use .dockerignore
   switch (basename(path)) {
     case ".DS_Store":
@@ -17,14 +17,15 @@ function filter(path: string): boolean {
     case ".idea":
     case ".vscode":
     case "__pycache__":
-    case "defang": // our binary
     case "defang.exe": // our binary
     case "docker-compose.yml":
     case "docker-compose.yaml":
     case "node_modules":
     case "Thumbs.db":
       return false; // omit
-  }
+    case "defang": // our binary
+      return stat.isDirectory(); // omit only if it's a file
+    }
   return true; // keep
 }
 
@@ -48,8 +49,8 @@ export async function createTarball(
       tar.create(
         {
           cwd,
-          filter: (p: string) => (
-            (foundDockerfile ||= normalize(p) === dockerfile), filter(p)
+          filter: (p: string, stat: Stats) => (
+            (foundDockerfile ||= normalize(p) === dockerfile), filter(p, stat)
           ),
           gzip: true,
           mtime: new Date(315532800 * 1000), // 1980-01-01 00:00:00 GMT same as Nix

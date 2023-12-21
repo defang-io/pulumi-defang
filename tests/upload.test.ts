@@ -3,8 +3,10 @@ import { rm, rmdir } from "fs/promises";
 import "mocha";
 import { dirname, resolve } from "path";
 import * as upload from "../upload";
+import * as tar from "tar";
 
 describe("createTarball", () => {
+  const expected = ["./", "./Dockerfile.test", "./defang/"];
   const tests = [
     {
       dockerfile: undefined,
@@ -22,22 +24,26 @@ describe("createTarball", () => {
     { dockerfile: "./Dockerfile.test" },
   ];
 
-  for (const { dockerfile, error } of tests) {
-    it(`create tarball for ${dockerfile}`, async () => {
+  for (const tt of tests) {
+    it(`create tarball for ${tt.dockerfile}`, async () => {
+      let actual: string[] = [];
       try {
         const tgz = await upload.createTarball(
           resolve(__dirname, "./test1"),
-          dockerfile
+          tt.dockerfile
         );
+        await tar.list({ file: tgz, onentry: (e) => actual.push(e.path) });
         await rm(tgz);
         await rmdir(dirname(tgz));
       } catch (err) {
         assert(err instanceof Error);
-        assert.equal(err.message, error);
+        assert.equal(err.message, tt.error);
         return;
       }
-      if (error) {
-        assert.fail(`Expected failure for ${dockerfile}`);
+      if (tt.error) {
+        assert.fail(`Expected failure for ${tt.dockerfile}`);
+      } else {
+        assert.deepEqual(actual, expected);
       }
     });
   }
