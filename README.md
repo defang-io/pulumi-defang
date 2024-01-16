@@ -31,14 +31,12 @@ const service = new DefangService("defang-demo", {
   // deploy: {
   //   replicas: 1,
   //   resources: {
-  //     reservations: { cpu: 0.5, memory: 512 },
+  //     reservations: { cpus: 0.5, memory: 512 },
   //   },
   // },
 });
 
-export const id = service.id;
-export const urn = service.urn;
-export const fqdn = service.fqdn;           // the final FQDN for your service
+export const fqdn = service.publicFqdn;     // the final FQDN for your service
 export const natIPs = service.natIPs;       // the public NAT IPs of the service
 export const fabricDNS = service.fabricDNS;
 ```

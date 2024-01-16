@@ -132,7 +132,7 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   deploy.setReplicas(inputs.deploy?.replicas ?? 1);
   if (inputs.deploy?.resources) {
     const reservations = new pb.Resource();
-    reservations.setCpus(inputs.deploy.resources.reservations?.cpu ?? 0.0);
+    reservations.setCpus(inputs.deploy.resources.reservations?.cpus ?? 0.0);
     reservations.setMemory(inputs.deploy.resources.reservations?.memory ?? 0);
     const devices = inputs.deploy.resources.reservations?.devices?.map((d) => {
       const device = new pb.Device();
@@ -408,10 +408,10 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
           reason: "replicas must be an integer ≥ 0",
         });
       }
-      if (!isValidReservation(news.deploy.resources?.reservations?.cpu)) {
+      if (!isValidReservation(news.deploy.resources?.reservations?.cpus)) {
         failures.push({
           property: "deploy",
-          reason: "cpu reservation must be > 0",
+          reason: "cpus reservation must be > 0",
         });
       }
       if (!isValidReservation(news.deploy.resources?.reservations?.memory)) {
@@ -628,7 +628,7 @@ export interface Device {
 
 export interface Resource {
   /** number of vCPUs to reserve */
-  cpu?: number;
+  cpus?: number;
   /** number of MiB to reserve */
   memory?: number;
   devices?: Device[];
