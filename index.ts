@@ -650,7 +650,7 @@ export interface Secret {
 }
 
 export interface HealthCheck {
-  /** optional health check test */
+  /** health check test command */
   test: ["CMD", "curl", HttpUrl]; // TODO: support NONE and curl flags
 }
 
