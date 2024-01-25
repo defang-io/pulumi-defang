@@ -1805,7 +1805,9 @@ proto.io.defang.v1.ServiceInfo.toObject = function(includeInstance, msg) {
     natIpsList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f,
     lbIpsList: (f = jspb.Message.getRepeatedField(msg, 7)) == null ? undefined : f,
     privateFqdn: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    publicFqdn: jspb.Message.getFieldWithDefault(msg, 9, "")
+    publicFqdn: jspb.Message.getFieldWithDefault(msg, 9, ""),
+    createdAt: (f = msg.getCreatedAt()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
+    updatedAt: (f = msg.getUpdatedAt()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1878,6 +1880,16 @@ proto.io.defang.v1.ServiceInfo.deserializeBinaryFromReader = function(msg, reade
     case 9:
       var value = /** @type {string} */ (reader.readString());
       msg.setPublicFqdn(value);
+      break;
+    case 10:
+      var value = new google_protobuf_timestamp_pb.Timestamp;
+      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
+      msg.setCreatedAt(value);
+      break;
+    case 11:
+      var value = new google_protobuf_timestamp_pb.Timestamp;
+      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
+      msg.setUpdatedAt(value);
       break;
     default:
       reader.skipField();
@@ -1970,6 +1982,22 @@ proto.io.defang.v1.ServiceInfo.serializeBinaryToWriter = function(message, write
     writer.writeString(
       9,
       f
+    );
+  }
+  f = message.getCreatedAt();
+  if (f != null) {
+    writer.writeMessage(
+      10,
+      f,
+      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
+    );
+  }
+  f = message.getUpdatedAt();
+  if (f != null) {
+    writer.writeMessage(
+      11,
+      f,
+      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
     );
   }
 };
@@ -2210,6 +2238,80 @@ proto.io.defang.v1.ServiceInfo.prototype.getPublicFqdn = function() {
  */
 proto.io.defang.v1.ServiceInfo.prototype.setPublicFqdn = function(value) {
   return jspb.Message.setProto3StringField(this, 9, value);
+};
+
+
+/**
+ * optional google.protobuf.Timestamp created_at = 10;
+ * @return {?proto.google.protobuf.Timestamp}
+ */
+proto.io.defang.v1.ServiceInfo.prototype.getCreatedAt = function() {
+  return /** @type{?proto.google.protobuf.Timestamp} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 10));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.Timestamp|undefined} value
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+*/
+proto.io.defang.v1.ServiceInfo.prototype.setCreatedAt = function(value) {
+  return jspb.Message.setWrapperField(this, 10, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.clearCreatedAt = function() {
+  return this.setCreatedAt(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.io.defang.v1.ServiceInfo.prototype.hasCreatedAt = function() {
+  return jspb.Message.getField(this, 10) != null;
+};
+
+
+/**
+ * optional google.protobuf.Timestamp updated_at = 11;
+ * @return {?proto.google.protobuf.Timestamp}
+ */
+proto.io.defang.v1.ServiceInfo.prototype.getUpdatedAt = function() {
+  return /** @type{?proto.google.protobuf.Timestamp} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 11));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.Timestamp|undefined} value
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+*/
+proto.io.defang.v1.ServiceInfo.prototype.setUpdatedAt = function(value) {
+  return jspb.Message.setWrapperField(this, 11, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.io.defang.v1.ServiceInfo} returns this
+ */
+proto.io.defang.v1.ServiceInfo.prototype.clearUpdatedAt = function() {
+  return this.setUpdatedAt(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.io.defang.v1.ServiceInfo.prototype.hasUpdatedAt = function() {
+  return jspb.Message.getField(this, 11) != null;
 };
 
 
@@ -5537,7 +5639,10 @@ proto.io.defang.v1.HealthCheck.prototype.toObject = function(opt_includeInstance
  */
 proto.io.defang.v1.HealthCheck.toObject = function(includeInstance, msg) {
   var f, obj = {
-    testList: (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f
+    testList: (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f,
+    interval: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    timeout: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    retries: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -5578,6 +5683,18 @@ proto.io.defang.v1.HealthCheck.deserializeBinaryFromReader = function(msg, reade
       var value = /** @type {string} */ (reader.readString());
       msg.addTest(value);
       break;
+    case 2:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setInterval(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setTimeout(value);
+      break;
+    case 4:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setRetries(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -5611,6 +5728,27 @@ proto.io.defang.v1.HealthCheck.serializeBinaryToWriter = function(message, write
   if (f.length > 0) {
     writer.writeRepeatedString(
       1,
+      f
+    );
+  }
+  f = message.getInterval();
+  if (f !== 0) {
+    writer.writeUint32(
+      2,
+      f
+    );
+  }
+  f = message.getTimeout();
+  if (f !== 0) {
+    writer.writeUint32(
+      3,
+      f
+    );
+  }
+  f = message.getRetries();
+  if (f !== 0) {
+    writer.writeUint32(
+      4,
       f
     );
   }
@@ -5651,6 +5789,60 @@ proto.io.defang.v1.HealthCheck.prototype.addTest = function(value, opt_index) {
  */
 proto.io.defang.v1.HealthCheck.prototype.clearTestList = function() {
   return this.setTestList([]);
+};
+
+
+/**
+ * optional uint32 interval = 2;
+ * @return {number}
+ */
+proto.io.defang.v1.HealthCheck.prototype.getInterval = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.io.defang.v1.HealthCheck} returns this
+ */
+proto.io.defang.v1.HealthCheck.prototype.setInterval = function(value) {
+  return jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+/**
+ * optional uint32 timeout = 3;
+ * @return {number}
+ */
+proto.io.defang.v1.HealthCheck.prototype.getTimeout = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.io.defang.v1.HealthCheck} returns this
+ */
+proto.io.defang.v1.HealthCheck.prototype.setTimeout = function(value) {
+  return jspb.Message.setProto3IntField(this, 3, value);
+};
+
+
+/**
+ * optional uint32 retries = 4;
+ * @return {number}
+ */
+proto.io.defang.v1.HealthCheck.prototype.getRetries = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.io.defang.v1.HealthCheck} returns this
+ */
+proto.io.defang.v1.HealthCheck.prototype.setRetries = function(value) {
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 

@@ -170,6 +170,9 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   if (inputs.healthcheck) {
     const healthcheck = new pb.HealthCheck();
     healthcheck.setTestList(inputs.healthcheck.test);
+    healthcheck.setInterval(inputs.healthcheck.interval ?? 0);
+    healthcheck.setTimeout(inputs.healthcheck.timeout ?? 0);
+    healthcheck.setRetries(inputs.healthcheck.retries ?? 0);
     service.setHealthcheck(healthcheck);
   }
   if (inputs.domainname) {
@@ -446,6 +449,35 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
           );
         }
       }
+      if (news.healthcheck) {
+        if (
+          !Number.isInteger(news.healthcheck.interval) ||
+          news.healthcheck.interval! <= 0
+        ) {
+          failures.push({
+            property: "healthcheck.interval",
+            reason: "interval must be an integer",
+          });
+        }
+        if (
+          !Number.isInteger(news.healthcheck.timeout) ||
+          news.healthcheck.timeout! <= 0
+        ) {
+          failures.push({
+            property: "healthcheck.timeout",
+            reason: "timeout must be an integer",
+          });
+        }
+        if (
+          !Number.isInteger(news.healthcheck.retries) ||
+          news.healthcheck.retries! <= 0
+        ) {
+          failures.push({
+            property: "healthcheck.retries",
+            reason: "retries must be an integer",
+          });
+        }
+      }
     }
     for (const secret of news.secrets || []) {
       // TODO: validate source name
@@ -652,6 +684,9 @@ export interface Secret {
 export interface HealthCheck {
   /** health check test command */
   test: ["CMD", "curl", HttpUrl]; // TODO: support NONE and curl flags
+  interval?: number;
+  timeout?: number;
+  retries?: number;
 }
 
 export interface Build {

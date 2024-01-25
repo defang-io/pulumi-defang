@@ -193,6 +193,16 @@ export class ServiceInfo extends jspb.Message {
   getPublicFqdn(): string;
   setPublicFqdn(value: string): void;
 
+  hasCreatedAt(): boolean;
+  clearCreatedAt(): void;
+  getCreatedAt(): google_protobuf_timestamp_pb.Timestamp | undefined;
+  setCreatedAt(value?: google_protobuf_timestamp_pb.Timestamp): void;
+
+  hasUpdatedAt(): boolean;
+  clearUpdatedAt(): void;
+  getUpdatedAt(): google_protobuf_timestamp_pb.Timestamp | undefined;
+  setUpdatedAt(value?: google_protobuf_timestamp_pb.Timestamp): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ServiceInfo.AsObject;
   static toObject(includeInstance: boolean, msg: ServiceInfo): ServiceInfo.AsObject;
@@ -214,6 +224,8 @@ export namespace ServiceInfo {
     lbIpsList: Array<string>,
     privateFqdn: string,
     publicFqdn: string,
+    createdAt?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+    updatedAt?: google_protobuf_timestamp_pb.Timestamp.AsObject,
   }
 }
 
@@ -694,6 +706,15 @@ export class HealthCheck extends jspb.Message {
   setTestList(value: Array<string>): void;
   addTest(value: string, index?: number): string;
 
+  getInterval(): number;
+  setInterval(value: number): void;
+
+  getTimeout(): number;
+  setTimeout(value: number): void;
+
+  getRetries(): number;
+  setRetries(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): HealthCheck.AsObject;
   static toObject(includeInstance: boolean, msg: HealthCheck): HealthCheck.AsObject;
@@ -707,6 +728,9 @@ export class HealthCheck extends jspb.Message {
 export namespace HealthCheck {
   export type AsObject = {
     testList: Array<string>,
+    interval: number,
+    timeout: number,
+    retries: number,
   }
 }
 
