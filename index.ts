@@ -424,6 +424,11 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
         });
       }
     }
+    if (!news.deploy?.resources?.reservations?.memory) {
+      pulumi.log.warn(
+        "missing memory reservation; specify deploy.resources.reservations.memory to avoid out-of-memory errors"
+      );
+    }
     for (const port of news.ports || []) {
       // port.protocol = port.protocol || "tcp"; TODO: should we set defaults here?
       if (
