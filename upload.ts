@@ -74,7 +74,7 @@ export async function createTarball(
           mtime: new Date(SOURCE_DATE_EPOCH * 1000), // seconds -> milliseconds
           portable: true,
           strict: true,
-        } as any, // cast needed for mtime (bug in tar type definitions)
+        } as tar.PackOptions, // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/67775
         ["."]
       ),
       createWriteStream(temppath)
