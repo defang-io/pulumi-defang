@@ -383,8 +383,12 @@ function toOutputs(
   });
 }
 
-function isValidReservation(x?: number): boolean {
+function isOptionalFloatGt0(x?: number): boolean {
   return x === undefined || x > 0; // returns false for NaN
+}
+
+function isOptionalIntGt0(x?: number): boolean {
+  return x === undefined || (Number.isSafeInteger(x) && x > 0);
 }
 
 const defangServiceProvider: pulumi.dynamic.ResourceProvider<
@@ -411,13 +415,13 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
           reason: "replicas must be an integer ≥ 0",
         });
       }
-      if (!isValidReservation(news.deploy.resources?.reservations?.cpus)) {
+      if (!isOptionalFloatGt0(news.deploy.resources?.reservations?.cpus)) {
         failures.push({
           property: "deploy",
           reason: "cpus reservation must be > 0",
         });
       }
-      if (!isValidReservation(news.deploy.resources?.reservations?.memory)) {
+      if (!isOptionalFloatGt0(news.deploy.resources?.reservations?.memory)) {
         failures.push({
           property: "deploy",
           reason: "memory reservation must be > 0",
@@ -455,31 +459,22 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
         }
       }
       if (news.healthcheck) {
-        if (
-          !Number.isInteger(news.healthcheck.interval) ||
-          news.healthcheck.interval! <= 0
-        ) {
+        if (!isOptionalIntGt0(news.healthcheck.interval)) {
           failures.push({
             property: "healthcheck.interval",
-            reason: "interval must be an integer",
+            reason: "interval must be an integer > 0",
           });
         }
-        if (
-          !Number.isInteger(news.healthcheck.timeout) ||
-          news.healthcheck.timeout! <= 0
-        ) {
+        if (!isOptionalIntGt0(news.healthcheck.timeout)) {
           failures.push({
             property: "healthcheck.timeout",
-            reason: "timeout must be an integer",
+            reason: "timeout must be an integer > 0",
           });
         }
-        if (
-          !Number.isInteger(news.healthcheck.retries) ||
-          news.healthcheck.retries! <= 0
-        ) {
+        if (!isOptionalIntGt0(news.healthcheck.retries)) {
           failures.push({
             property: "healthcheck.retries",
-            reason: "retries must be an integer",
+            reason: "retries must be an integer > 0",
           });
         }
       }
@@ -512,7 +507,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
           reason: "dockerfile cannot be empty string",
         });
       }
-      if (!isValidReservation(news.build.shmSize)) {
+      if (!isOptionalFloatGt0(news.build.shmSize)) {
         failures.push({
           property: "build.shmSize",
           reason: "shmSize must be an integer > 0",
