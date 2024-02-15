@@ -681,9 +681,14 @@ export interface Secret {
   value?: pulumi.Input<string>;
 }
 
+export type CurlFlag = "--fail" | "-f" | "--silent" | "-s";
+export type WgetFlag = "--quiet" | "-q" | "--spider" | "-t1" | "--tries=1";
+
 export interface HealthCheck {
-  /** health check test command */
-  test: ["CMD", "curl" | "wget", HttpUrl]; // TODO: support NONE and curl/wget flags
+  /** health check test command; must be either `curl` or `wget` (for Alpine based images) */
+  test:
+    | ["CMD", "wget", ...WgetFlag[], HttpUrl]
+    | ["CMD", "curl", ...CurlFlag[], HttpUrl];
   interval?: number;
   timeout?: number;
   retries?: number;
