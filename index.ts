@@ -683,7 +683,7 @@ export interface Secret {
 
 export interface HealthCheck {
   /** health check test command */
-  test: ["CMD", "curl", HttpUrl]; // TODO: support NONE and curl flags
+  test: ["CMD", "curl" | "wget", HttpUrl]; // TODO: support NONE and curl/wget flags
   interval?: number;
   timeout?: number;
   retries?: number;
