@@ -34,6 +34,12 @@ const service = new DefangService("defang-demo", {
   //     reservations: { cpus: 0.5, memory: 512 },
   //   },
   // },
+  // healthcheck: {
+  //   test: ["CMD", "curl", "-f", "http://localhost:80/"], // for Alpine-based images use ["CMD", "wget", "-q", "-O-", …]
+  //   interval: 30,
+  //   timeout: 10,
+  //   retries: 3,
+  // },
 });
 
 export const fqdn = service.publicFqdn;     // the final FQDN for your service
@@ -47,3 +53,14 @@ export const fabricDNS = service.fabricDNS;
 * `DEFANG_FABRIC` - override the Defang Fabric service endpoint; defaults to prod
 * `DEFANG_FORCE_UP` - set this to `1` or `true` to force an update (for debugging only)
 * `DEFANG_DEBUG` - set this to `1` or `true` to enable debug logging
+
+
+## Contributing
+
+### Release a New Version
+
+To release a new version, let NPM update the version number in `package.json`. The CI/CD pipeline will then publish the new version to the NPM registry.
+```sh
+npm version patch
+git push
+```
