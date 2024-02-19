@@ -13,7 +13,7 @@
     "tar": "^6.1.15"
   },
   "peerDependencies": {
-    "@pulumi/pulumi": "^3.76.0"
+    "@pulumi/pulumi": "^3.95.0"
   },
   "description": "Pulumi provider for the Defang Opinionated Platform",
   "devDependencies": {
