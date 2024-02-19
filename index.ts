@@ -11,7 +11,6 @@ import * as fabric from "./protos/io/defang/v1/fabric_grpc_pb";
 import * as pb from "./protos/io/defang/v1/fabric_pb";
 import { createTarball, uploadTarball } from "./upload";
 import {
-  HttpUrl,
   deleteUndefined,
   isEqual,
   isValidUint,

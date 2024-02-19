@@ -53,7 +53,7 @@ export const fabricDNS = service.fabricDNS;
 * `DEFANG_FABRIC` - override the Defang Fabric service endpoint; defaults to prod
 * `DEFANG_FORCE_UP` - set this to `1` or `true` to force an update (for debugging only)
 * `DEFANG_DEBUG` - set this to `1` or `true` to enable debug logging
-
+* `SOURCE_DATE_EPOCH` - the modification time for the files in the build context; defaults to 315532800 (1980-01-01 00:00:00 UTC)
 
 ## Contributing
 

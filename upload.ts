@@ -1,11 +1,11 @@
+import ignore from "@balena/dockerignore";
 import { createReadStream, createWriteStream, promises, Stats } from "fs";
 import { tmpdir } from "os";
 import { join, normalize } from "path";
 import { promises as stream } from "stream";
 import * as tar from "tar";
-import ignore from "@balena/dockerignore";
 
-const SOURCE_DATE_EPOCH = 315532800; // 1980-01-01, same as nix-shell
+const SOURCE_DATE_EPOCH = process.env["SOURCE_DATE_EPOCH"] ?? "315532800"; // defaults to 1980-01-01, same as nix-shell
 const defaultDockerIgnore = `# Default .dockerignore file for Defang
 **/.DS_Store
 **/.direnv
@@ -56,6 +56,7 @@ export async function createTarball(
   }
   const filter = ignore({ ignorecase: false }).add(patterns).createFilter();
 
+  const mtime = parseInt(SOURCE_DATE_EPOCH); // can be NaN
   const tempdir = await promises.mkdtemp(join(tmpdir(), "defang-build-"));
   console.debug(`Using temporary folder ${tempdir}`);
   const temppath = join(tempdir, "context.tar.gz");
@@ -71,7 +72,7 @@ export async function createTarball(
             (foundDockerfile ||= normalize(p) === dockerfile), filter(p)
           ),
           gzip: true,
-          mtime: new Date(SOURCE_DATE_EPOCH * 1000), // seconds -> milliseconds
+          mtime: isNaN(mtime) ? undefined : new Date(mtime * 1000), // seconds -> milliseconds
           portable: true,
           strict: true,
         } as tar.PackOptions, // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/67775
