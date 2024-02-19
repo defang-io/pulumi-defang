@@ -8,10 +8,12 @@
   "dependencies": {
     "@balena/dockerignore": "^1.0.2",
     "@grpc/grpc-js": "^1.8.17",
-    "@pulumi/pulumi": "^3.76.0",
     "google-protobuf": "^3.21.2",
     "node-fetch": "^3.3.1",
     "tar": "^6.1.15"
+  },
+  "peerDependencies": {
+    "@pulumi/pulumi": "^3.76.0"
   },
   "description": "Pulumi provider for the Defang Opinionated Platform",
   "devDependencies": {
