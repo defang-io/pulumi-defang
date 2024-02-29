@@ -40,15 +40,14 @@ export async function createTarball(
   // A Dockerfile-specific ignore-file takes precedence over the .dockerignore file at the root of the build context if both exist.
   let patterns: string | undefined;
   try {
-    patterns = await promises.readFile(
-      join(cwd, dockerfile + ".dockerignore"),
-      "utf8"
-    );
-    console.debug("Using", dockerfile + ".dockerignore");
+    const dockerignore = join(cwd, dockerfile + ".dockerignore");
+    patterns = await promises.readFile(dockerignore, "utf8");
+    console.debug("Using", dockerignore);
   } catch {
     try {
-      patterns = await promises.readFile(join(cwd, ".dockerignore"), "utf8");
-      console.debug("Using .dockerignore");
+      const dockerignore = join(cwd, ".dockerignore");
+      patterns = await promises.readFile(dockerignore, "utf8");
+      console.debug("Using", dockerignore);
     } catch {
       console.debug("No .dockerignore file found; using defaults");
       patterns = defaultDockerIgnore;
@@ -68,9 +67,12 @@ export async function createTarball(
       tar.create(
         {
           cwd,
-          filter: (p: string, stat: Stats) => (
-            (foundDockerfile ||= normalize(p) === dockerfile), filter(p)
-          ),
+          filter: (p: string, stat: Stats) => {
+            // Docker converts absolute source paths to relative paths (relative to the "build context") prior to pattern matching.
+            const normalized = normalize(p);
+            foundDockerfile ||= normalized === dockerfile;
+            return filter(normalized);
+          },
           gzip: true,
           mtime: isNaN(mtime) ? undefined : new Date(mtime * 1000), // seconds -> milliseconds
           portable: true,
