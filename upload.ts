@@ -13,6 +13,7 @@ const defaultDockerIgnore = `# Default .dockerignore file for Defang
 **/.git
 **/.github
 **/.idea
+**/.next
 **/.vscode
 **/__pycache__
 **/compose.yaml
