@@ -6,7 +6,13 @@ import * as upload from "../upload";
 import * as tar from "tar";
 
 describe("createTarball", () => {
-  const expected = ["./", "./Dockerfile.test", "./defang/"];
+  const expected = [
+    "./",
+    "./Dockerfile.test",
+    "./modules/",
+    "./modules/defang/",
+    "./modules/defang/defang",
+  ];
   const tests = [
     {
       dockerfile: undefined,
@@ -25,7 +31,7 @@ describe("createTarball", () => {
   ];
 
   for (const tt of tests) {
-    it(`create tarball for ${tt.dockerfile}`, async () => {
+    it(`create tarball for "${tt.dockerfile}"`, async () => {
       let actual: string[] = [];
       try {
         const tgz = await upload.createTarball(
@@ -41,7 +47,7 @@ describe("createTarball", () => {
         return;
       }
       if (tt.error) {
-        assert.fail(`Expected failure for ${tt.dockerfile}`);
+        assert.fail(`Expected failure for "${tt.dockerfile}"`);
       } else {
         assert.deepEqual(actual, expected);
       }

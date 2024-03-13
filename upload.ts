@@ -28,6 +28,20 @@ defang`;
 
 const extractMessageRegex = /<Message>(.*?)<\/Message>/;
 
+async function tryReadIgnoreFile(
+  cwd: string,
+  ignorefile: string
+): Promise<string | null> {
+  try {
+    const path = join(cwd, ignorefile);
+    const patterns = await promises.readFile(path, "utf8");
+    console.debug("Using", path);
+    return patterns;
+  } catch {
+    return null;
+  }
+}
+
 export async function createTarball(
   cwd: string,
   dockerfile?: string
@@ -39,17 +53,12 @@ export async function createTarball(
   }
 
   // A Dockerfile-specific ignore-file takes precedence over the .dockerignore file at the root of the build context if both exist.
-  let patterns: string | undefined;
-  try {
-    const dockerignore = join(cwd, dockerfile + ".dockerignore");
-    patterns = await promises.readFile(dockerignore, "utf8");
-    console.debug("Using", dockerignore);
-  } catch {
-    try {
-      const dockerignore = join(cwd, ".dockerignore");
-      patterns = await promises.readFile(dockerignore, "utf8");
-      console.debug("Using", dockerignore);
-    } catch {
+  let dockerignore = dockerfile + ".dockerignore";
+  let patterns = await tryReadIgnoreFile(cwd, dockerignore);
+  if (patterns === null) {
+    dockerignore = ".dockerignore";
+    patterns = await tryReadIgnoreFile(cwd, dockerignore);
+    if (patterns === null) {
       console.debug("No .dockerignore file found; using defaults");
       patterns = defaultDockerIgnore;
     }
@@ -58,7 +67,7 @@ export async function createTarball(
 
   const mtime = parseInt(SOURCE_DATE_EPOCH); // can be NaN
   const tempdir = await promises.mkdtemp(join(tmpdir(), "defang-build-"));
-  console.debug(`Using temporary folder ${tempdir}`);
+  console.debug(`Using temporary folder ${tempdir} for context ${cwd}`);
   const temppath = join(tempdir, "context.tar.gz");
   try {
     let foundDockerfile = false;
@@ -71,10 +80,10 @@ export async function createTarball(
           filter: (p: string, stat: Stats) => {
             // Docker converts absolute source paths to relative paths (relative to the "build context") prior to pattern matching.
             const normalized = normalize(p);
-            if (normalized === dockerfile) {
+            if (!foundDockerfile && normalized === dockerfile) {
               return (foundDockerfile = true); // we need the Dockerfile, even if it's in the .dockerignore file
             }
-            return filter(normalized);
+            return normalized === dockerignore || filter(normalized); // we need the .dockerignore file too: it might ignore itself and/or the Dockerfile
           },
           gzip: true,
           mtime: isNaN(mtime) ? undefined : new Date(mtime * 1000), // seconds -> milliseconds
