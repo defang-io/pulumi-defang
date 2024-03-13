@@ -5,6 +5,81 @@ import * as jspb from "google-protobuf";
 import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
 import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
 
+export class TrackRequest extends jspb.Message {
+  getAnonId(): string;
+  setAnonId(value: string): void;
+
+  getEvent(): string;
+  setEvent(value: string): void;
+
+  getPropertiesMap(): jspb.Map<string, string>;
+  clearPropertiesMap(): void;
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): TrackRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: TrackRequest): TrackRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: TrackRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): TrackRequest;
+  static deserializeBinaryFromReader(message: TrackRequest, reader: jspb.BinaryReader): TrackRequest;
+}
+
+export namespace TrackRequest {
+  export type AsObject = {
+    anonId: string,
+    event: string,
+    propertiesMap: Array<[string, string]>,
+  }
+}
+
+export class DeployRequest extends jspb.Message {
+  clearServicesList(): void;
+  getServicesList(): Array<Service>;
+  setServicesList(value: Array<Service>): void;
+  addServices(value?: Service, index?: number): Service;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DeployRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: DeployRequest): DeployRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: DeployRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DeployRequest;
+  static deserializeBinaryFromReader(message: DeployRequest, reader: jspb.BinaryReader): DeployRequest;
+}
+
+export namespace DeployRequest {
+  export type AsObject = {
+    servicesList: Array<Service.AsObject>,
+  }
+}
+
+export class DeployResponse extends jspb.Message {
+  clearServicesList(): void;
+  getServicesList(): Array<ServiceInfo>;
+  setServicesList(value: Array<ServiceInfo>): void;
+  addServices(value?: ServiceInfo, index?: number): ServiceInfo;
+
+  getEtag(): string;
+  setEtag(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DeployResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: DeployResponse): DeployResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: DeployResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DeployResponse;
+  static deserializeBinaryFromReader(message: DeployResponse, reader: jspb.BinaryReader): DeployResponse;
+}
+
+export namespace DeployResponse {
+  export type AsObject = {
+    servicesList: Array<ServiceInfo.AsObject>,
+    etag: string,
+  }
+}
+
 export class DeleteRequest extends jspb.Message {
   clearNamesList(): void;
   getNamesList(): Array<string>;
@@ -168,8 +243,8 @@ export class ServiceInfo extends jspb.Message {
   setEndpointsList(value: Array<string>): void;
   addEndpoints(value: string, index?: number): string;
 
-  getTenant(): string;
-  setTenant(value: string): void;
+  getProject(): string;
+  setProject(value: string): void;
 
   getEtag(): string;
   setEtag(value: string): void;
@@ -203,6 +278,9 @@ export class ServiceInfo extends jspb.Message {
   getUpdatedAt(): google_protobuf_timestamp_pb.Timestamp | undefined;
   setUpdatedAt(value?: google_protobuf_timestamp_pb.Timestamp): void;
 
+  getZoneId(): string;
+  setZoneId(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ServiceInfo.AsObject;
   static toObject(includeInstance: boolean, msg: ServiceInfo): ServiceInfo.AsObject;
@@ -217,7 +295,7 @@ export namespace ServiceInfo {
   export type AsObject = {
     service?: Service.AsObject,
     endpointsList: Array<string>,
-    tenant: string,
+    project: string,
     etag: string,
     status: string,
     natIpsList: Array<string>,
@@ -226,6 +304,7 @@ export namespace ServiceInfo {
     publicFqdn: string,
     createdAt?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     updatedAt?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+    zoneId: string,
   }
 }
 
@@ -234,6 +313,9 @@ export class Secrets extends jspb.Message {
   getNamesList(): Array<string>;
   setNamesList(value: Array<string>): void;
   addNames(value: string, index?: number): string;
+
+  getProject(): string;
+  setProject(value: string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Secrets.AsObject;
@@ -248,6 +330,7 @@ export class Secrets extends jspb.Message {
 export namespace Secrets {
   export type AsObject = {
     namesList: Array<string>,
+    project: string,
   }
 }
 
@@ -257,6 +340,9 @@ export class SecretValue extends jspb.Message {
 
   getValue(): string;
   setValue(value: string): void;
+
+  getProject(): string;
+  setProject(value: string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SecretValue.AsObject;
@@ -272,6 +358,7 @@ export namespace SecretValue {
   export type AsObject = {
     name: string,
     value: string,
+    project: string,
   }
 }
 
@@ -681,6 +768,9 @@ export class Build extends jspb.Message {
   getShmSize(): number;
   setShmSize(value: number): void;
 
+  getTarget(): string;
+  setTarget(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Build.AsObject;
   static toObject(includeInstance: boolean, msg: Build): Build.AsObject;
@@ -697,6 +787,7 @@ export namespace Build {
     dockerfile: string,
     argsMap: Array<[string, string]>,
     shmSize: number,
+    target: string,
   }
 }
 
@@ -785,6 +876,9 @@ export class Service extends jspb.Message {
   getInit(): boolean;
   setInit(value: boolean): void;
 
+  getDnsRole(): string;
+  setDnsRole(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Service.AsObject;
   static toObject(includeInstance: boolean, msg: Service): Service.AsObject;
@@ -810,6 +904,7 @@ export namespace Service {
     commandList: Array<string>,
     domainname: string,
     init: boolean,
+    dnsRole: string,
   }
 }
 
@@ -930,6 +1025,80 @@ export class SubscribeResponse extends jspb.Message {
 export namespace SubscribeResponse {
   export type AsObject = {
     servicesList: Array<ServiceInfo.AsObject>,
+  }
+}
+
+export class DelegateSubdomainZoneRequest extends jspb.Message {
+  clearNameServerRecordsList(): void;
+  getNameServerRecordsList(): Array<string>;
+  setNameServerRecordsList(value: Array<string>): void;
+  addNameServerRecords(value: string, index?: number): string;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DelegateSubdomainZoneRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: DelegateSubdomainZoneRequest): DelegateSubdomainZoneRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: DelegateSubdomainZoneRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DelegateSubdomainZoneRequest;
+  static deserializeBinaryFromReader(message: DelegateSubdomainZoneRequest, reader: jspb.BinaryReader): DelegateSubdomainZoneRequest;
+}
+
+export namespace DelegateSubdomainZoneRequest {
+  export type AsObject = {
+    nameServerRecordsList: Array<string>,
+  }
+}
+
+export class DelegateSubdomainZoneResponse extends jspb.Message {
+  getZone(): string;
+  setZone(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DelegateSubdomainZoneResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: DelegateSubdomainZoneResponse): DelegateSubdomainZoneResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: DelegateSubdomainZoneResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DelegateSubdomainZoneResponse;
+  static deserializeBinaryFromReader(message: DelegateSubdomainZoneResponse, reader: jspb.BinaryReader): DelegateSubdomainZoneResponse;
+}
+
+export namespace DelegateSubdomainZoneResponse {
+  export type AsObject = {
+    zone: string,
+  }
+}
+
+export class WhoAmIResponse extends jspb.Message {
+  getTenant(): string;
+  setTenant(value: string): void;
+
+  getAccount(): string;
+  setAccount(value: string): void;
+
+  getRegion(): string;
+  setRegion(value: string): void;
+
+  getUserId(): string;
+  setUserId(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): WhoAmIResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: WhoAmIResponse): WhoAmIResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: WhoAmIResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): WhoAmIResponse;
+  static deserializeBinaryFromReader(message: WhoAmIResponse, reader: jspb.BinaryReader): WhoAmIResponse;
+}
+
+export namespace WhoAmIResponse {
+  export type AsObject = {
+    tenant: string,
+    account: string,
+    region: string,
+    userId: string,
   }
 }
 

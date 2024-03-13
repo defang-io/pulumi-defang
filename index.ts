@@ -125,6 +125,9 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
     if (inputs.build.shmSize) {
       build.setShmSize(inputs.build.shmSize);
     }
+    if (inputs.build.target) {
+      build.setTarget(inputs.build.target);
+    }
     service.setBuild(build);
   }
   const deploy = new pb.Deploy();
@@ -512,6 +515,12 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
           reason: "shmSize must be an integer > 0",
         });
       }
+      if (news.build.target === "") {
+        failures.push({
+          property: "build.target",
+          reason: "target cannot be empty string",
+        });
+      }
     } else if (!news.image) {
       failures.push({ property: "image", reason: "image is required" });
     }
@@ -697,6 +706,8 @@ export interface Build {
   args?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
   /** the shm_size in MiB to pass to the builder */
   shmSize?: pulumi.Input<number>;
+  /** target defines the stage to build as defined inside a multi-stage Dockerfile */
+  target?: pulumi.Input<string>;
 }
 
 export interface DefangServiceArgs {

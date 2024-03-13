@@ -19,6 +19,28 @@ function deserialize_google_protobuf_Empty(buffer_arg) {
   return google_protobuf_empty_pb.Empty.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_io_defang_v1_DelegateSubdomainZoneRequest(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.DelegateSubdomainZoneRequest)) {
+    throw new Error('Expected argument of type io.defang.v1.DelegateSubdomainZoneRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_DelegateSubdomainZoneRequest(buffer_arg) {
+  return io_defang_v1_fabric_pb.DelegateSubdomainZoneRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_DelegateSubdomainZoneResponse(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.DelegateSubdomainZoneResponse)) {
+    throw new Error('Expected argument of type io.defang.v1.DelegateSubdomainZoneResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_DelegateSubdomainZoneResponse(buffer_arg) {
+  return io_defang_v1_fabric_pb.DelegateSubdomainZoneResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_io_defang_v1_DeleteRequest(arg) {
   if (!(arg instanceof io_defang_v1_fabric_pb.DeleteRequest)) {
     throw new Error('Expected argument of type io.defang.v1.DeleteRequest');
@@ -39,6 +61,28 @@ function serialize_io_defang_v1_DeleteResponse(arg) {
 
 function deserialize_io_defang_v1_DeleteResponse(buffer_arg) {
   return io_defang_v1_fabric_pb.DeleteResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_DeployRequest(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.DeployRequest)) {
+    throw new Error('Expected argument of type io.defang.v1.DeployRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_DeployRequest(buffer_arg) {
+  return io_defang_v1_fabric_pb.DeployRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_DeployResponse(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.DeployResponse)) {
+    throw new Error('Expected argument of type io.defang.v1.DeployResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_DeployResponse(buffer_arg) {
+  return io_defang_v1_fabric_pb.DeployResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_io_defang_v1_GenerateFilesRequest(arg) {
@@ -217,6 +261,17 @@ function deserialize_io_defang_v1_TokenResponse(buffer_arg) {
   return io_defang_v1_fabric_pb.TokenResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_io_defang_v1_TrackRequest(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.TrackRequest)) {
+    throw new Error('Expected argument of type io.defang.v1.TrackRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_TrackRequest(buffer_arg) {
+  return io_defang_v1_fabric_pb.TrackRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_io_defang_v1_UploadURLRequest(arg) {
   if (!(arg instanceof io_defang_v1_fabric_pb.UploadURLRequest)) {
     throw new Error('Expected argument of type io.defang.v1.UploadURLRequest');
@@ -250,6 +305,17 @@ function deserialize_io_defang_v1_Version(buffer_arg) {
   return io_defang_v1_fabric_pb.Version.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_io_defang_v1_WhoAmIResponse(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.WhoAmIResponse)) {
+    throw new Error('Expected argument of type io.defang.v1.WhoAmIResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_WhoAmIResponse(buffer_arg) {
+  return io_defang_v1_fabric_pb.WhoAmIResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 
 var FabricControllerService = exports.FabricControllerService = {
   getStatus: {
@@ -263,8 +329,7 @@ var FabricControllerService = exports.FabricControllerService = {
     responseSerialize: serialize_io_defang_v1_Status,
     responseDeserialize: deserialize_io_defang_v1_Status,
   },
-  // public
-getVersion: {
+  getVersion: {
     path: '/io.defang.v1.FabricController/GetVersion',
     requestStream: false,
     responseStream: false,
@@ -275,8 +340,7 @@ getVersion: {
     responseSerialize: serialize_io_defang_v1_Version,
     responseDeserialize: deserialize_io_defang_v1_Version,
   },
-  // public
-token: {
+  token: {
     path: '/io.defang.v1.FabricController/Token',
     requestStream: false,
     responseStream: false,
@@ -321,6 +385,18 @@ revokeToken: {
     responseSerialize: serialize_io_defang_v1_ServiceInfo,
     responseDeserialize: deserialize_io_defang_v1_ServiceInfo,
   },
+  // deprecated; use Deploy
+deploy: {
+    path: '/io.defang.v1.FabricController/Deploy',
+    requestStream: false,
+    responseStream: false,
+    requestType: io_defang_v1_fabric_pb.DeployRequest,
+    responseType: io_defang_v1_fabric_pb.DeployResponse,
+    requestSerialize: serialize_io_defang_v1_DeployRequest,
+    requestDeserialize: deserialize_io_defang_v1_DeployRequest,
+    responseSerialize: serialize_io_defang_v1_DeployResponse,
+    responseDeserialize: deserialize_io_defang_v1_DeployResponse,
+  },
   get: {
     path: '/io.defang.v1.FabricController/Get',
     requestStream: false,
@@ -332,8 +408,7 @@ revokeToken: {
     responseSerialize: serialize_io_defang_v1_ServiceInfo,
     responseDeserialize: deserialize_io_defang_v1_ServiceInfo,
   },
-  // should be GetService
-delete: {
+  delete: {
     path: '/io.defang.v1.FabricController/Delete',
     requestStream: false,
     responseStream: false,
@@ -344,7 +419,8 @@ delete: {
     responseSerialize: serialize_io_defang_v1_DeleteResponse,
     responseDeserialize: deserialize_io_defang_v1_DeleteResponse,
   },
-  publish: {
+  // deprecated; use Deploy
+publish: {
     path: '/io.defang.v1.FabricController/Publish',
     requestStream: false,
     responseStream: false,
@@ -378,8 +454,7 @@ getServices: {
     responseSerialize: serialize_io_defang_v1_ListServicesResponse,
     responseDeserialize: deserialize_io_defang_v1_ListServicesResponse,
   },
-  // should be ListServices
-generateFiles: {
+  generateFiles: {
     path: '/io.defang.v1.FabricController/GenerateFiles',
     requestStream: false,
     responseStream: false,
@@ -390,6 +465,29 @@ generateFiles: {
     responseSerialize: serialize_io_defang_v1_GenerateFilesResponse,
     responseDeserialize: deserialize_io_defang_v1_GenerateFilesResponse,
   },
+  signEULA: {
+    path: '/io.defang.v1.FabricController/SignEULA',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  // SignToS
+checkToS: {
+    path: '/io.defang.v1.FabricController/CheckToS',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
   putSecret: {
     path: '/io.defang.v1.FabricController/PutSecret',
     requestStream: false,
@@ -398,6 +496,17 @@ generateFiles: {
     responseType: google_protobuf_empty_pb.Empty,
     requestSerialize: serialize_io_defang_v1_SecretValue,
     requestDeserialize: deserialize_io_defang_v1_SecretValue,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  deleteSecrets: {
+    path: '/io.defang.v1.FabricController/DeleteSecrets',
+    requestStream: false,
+    responseStream: false,
+    requestType: io_defang_v1_fabric_pb.Secrets,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_io_defang_v1_Secrets,
+    requestDeserialize: deserialize_io_defang_v1_Secrets,
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
   },
@@ -412,8 +521,7 @@ generateFiles: {
     responseSerialize: serialize_io_defang_v1_Secrets,
     responseDeserialize: deserialize_io_defang_v1_Secrets,
   },
-  // no values
-createUploadURL: {
+  createUploadURL: {
     path: '/io.defang.v1.FabricController/CreateUploadURL',
     requestStream: false,
     responseStream: false,
@@ -424,7 +532,61 @@ createUploadURL: {
     responseSerialize: serialize_io_defang_v1_UploadURLResponse,
     responseDeserialize: deserialize_io_defang_v1_UploadURLResponse,
   },
-  // rpc DeleteSecret(SecretValue) returns (google.protobuf.Empty);
+  delegateSubdomainZone: {
+    path: '/io.defang.v1.FabricController/DelegateSubdomainZone',
+    requestStream: false,
+    responseStream: false,
+    requestType: io_defang_v1_fabric_pb.DelegateSubdomainZoneRequest,
+    responseType: io_defang_v1_fabric_pb.DelegateSubdomainZoneResponse,
+    requestSerialize: serialize_io_defang_v1_DelegateSubdomainZoneRequest,
+    requestDeserialize: deserialize_io_defang_v1_DelegateSubdomainZoneRequest,
+    responseSerialize: serialize_io_defang_v1_DelegateSubdomainZoneResponse,
+    responseDeserialize: deserialize_io_defang_v1_DelegateSubdomainZoneResponse,
+  },
+  deleteSubdomainZone: {
+    path: '/io.defang.v1.FabricController/DeleteSubdomainZone',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  getDelegateSubdomainZone: {
+    path: '/io.defang.v1.FabricController/GetDelegateSubdomainZone',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: io_defang_v1_fabric_pb.DelegateSubdomainZoneResponse,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_io_defang_v1_DelegateSubdomainZoneResponse,
+    responseDeserialize: deserialize_io_defang_v1_DelegateSubdomainZoneResponse,
+  },
+  whoAmI: {
+    path: '/io.defang.v1.FabricController/WhoAmI',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: io_defang_v1_fabric_pb.WhoAmIResponse,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_io_defang_v1_WhoAmIResponse,
+    responseDeserialize: deserialize_io_defang_v1_WhoAmIResponse,
+  },
+  track: {
+    path: '/io.defang.v1.FabricController/Track',
+    requestStream: false,
+    responseStream: false,
+    requestType: io_defang_v1_fabric_pb.TrackRequest,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_io_defang_v1_TrackRequest,
+    requestDeserialize: deserialize_io_defang_v1_TrackRequest,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
 };
 
 exports.FabricControllerClient = grpc.makeGenericClientConstructor(FabricControllerService);
