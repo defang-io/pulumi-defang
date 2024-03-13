@@ -71,7 +71,9 @@ export async function createTarball(
           filter: (p: string, stat: Stats) => {
             // Docker converts absolute source paths to relative paths (relative to the "build context") prior to pattern matching.
             const normalized = normalize(p);
-            foundDockerfile ||= normalized === dockerfile;
+            if (normalized === dockerfile) {
+              return (foundDockerfile = true); // we need the Dockerfile, even if it's in the .dockerignore file
+            }
             return filter(normalized);
           },
           gzip: true,
