@@ -5,7 +5,7 @@ This [Dynamic Resource Provider](https://www.pulumi.com/docs/intro/concepts/reso
 
 ## Install
 
-The provider is available from NPM Package Registry. See [installation instructions](https://www.npmjs.com/package/%2540defang-io/pulumi-defang).
+The provider is available from NPM Package Registry. See [installation instructions](https://www.npmjs.com/package/@defang-io/pulumi-defang).
 ```sh
 npm i @defang-io/pulumi-defang
 ```
