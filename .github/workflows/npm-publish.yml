@@ -22,6 +22,7 @@ jobs:
         with:
           cache-dependency-path: package-lock.json
           working-directory: .
+          node-version: "16" # matches the version in shell.nix and package.json
           # registry-url: https://npm.pkg.github.com/
       - run: npm publish
         working-directory: .
