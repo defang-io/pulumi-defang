@@ -91,6 +91,8 @@ async function connect(
         const metadata = new grpc.Metadata();
         // TODO: automatically generate a new token once it expires
         metadata.set("authorization", "Bearer " + getAccessToken(fabricDns));
+        const pkg = require("../package.json"); // assume "outDir": "lib"
+        metadata.set("user-agent", `pulumi-defang/${pkg.version}`);
         callback(null, metadata);
       })
     )
