@@ -156,16 +156,20 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
   );
   service.setPortsList(convertPorts(inputs.ports));
   Object.entries(inputs.environment ?? {}).forEach(([key, value]) => {
-    service.getEnvironmentMap().set(key, value);
-  });
-  service.setSecretsList(
-    inputs.secrets?.map((s) => {
+    if (value === null) {
       const secret = new pb.Secret();
-      secret.setSource(s.source);
-      // secret.setTarget(s.target);
-      return secret;
-    }) ?? []
-  );
+      secret.setSource(key);
+      service.getSecretsList().push(secret);
+    } else {
+      service.getEnvironmentMap().set(key, value);
+    }
+  });
+  inputs.secrets?.forEach((s) => {
+    const secret = new pb.Secret();
+    secret.setSource(s.source);
+    // secret.setTarget(s.target);
+    service.getSecretsList().push(secret);
+  });
   if (inputs.command) {
     service.setCommandList(inputs.command);
   }
@@ -337,7 +341,7 @@ interface DefangServiceInputs {
   command?: string[];
   deploy?: Deploy;
   domainname?: string;
-  environment?: { [key: string]: string };
+  environment?: { [key: string]: string | null };
   fabricDNS: string;
   forceNewDeployment?: boolean;
   healthcheck?: HealthCheck;
@@ -711,7 +715,7 @@ export interface Build {
 }
 
 export interface DefangServiceArgs {
-  /** the DNS name of the Defang Fabric service; defaults to the value of the DEFANG_FABRIC or prod, if unset */
+  /** the DNS name of the Defang Fabric service; defaults to the value of DEFANG_FABRIC or prod, if unset */
   fabricDNS?: pulumi.Input<string>;
   /** the name of the service; defaults to the name of the resource */
   name?: pulumi.Input<string>;
@@ -719,15 +723,15 @@ export interface DefangServiceArgs {
   image?: pulumi.Input<string>;
   /** the platform to deploy to; defaults to "linux/amd64" */
   platform?: pulumi.Input<Platform>;
-  /** whether the service requires a public IP or not; defaults to true */
+  /** whether the service requires a public IP or not; defaults to true @deprecated will be removed */
   internal?: pulumi.Input<boolean>;
   /** the optional deployment configuration */
   deploy?: pulumi.Input<Deploy>;
   /** the ports to expose */
   ports?: pulumi.Input<pulumi.Input<Port>[]>;
-  /** the environment variables to set */
-  environment?: pulumi.Input<{ [key: string]: pulumi.Input<string> }>;
-  /** the secrets to expose as environment variables */
+  /** the environment variables to set; use `null` to mark at sensitive */
+  environment?: pulumi.Input<{ [key: string]: pulumi.Input<string> | null }>;
+  /** the secrets to expose as environment variables @deprecated use environment key with value `null` */
   secrets?: pulumi.Input<pulumi.Input<Secret>[]>;
   /** force deployment of the service even if nothing has changed */
   forceNewDeployment?: pulumi.Input<boolean>;
