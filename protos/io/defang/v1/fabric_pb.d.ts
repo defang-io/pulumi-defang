@@ -14,6 +14,12 @@ export class TrackRequest extends jspb.Message {
 
   getPropertiesMap(): jspb.Map<string, string>;
   clearPropertiesMap(): void;
+  getOs(): string;
+  setOs(value: string): void;
+
+  getArch(): string;
+  setArch(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): TrackRequest.AsObject;
   static toObject(includeInstance: boolean, msg: TrackRequest): TrackRequest.AsObject;
@@ -29,6 +35,8 @@ export namespace TrackRequest {
     anonId: string,
     event: string,
     propertiesMap: Array<[string, string]>,
+    os: string,
+    arch: string,
   }
 }
 
@@ -129,6 +137,9 @@ export class GenerateFilesRequest extends jspb.Message {
   getLanguage(): string;
   setLanguage(value: string): void;
 
+  getAgreeTos(): boolean;
+  setAgreeTos(value: boolean): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GenerateFilesRequest.AsObject;
   static toObject(includeInstance: boolean, msg: GenerateFilesRequest): GenerateFilesRequest.AsObject;
@@ -143,6 +154,7 @@ export namespace GenerateFilesRequest {
   export type AsObject = {
     prompt: string,
     language: string,
+    agreeTos: boolean,
   }
 }
 
@@ -189,6 +201,46 @@ export class GenerateFilesResponse extends jspb.Message {
 export namespace GenerateFilesResponse {
   export type AsObject = {
     filesList: Array<File.AsObject>,
+  }
+}
+
+export class StartGenerateResponse extends jspb.Message {
+  getUuid(): string;
+  setUuid(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): StartGenerateResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: StartGenerateResponse): StartGenerateResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: StartGenerateResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): StartGenerateResponse;
+  static deserializeBinaryFromReader(message: StartGenerateResponse, reader: jspb.BinaryReader): StartGenerateResponse;
+}
+
+export namespace StartGenerateResponse {
+  export type AsObject = {
+    uuid: string,
+  }
+}
+
+export class GenerateStatusRequest extends jspb.Message {
+  getUuid(): string;
+  setUuid(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GenerateStatusRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GenerateStatusRequest): GenerateStatusRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GenerateStatusRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GenerateStatusRequest;
+  static deserializeBinaryFromReader(message: GenerateStatusRequest, reader: jspb.BinaryReader): GenerateStatusRequest;
+}
+
+export namespace GenerateStatusRequest {
+  export type AsObject = {
+    uuid: string,
   }
 }
 
@@ -281,6 +333,12 @@ export class ServiceInfo extends jspb.Message {
   getZoneId(): string;
   setZoneId(value: string): void;
 
+  getUseAcmeCert(): boolean;
+  setUseAcmeCert(value: boolean): void;
+
+  getLbDns(): string;
+  setLbDns(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ServiceInfo.AsObject;
   static toObject(includeInstance: boolean, msg: ServiceInfo): ServiceInfo.AsObject;
@@ -305,6 +363,8 @@ export namespace ServiceInfo {
     createdAt?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     updatedAt?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     zoneId: string,
+    useAcmeCert: boolean,
+    lbDns: string,
   }
 }
 
@@ -380,6 +440,9 @@ export class TokenRequest extends jspb.Message {
   getExpiresIn(): number;
   setExpiresIn(value: number): void;
 
+  getAnonId(): string;
+  setAnonId(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): TokenRequest.AsObject;
   static toObject(includeInstance: boolean, msg: TokenRequest): TokenRequest.AsObject;
@@ -397,6 +460,7 @@ export namespace TokenRequest {
     scopeList: Array<string>,
     assertion: string,
     expiresIn: number,
+    anonId: string,
   }
 }
 
@@ -444,8 +508,11 @@ export class Version extends jspb.Message {
   getFabric(): string;
   setFabric(value: string): void;
 
-  getNats(): string;
-  setNats(value: string): void;
+  getCliMin(): string;
+  setCliMin(value: string): void;
+
+  getPulumiMin(): string;
+  setPulumiMin(value: string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Version.AsObject;
@@ -460,7 +527,8 @@ export class Version extends jspb.Message {
 export namespace Version {
   export type AsObject = {
     fabric: string,
-    nats: string,
+    cliMin: string,
+    pulumiMin: string,
   }
 }
 
@@ -879,6 +947,12 @@ export class Service extends jspb.Message {
   getDnsRole(): string;
   setDnsRole(value: string): void;
 
+  getStaticFiles(): string;
+  setStaticFiles(value: string): void;
+
+  getNetworks(): NetworkMap[keyof NetworkMap];
+  setNetworks(value: NetworkMap[keyof NetworkMap]): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Service.AsObject;
   static toObject(includeInstance: boolean, msg: Service): Service.AsObject;
@@ -905,6 +979,8 @@ export namespace Service {
     domainname: string,
     init: boolean,
     dnsRole: string,
+    staticFiles: string,
+    networks: NetworkMap[keyof NetworkMap],
   }
 }
 
@@ -1127,4 +1203,12 @@ export interface ModeMap {
 }
 
 export const Mode: ModeMap;
+
+export interface NetworkMap {
+  UNSPECIFIED: 0;
+  PRIVATE: 1;
+  PUBLIC: 2;
+}
+
+export const Network: NetworkMap;
 

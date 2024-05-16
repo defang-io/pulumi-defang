@@ -3,7 +3,7 @@
   "version": "0.15.15",
   "author": "Defang Software Labs Inc.",
   "bugs": {
-    "url": "https://github.com/defang-io/pulumi-defang/issues"
+    "url": "https://github.com/DefangLabs/pulumi-defang/issues"
   },
   "dependencies": {
     "@balena/dockerignore": "^1.0.2",
@@ -30,11 +30,11 @@
   "files": [
     "lib"
   ],
-  "homepage": "https://github.com/defang-io/pulumi-defang#readme",
+  "homepage": "https://github.com/DefangLabs/pulumi-defang#readme",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/defang-io/pulumi-defang.git"
+    "url": "git+https://github.com/DefangLabs/pulumi-defang.git"
   },
   "scripts": {
     "build": "tsc && cp -r protos lib/",

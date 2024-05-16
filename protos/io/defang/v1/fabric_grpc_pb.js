@@ -107,6 +107,17 @@ function deserialize_io_defang_v1_GenerateFilesResponse(buffer_arg) {
   return io_defang_v1_fabric_pb.GenerateFilesResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_io_defang_v1_GenerateStatusRequest(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.GenerateStatusRequest)) {
+    throw new Error('Expected argument of type io.defang.v1.GenerateStatusRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_GenerateStatusRequest(buffer_arg) {
+  return io_defang_v1_fabric_pb.GenerateStatusRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_io_defang_v1_ListServicesResponse(arg) {
   if (!(arg instanceof io_defang_v1_fabric_pb.ListServicesResponse)) {
     throw new Error('Expected argument of type io.defang.v1.ListServicesResponse');
@@ -182,6 +193,17 @@ function serialize_io_defang_v1_ServiceInfo(arg) {
 
 function deserialize_io_defang_v1_ServiceInfo(buffer_arg) {
   return io_defang_v1_fabric_pb.ServiceInfo.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_io_defang_v1_StartGenerateResponse(arg) {
+  if (!(arg instanceof io_defang_v1_fabric_pb.StartGenerateResponse)) {
+    throw new Error('Expected argument of type io.defang.v1.StartGenerateResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_io_defang_v1_StartGenerateResponse(buffer_arg) {
+  return io_defang_v1_fabric_pb.StartGenerateResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_io_defang_v1_Status(arg) {
@@ -465,6 +487,29 @@ getServices: {
     responseSerialize: serialize_io_defang_v1_GenerateFilesResponse,
     responseDeserialize: deserialize_io_defang_v1_GenerateFilesResponse,
   },
+  // deprecated; use StartGenerate/GenerateStatus
+startGenerate: {
+    path: '/io.defang.v1.FabricController/StartGenerate',
+    requestStream: false,
+    responseStream: false,
+    requestType: io_defang_v1_fabric_pb.GenerateFilesRequest,
+    responseType: io_defang_v1_fabric_pb.StartGenerateResponse,
+    requestSerialize: serialize_io_defang_v1_GenerateFilesRequest,
+    requestDeserialize: deserialize_io_defang_v1_GenerateFilesRequest,
+    responseSerialize: serialize_io_defang_v1_StartGenerateResponse,
+    responseDeserialize: deserialize_io_defang_v1_StartGenerateResponse,
+  },
+  generateStatus: {
+    path: '/io.defang.v1.FabricController/GenerateStatus',
+    requestStream: false,
+    responseStream: false,
+    requestType: io_defang_v1_fabric_pb.GenerateStatusRequest,
+    responseType: io_defang_v1_fabric_pb.GenerateFilesResponse,
+    requestSerialize: serialize_io_defang_v1_GenerateStatusRequest,
+    requestDeserialize: deserialize_io_defang_v1_GenerateStatusRequest,
+    responseSerialize: serialize_io_defang_v1_GenerateFilesResponse,
+    responseDeserialize: deserialize_io_defang_v1_GenerateFilesResponse,
+  },
   signEULA: {
     path: '/io.defang.v1.FabricController/SignEULA',
     requestStream: false,
@@ -476,7 +521,7 @@ getServices: {
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
   },
-  // SignToS
+  // AgreeToS
 checkToS: {
     path: '/io.defang.v1.FabricController/CheckToS',
     requestStream: false,
