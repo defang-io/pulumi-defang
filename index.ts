@@ -294,9 +294,16 @@ async function upsert(
       }) ?? []
     );
 
-    return await new Promise<pb.ServiceInfo>((resolve, reject) =>
+    const serviceInfo = await new Promise<pb.ServiceInfo>((resolve, reject) =>
       client.update(service, (err, res) => (err ? reject(err) : resolve(res!)))
     );
+    // A service with a domainname but no zoneId is using Let's Encrypt
+    if (serviceInfo.getService()?.getDomainname() && !serviceInfo.getZoneId()) {
+      pulumi.log.warn(
+        "Run `defang cert generate` to get a TLS certificate for the service."
+      );
+    }
+    return serviceInfo;
   } catch (err) {
     if ((err as grpc.ServiceError).code === grpc.status.UNAUTHENTICATED) {
       printDefangHint(inputs.fabricDNS);
