@@ -147,7 +147,14 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
     resources.setReservations(reservations);
     deploy.setResources(resources);
   }
-  service.setInternal(inputs.internal ?? true);
+  switch (inputs.networks?.[0]) {
+    case "public":
+      service.setNetworks(pb.Network.PUBLIC);
+      break;
+    case "private":
+      service.setNetworks(pb.Network.PRIVATE);
+      break;
+  }
   service.setDeploy(deploy);
   service.setPlatform(
     inputs.platform === "linux/arm64"
@@ -185,6 +192,16 @@ function convertServiceInputs(inputs: DefangServiceInputs): pb.Service {
     service.setDomainname(inputs.domainname);
   }
   service.setInit(inputs.init ?? false);
+  if (inputs.x_redis) {
+    const redis = new pb.Redis();
+    service.setRedis(redis);
+  }
+  if (inputs.x_static_files) {
+    const staticFiles = new pb.StaticFiles();
+    staticFiles.setFolder(inputs.x_static_files.folder);
+    staticFiles.setRedirectsList(inputs.x_static_files.redirects ?? []);
+    service.setStaticFiles(staticFiles);
+  }
   return service;
 }
 
@@ -343,6 +360,11 @@ function convertPorts(ports: Port[] = []): pb.Port[] {
   });
 }
 
+interface StaticFiles {
+  folder: string;
+  redirects?: string[];
+}
+
 interface DefangServiceInputs {
   build?: pulumi.Unwrap<Build>;
   command?: string[];
@@ -354,11 +376,13 @@ interface DefangServiceInputs {
   healthcheck?: HealthCheck;
   image?: string;
   init?: boolean;
-  internal?: boolean; // defaults to true
   name: string;
+  networks?: [Network];
   platform?: Platform;
   ports?: Port[];
   secrets?: pulumi.Unwrap<Secret>[];
+  x_redis?: unknown;
+  x_static_files?: StaticFiles;
 }
 
 interface DefangServiceOutputs {
@@ -664,6 +688,7 @@ const defangServiceProvider: pulumi.dynamic.ResourceProvider<
 export type Platform = "linux/arm64" | "linux/amd64" | "linux";
 export type Protocol = "tcp" | "udp" | "http" | "http2" | "grpc";
 export type DeviceCapability = "gpu";
+export type Network = "private" | "public";
 
 export interface Port {
   target: number;
@@ -730,8 +755,8 @@ export interface DefangServiceArgs {
   image?: pulumi.Input<string>;
   /** the platform to deploy to; defaults to "linux/amd64" */
   platform?: pulumi.Input<Platform>;
-  /** whether the service requires a public IP or not; defaults to true @deprecated will be removed */
-  internal?: pulumi.Input<boolean>;
+  /** which network the service is in, ie. whether the service requires a public IP or not; defaults to "private" (was: internal=true) */
+  networks?: [Network];
   /** the optional deployment configuration */
   deploy?: pulumi.Input<Deploy>;
   /** the ports to expose */
@@ -750,6 +775,10 @@ export interface DefangServiceArgs {
   healthcheck?: pulumi.Input<HealthCheck>;
   /** the optional fully qualified domain name for the service; requires CNAME to the publicFqdn */
   domainname?: pulumi.Input<string>;
+  /** experimental: mark this service as (managed) Redis */
+  x_redis?: pulumi.Input<unknown>;
+  /** experimental: mark this service as serving static files */
+  x_static_files?: pulumi.Input<StaticFiles>;
 }
 
 /**
@@ -805,5 +834,12 @@ export class DefangService extends pulumi.dynamic.Resource {
       },
       opts
     );
+
+    if (Object.values(args.environment ?? {}).some((v) => v === null)) {
+      pulumi.log.info(
+        "Use `defang config` to manage sensitive environment variables",
+        this
+      );
+    }
   }
 }

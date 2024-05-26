@@ -947,11 +947,18 @@ export class Service extends jspb.Message {
   getDnsRole(): string;
   setDnsRole(value: string): void;
 
-  getStaticFiles(): string;
-  setStaticFiles(value: string): void;
+  hasStaticFiles(): boolean;
+  clearStaticFiles(): void;
+  getStaticFiles(): StaticFiles | undefined;
+  setStaticFiles(value?: StaticFiles): void;
 
   getNetworks(): NetworkMap[keyof NetworkMap];
   setNetworks(value: NetworkMap[keyof NetworkMap]): void;
+
+  hasRedis(): boolean;
+  clearRedis(): void;
+  getRedis(): Redis | undefined;
+  setRedis(value?: Redis): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Service.AsObject;
@@ -979,8 +986,51 @@ export namespace Service {
     domainname: string,
     init: boolean,
     dnsRole: string,
-    staticFiles: string,
+    staticFiles?: StaticFiles.AsObject,
     networks: NetworkMap[keyof NetworkMap],
+    redis?: Redis.AsObject,
+  }
+}
+
+export class StaticFiles extends jspb.Message {
+  getFolder(): string;
+  setFolder(value: string): void;
+
+  clearRedirectsList(): void;
+  getRedirectsList(): Array<string>;
+  setRedirectsList(value: Array<string>): void;
+  addRedirects(value: string, index?: number): string;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): StaticFiles.AsObject;
+  static toObject(includeInstance: boolean, msg: StaticFiles): StaticFiles.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: StaticFiles, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): StaticFiles;
+  static deserializeBinaryFromReader(message: StaticFiles, reader: jspb.BinaryReader): StaticFiles;
+}
+
+export namespace StaticFiles {
+  export type AsObject = {
+    folder: string,
+    redirectsList: Array<string>,
+  }
+}
+
+export class Redis extends jspb.Message {
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Redis.AsObject;
+  static toObject(includeInstance: boolean, msg: Redis): Redis.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: Redis, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Redis;
+  static deserializeBinaryFromReader(message: Redis, reader: jspb.BinaryReader): Redis;
+}
+
+export namespace Redis {
+  export type AsObject = {
   }
 }
 
